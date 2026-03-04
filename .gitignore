@@ -1,0 +1,73 @@
+# Caches & logs
+/cache/
+/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# PHP / Composer
+/vendor
+
+# Node / JS (dependencies)
+/node_modules/
+/.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+
+# testing
+/coverage
+
+# production
+/build
+
+# Public JS / Webpack
+/public/js/webpack/
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backups & dumps
+*.sql.gz
+*.bak
+
+# architecture & deliverables
+# /docs/architecture/*
+# /docs/deliverables/*
+
+# drafts (notes) ac. exception pour créer la dir. vide draft sur Github
+/docs/draft/*
+!/docs/draft/.gitkeep 
+
+# dumps DB
+/sql/dumps/*
+!/sql/dumps/.gitkeep
+
+# Local DB config
+config/database.local.php
