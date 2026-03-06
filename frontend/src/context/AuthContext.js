@@ -4,7 +4,6 @@
  * Fournit le contexte global d'authentification côté client (user, login, logout)
  * et permet de partager l'état de session dans toute l'application React.
  *
- * @author Salem Hadjali
  * @date 03-03-2026
  */
 

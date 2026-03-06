@@ -4,7 +4,6 @@
  * Page de login
  * 
  *
- * @author Salem Hadjali
  * @date 4-03-2026
  */
 
