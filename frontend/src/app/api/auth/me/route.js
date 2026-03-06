@@ -4,7 +4,6 @@
  * Route Handler Next.js qui récupère l'utilisateur actuellement authentifié
  * en lisant le cookie httpOnly contenant le token et en interrogeant l'API backend.
  *
- * @author Salem Hadjali
  * @date 04-03-2026
  */
 

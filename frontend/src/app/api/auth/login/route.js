@@ -5,7 +5,6 @@
  * Reçoit email/password, appelle l’API backend et stocke le token JWT 
  * dans un cookie httpOnly sécurisé.
  *
- * @author Salem Hadjali
  * @date 04-03-2026
  */
 

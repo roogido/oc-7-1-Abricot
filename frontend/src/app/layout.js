@@ -5,7 +5,6 @@
  * Définit la structure globale des pages et injecte les providers 
  * partagés (ex: AuthContext).
  *
- * @author Salem Hadjali
  * @date 03-03-2026
  */
 
