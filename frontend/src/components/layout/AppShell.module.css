@@ -1,0 +1,31 @@
+.page {
+	min-height: 100vh;
+	background-color: #000000;
+}
+
+.appFrame {
+	width: 100%;
+	max-width: 1440px;
+	min-height: 100vh;
+	margin: 0 auto;
+	background-color: var(--color-gray-light);
+	display: flex;
+	flex-direction: column;
+}
+
+.main {
+	flex: 1;
+	padding: 32px;
+}
+
+@media (max-width: 900px) {
+	.main {
+		padding: 24px;
+	}
+}
+
+@media (max-width: 560px) {
+	.main {
+		padding: 20px 16px;
+	}
+}

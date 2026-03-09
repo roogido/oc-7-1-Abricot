@@ -1,7 +1,7 @@
 /**
- * @file src/app/api/auth/login/route.js
+ * @file src/app/api/auth/register/route.js
  * @description
- * Route Handler Next.js de connexion utilisateur.
+ * Route Handler Next.js d'inscription utilisateur.
  */
 
 import { NextResponse } from 'next/server';
@@ -12,12 +12,12 @@ import {
 	TOKEN_PATH,
 } from '@/lib/authConstants';
 import { ApiClientError } from '@/services/apiClient';
-import { loginUser } from '@/services/authService';
+import { registerUser } from '@/services/authService';
 
 /**
- * Traite la connexion utilisateur.
- * Valide la charge utile, appelle le service d'authentification
- * et stocke le token dans un cookie httpOnly.
+ * Traite l'inscription utilisateur.
+ * Valide le payload, appelle le service d'inscription
+ * et stocke l e token dans un cookie httpOnly.
  *
  * @param {Request} request Requête HTTP entrante
  * @returns {Promise<NextResponse>} Réponse JSON de succès ou d'erreur
@@ -43,7 +43,7 @@ export async function POST(request) {
 			);
 		}
 
-		const data = await loginUser({
+		const data = await registerUser({
 			email,
 			password,
 		});
@@ -51,16 +51,16 @@ export async function POST(request) {
 		const token = data?.data?.token;
 		const user = data?.data?.user ?? null;
 
-		if (!token) {
+		if (!token || !user) {
 			return NextResponse.json(
-				{ success: false, message: 'Login failed' },
-				{ status: 401 },
+				{ success: false, message: 'Register failed' },
+				{ status: 500 },
 			);
 		}
 
 		const response = NextResponse.json({
 			success: true,
-			message: 'Login ok',
+			message: 'Register ok',
 			data: { user },
 		});
 
@@ -78,7 +78,12 @@ export async function POST(request) {
 		// Erreur métier remontée par le client API
 		if (error instanceof ApiClientError) {
 			return NextResponse.json(
-				{ success: false, message: error.message },
+				{
+					success: false,
+					message: error.message,
+					data: error.data?.data ?? null,
+					error: error.data?.error ?? null,
+				},
 				{ status: error.status },
 			);
 		}
