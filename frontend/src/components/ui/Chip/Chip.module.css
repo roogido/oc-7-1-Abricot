@@ -13,10 +13,10 @@
 	font-weight: var(--chip-font-weight);
 	color: var(--chip-text-default);
 	cursor: pointer;
+	text-decoration: none;
 	transition:
 		background-color 0.2s ease,
 		color 0.2s ease,
-		border-color 0.2s ease,
 		transform 0.2s ease;
 }
 
@@ -32,7 +32,6 @@
 .active {
 	background-color: var(--chip-bg-hover);
 	color: var(--chip-text-hover);
-	border-color: transparent;
 }
 
 .compact {

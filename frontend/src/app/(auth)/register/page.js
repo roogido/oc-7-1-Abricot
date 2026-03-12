@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import PasswordInput from '@/components/ui/Password/PasswordInput';
-import AuthPageShell from '@/components/layout/AuthPageShell';
+import AuthPageShell from '@/components/layout/AuthPageShell/AuthPageShell';
 
 import registerVisual from '@/assets/images/auth/register.png';
 import styles from '../auth.module.css';

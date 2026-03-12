@@ -1,7 +1,5 @@
 .page {
-	display: flex;
-	flex-direction: column;
-	gap: 60px;
+	width: 100%;
 	padding-top: 54px;
 	padding-bottom: 96px;
 }
@@ -23,37 +21,35 @@
 }
 
 .kanbanSection {
-	width: calc(100% - 139px);
+	width: 100%;
 	max-width: 1301px;
-	margin: 0 auto;
-}
-
-@media (max-width: 1400px) {
-	.kanbanSection {
-		width: calc(100% - 64px);
-	}
+	margin: 60px auto 0;
 }
 
 @media (max-width: 900px) {
 	.page {
-		gap: 40px;
 		padding-top: 48px;
 		padding-bottom: 72px;
 	}
 
 	.introSection {
 		gap: 40px;
-		padding-left: 16px;
-		padding-right: 16px;
-	}
-
-	.viewSwitch {
-		margin-top: -12px;
-		flex-wrap: wrap;
+		padding-left: 24px;
+		padding-right: 24px;
+		box-sizing: border-box;
 	}
 
 	.kanbanSection {
-		width: 100%;
+		margin-top: 40px;
+		padding-left: 24px;
+		padding-right: 24px;
+		box-sizing: border-box;
+	}
+}
+
+@media (max-width: 576px) {
+	.introSection,
+	.kanbanSection {
 		padding-left: 16px;
 		padding-right: 16px;
 	}

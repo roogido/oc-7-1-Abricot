@@ -1,14 +1,13 @@
 /**
  * @file src/app/(protected)/dashboard/page.js
  * @description
- * Page "Tableau de bord" en vue liste.
+ * Page dashboard en vue liste.
  */
 
-import Button from '@/components/ui/Button/Button';
-import Chip from '@/components/ui/Chip/Chip';
 import PageIntro from '@/components/layout/PageIntro/PageIntro';
+import Chip from '@/components/ui/Chip/Chip';
+import Button from '@/components/ui/Button/Button';
 import SearchInput from '@/components/ui/SearchInput/SearchInput';
-
 import DashboardCardsFrame from '@/components/dashboard/DashboardCardsFrame/DashboardCardsFrame';
 import TaskCardDashboardList from '@/components/tasks/TaskCardDashboardList/TaskCardDashboardList';
 
@@ -17,13 +16,7 @@ import kanbanIcon from '@/assets/icons/kanban-icon.png';
 
 import styles from './page.module.css';
 
-/**
- * Donnees de demonstration.
- */
-const currentUser = {
-	firstName: 'Alice',
-	lastName: 'Dupont',
-};
+const fullName = 'Alice Dupont';
 
 const assignedTasks = [
 	{
@@ -34,7 +27,7 @@ const assignedTasks = [
 		statusLabel: 'À faire',
 		projectName: 'Nom du projet',
 		dueDate: '9 mars',
-		commentsCount: 2,
+		commentCount: 2,
 	},
 	{
 		id: 2,
@@ -44,7 +37,7 @@ const assignedTasks = [
 		statusLabel: 'En cours',
 		projectName: 'Nom du projet',
 		dueDate: '9 mars',
-		commentsCount: 2,
+		commentCount: 2,
 	},
 	{
 		id: 3,
@@ -54,7 +47,7 @@ const assignedTasks = [
 		statusLabel: 'À faire',
 		projectName: 'Nom du projet',
 		dueDate: '9 mars',
-		commentsCount: 2,
+		commentCount: 2,
 	},
 	{
 		id: 4,
@@ -64,51 +57,34 @@ const assignedTasks = [
 		statusLabel: 'À faire',
 		projectName: 'Nom du projet',
 		dueDate: '9 mars',
-		commentsCount: 2,
+		commentCount: 2,
 	},
 ];
 
-/**
- * Page principale du tableau de bord en vue liste.
- *
- * @returns {JSX.Element} Interface du dashboard liste
- */
 export default function DashboardPage() {
-	const fullName = `${currentUser.firstName} ${currentUser.lastName}`;
-
 	return (
 		<section className={styles.page}>
 			<PageIntro
 				title="Tableau de bord"
 				subtitle={`Bonjour ${fullName}, voici un aperçu de vos projets et tâches`}
-				actions={<Button type="button">+ Créer un projet</Button>}
+				actions={<Button>+ Créer un projet</Button>}
 			/>
 
 			<div className={styles.viewSwitch}>
-				<Chip icon={checkedIcon} active>
+				<Chip icon={checkedIcon} href="/dashboard" active>
 					Liste
 				</Chip>
 
-				<Chip icon={kanbanIcon}>Kanban</Chip>
+				<Chip icon={kanbanIcon} href="/dashboard/kanban">
+					Kanban
+				</Chip>
 			</div>
 
-			<DashboardCardsFrame>
-				<div className={styles.frameHeader}>
-					<div className={styles.frameHeading}>
-						<h2 className={styles.frameTitle}>
-							Mes tâches assignées
-						</h2>
-						<p className={styles.frameSubtitle}>
-							Par ordre de priorité
-						</p>
-					</div>
-
-					<SearchInput
-						placeholder="Rechercher une tâche"
-						ariaLabel="Rechercher une tâche"
-					/>
-				</div>
-
+			<DashboardCardsFrame
+				title="Mes tâches assignées"
+				subtitle="Par ordre de priorité"
+				actions={<SearchInput placeholder="Rechercher une tâche" />}
+			>
 				<div className={styles.cardsList}>
 					{assignedTasks.map((task) => (
 						<TaskCardDashboardList key={task.id} {...task} />

@@ -1,22 +1,22 @@
 /**
- * Rappel utile pour ton composant Chip.
- * Il faut bien qu'il accepte la prop `active`.
- *
  * @file src/components/ui/Chip/Chip.js
+ * @description
+ * Composant chip reutilisable de l'interface Abricot.
  */
 
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from './Chip.module.css';
 
 /**
- * Chip reutilisable de l'interface Abricot.
+ * Affiche un chip cliquable sous forme de bouton ou de lien.
  *
  * @param {Object} props
- * @param {any} [props.icon]
+ * @param {string} [props.icon]
  * @param {React.ReactNode} props.children
  * @param {Function} [props.onClick]
  * @param {boolean} [props.active=false]
- * @param {boolean} [props.compact=false]
+ * @param {string} [props.href]
  * @returns {JSX.Element}
  */
 export default function Chip({
@@ -24,18 +24,12 @@ export default function Chip({
 	children,
 	onClick,
 	active = false,
-	compact = false,
+	href,
 }) {
-	const className = [
-		styles.chip,
-		compact ? styles.compact : '',
-		active ? styles.active : '',
-	]
-		.filter(Boolean)
-		.join(' ');
+	const className = `${styles.chip} ${active ? styles.active : ''}`.trim();
 
-	return (
-		<button type="button" className={className} onClick={onClick}>
+	const content = (
+		<>
 			{icon ? (
 				<Image
 					src={icon}
@@ -46,6 +40,20 @@ export default function Chip({
 			) : null}
 
 			<span>{children}</span>
+		</>
+	);
+
+	if (href) {
+		return (
+			<Link href={href} className={className}>
+				{content}
+			</Link>
+		);
+	}
+
+	return (
+		<button type="button" className={className} onClick={onClick}>
+			{content}
 		</button>
 	);
 }

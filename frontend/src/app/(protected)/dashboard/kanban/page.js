@@ -137,8 +137,8 @@ const kanbanColumns = [
  */
 export default function DashboardKanbanPage() {
 	return (
-		<section className={styles.page}>
-			<div className={styles.introSection}>
+		<div className={styles.page}>
+			<section className={styles.introSection}>
 				<PageIntro
 					title="Tableau de bord"
 					subtitle={`Bonjour ${fullName}, voici un aperçu de vos projets et tâches`}
@@ -146,17 +146,19 @@ export default function DashboardKanbanPage() {
 				/>
 
 				<div className={styles.viewSwitch}>
-					<Chip icon={checkedIcon}>Liste</Chip>
+					<Chip icon={checkedIcon} href="/dashboard">
+						Liste
+					</Chip>
 
-					<Chip icon={kanbanIcon} active>
+					<Chip icon={kanbanIcon} href="/dashboard/kanban" active>
 						Kanban
 					</Chip>
 				</div>
-			</div>
+			</section>
 
 			<section className={styles.kanbanSection}>
 				<DashboardKanbanBoard columns={kanbanColumns} />
 			</section>
-		</section>
+		</div>
 	);
 }
