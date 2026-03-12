@@ -13,8 +13,8 @@ import { useAuth } from '@/hooks/useAuth';
 import styles from './Navbar.module.css';
 
 import logoHeader from '@/assets/images/layout/logo-header.png';
-import dashboardIcon from '@/assets/images/layout/dashboard-icon.png';
-import projectIcon from '@/assets/images/layout/project-icon.png';
+import dashboardIcon from '@/assets/icons/dashboard-icon.png';
+import projectIcon from '@/assets/icons/project-icon.png';
 
 /**
  * Génère les initiales à afficher dans l'avatar utilisateur.

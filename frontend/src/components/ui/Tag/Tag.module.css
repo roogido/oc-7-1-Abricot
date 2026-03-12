@@ -1,0 +1,47 @@
+.tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: var(--tag-height);
+    padding: 0 var(--tag-padding-x);
+
+    border-radius: var(--tag-radius);
+
+    font-size: var(--tag-font-size);
+    font-weight: var(--tag-font-weight);
+
+    white-space: nowrap;
+}
+
+/* variants */
+
+.green {
+    background: var(--tag-green-bg);
+    color: var(--tag-green-text);
+}
+
+.red {
+    background: var(--tag-red-bg);
+    color: var(--tag-red-text);
+}
+
+.orange {
+    background: var(--tag-orange-bg);
+    color: var(--tag-orange-text);
+}
+
+.blue {
+    background: var(--tag-blue-bg);
+    color: var(--tag-blue-text);
+}
+
+.brand {
+    background: var(--tag-brand-bg);
+    color: var(--tag-brand-text);
+}
+
+.grey {
+    background: var(--tag-grey-bg);
+    color: var(--tag-grey-text);
+}

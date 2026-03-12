@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import PasswordInput from '@/components/ui/PasswordInput';
+import PasswordInput from '@/components/ui/Password/PasswordInput';
 import AuthPageShell from '@/components/layout/AuthPageShell';
 
 import registerVisual from '@/assets/images/auth/register.png';

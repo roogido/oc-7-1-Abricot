@@ -1,0 +1,22 @@
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.owner {
+    background: var(--tag-brand-bg);
+    color: var(--tag-brand-text);
+}
+
+.member {
+    background: var(--tag-grey-bg);
+    color: var(--tag-grey-text);
+}

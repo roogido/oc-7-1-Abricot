@@ -1,0 +1,60 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: 60px;
+	padding-top: 54px;
+	padding-bottom: 96px;
+}
+
+.introSection {
+	width: 100%;
+	max-width: 1166px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 60px;
+}
+
+.viewSwitch {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: -28px;
+}
+
+.kanbanSection {
+	width: calc(100% - 139px);
+	max-width: 1301px;
+	margin: 0 auto;
+}
+
+@media (max-width: 1400px) {
+	.kanbanSection {
+		width: calc(100% - 64px);
+	}
+}
+
+@media (max-width: 900px) {
+	.page {
+		gap: 40px;
+		padding-top: 48px;
+		padding-bottom: 72px;
+	}
+
+	.introSection {
+		gap: 40px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.viewSwitch {
+		margin-top: -12px;
+		flex-wrap: wrap;
+	}
+
+	.kanbanSection {
+		width: 100%;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+}

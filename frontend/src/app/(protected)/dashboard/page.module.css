@@ -1,0 +1,103 @@
+.page {
+	width: 100%;
+	max-width: 1166px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 60px;
+	padding-top: 54px;
+	padding-bottom: 96px;
+}
+
+.viewSwitch {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: -4px;
+}
+
+.frameHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+}
+
+.frameHeading {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.frameTitle {
+	margin: 0;
+	color: #1f1f1f;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.frameSubtitle {
+	margin: 0;
+	color: #6b7280;
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.cardsList {
+	margin-top: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.cardsList > * + * {
+	margin-top: 13px;
+}
+
+@media (max-width: 900px) {
+	.page {
+		gap: 40px;
+		padding-top: 48px;
+		padding-bottom: 72px;
+	}
+
+	.frameHeader {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.frameHeader :global(input) {
+		width: 100%;
+	}
+}
+
+@media (max-width: 576px) {
+	.page {
+		padding-top: 40px;
+		padding-bottom: 56px;
+		gap: 32px;
+	}
+
+	.frameTitle {
+		font-size: 17px;
+	}
+
+	.frameSubtitle {
+		font-size: 14px;
+	}
+
+	.cardsList {
+		margin-top: 20px;
+	}
+}
+
+@media (max-width: 367px) {
+	.page {
+		padding-top: 32px;
+		padding-bottom: 40px;
+	}
+}

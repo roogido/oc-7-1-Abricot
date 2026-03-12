@@ -1,0 +1,389 @@
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding: 24px 40px 25px;
+	background-color: var(--color-white);
+	border: 1px solid var(--color-gray-border);
+	border-radius: 10px;
+}
+
+.topRow {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+}
+
+.mainContent {
+	flex: 1;
+	min-width: 0;
+}
+
+.titleRow {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.title {
+	margin: 0;
+	color: #0f0f0f;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.description {
+	margin: 8px 0 0;
+	color: #6b7280;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.25;
+}
+
+.moreButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 57px;
+	height: 57px;
+	flex: 0 0 auto;
+	border: 1px solid var(--color-gray-border);
+	border-radius: 10px;
+	background-color: var(--color-white);
+	transition:
+		background-color var(--transition-fast),
+		border-color var(--transition-fast),
+		transform var(--transition-fast);
+}
+
+.moreButton:hover,
+.moreButton:focus-visible {
+	background-color: var(--color-primary-soft);
+	border-color: var(--color-primary);
+}
+
+.moreButton:active {
+	transform: translateY(1px);
+}
+
+.moreIcon {
+	width: 15px;
+	height: 3.57px;
+	object-fit: contain;
+}
+
+.metaBlock {
+	margin-top: 19px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.metaRow {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.metaLabel {
+	color: #6b7280;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.metaValue {
+	color: #1f1f1f;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.dateWrapper {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.calendarIcon {
+	width: 12px;
+	height: 12px;
+	object-fit: contain;
+	flex: 0 0 auto;
+}
+
+.assignees {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.assigneeItem {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.separator {
+	margin-top: 24px;
+	height: 1px;
+	background-color: var(--color-gray-border);
+}
+
+.commentsToggle {
+	margin-top: 17px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+	border: none;
+	background: transparent;
+	padding: 0;
+	text-align: left;
+	cursor: pointer;
+}
+
+.commentsCount {
+	color: #1f1f1f;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.chevron {
+	width: 16px;
+	height: 8px;
+	flex: 0 0 auto;
+	object-fit: contain;
+	transition: transform var(--transition-fast);
+}
+
+.chevronExpanded {
+	transform: rotate(180deg);
+}
+
+.commentsSection {
+	margin-top: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.commentsList {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.commentRow {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+}
+
+.commentAvatarWrapper {
+	flex: 0 0 auto;
+	padding-top: 4px;
+}
+
+.commentBox {
+	flex: 1;
+	min-width: 0;
+	padding: 14px 18px;
+	background-color: #f9fafb;
+	border: 1px solid #f9fafb;
+	border-radius: 10px;
+}
+
+.commentHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.commentAuthor {
+	color: #000000;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.commentDate {
+	color: #6b7280;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+.commentText {
+	margin: 14px 0 0;
+	color: #000000;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.addCommentForm {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.commentTextarea {
+	flex: 1;
+	min-height: 83px;
+	padding: 14px 18px;
+	border: 1px solid #f9fafb;
+	border-radius: 10px;
+	background-color: #f9fafb;
+	color: #000000;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.2;
+	resize: vertical;
+	outline: none;
+	transition:
+		border-color var(--transition-fast),
+		box-shadow var(--transition-fast),
+		background-color var(--transition-fast);
+}
+
+.commentTextarea::placeholder {
+	color: #000000;
+	opacity: 1;
+}
+
+.commentTextarea:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
+	background-color: var(--color-white);
+}
+
+.formActions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.submitButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 209px;
+	height: 50px;
+	padding: 0 20px;
+	border: 1px solid var(--color-gray-border);
+	border-radius: 10px;
+	background-color: #e5e7eb;
+	color: #9ca3af;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1;
+	cursor: not-allowed;
+	transition:
+		background-color var(--transition-fast),
+		color var(--transition-fast),
+		border-color var(--transition-fast),
+		transform var(--transition-fast);
+}
+
+.submitButtonActive {
+	background-color: var(--color-dark);
+	border-color: var(--color-dark);
+	color: var(--color-white);
+	cursor: pointer;
+}
+
+.submitButtonActive:hover,
+.submitButtonActive:focus-visible {
+	background-color: var(--color-black);
+	border-color: var(--color-black);
+}
+
+.submitButtonActive:active {
+	transform: translateY(1px);
+}
+
+.visuallyHidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+@media (max-width: 992px) {
+	.card {
+		padding: 24px;
+	}
+
+	.topRow {
+		gap: 16px;
+	}
+
+	.moreButton {
+		width: 48px;
+		height: 48px;
+	}
+
+	.commentHeader {
+		flex-direction: column;
+		gap: 8px;
+	}
+}
+
+@media (max-width: 576px) {
+	.card {
+		padding: 20px 16px;
+	}
+
+	.topRow {
+		flex-direction: column;
+	}
+
+	.moreButton {
+		align-self: flex-end;
+	}
+
+	.commentRow {
+		gap: 10px;
+	}
+
+	.commentBox,
+	.commentTextarea {
+		padding: 12px 14px;
+	}
+
+	.formActions {
+		justify-content: stretch;
+	}
+
+	.submitButton {
+		width: 100%;
+	}
+}
+
+@media (max-width: 367px) {
+	.card {
+		padding: 16px 12px;
+	}
+
+	.title {
+		font-size: 16px;
+	}
+
+	.description {
+		font-size: 13px;
+	}
+}

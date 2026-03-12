@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import PasswordInput from '@/components/ui/PasswordInput';
+import PasswordInput from '@/components/ui/Password/PasswordInput';
 import styles from './page.module.css';
 
 /**

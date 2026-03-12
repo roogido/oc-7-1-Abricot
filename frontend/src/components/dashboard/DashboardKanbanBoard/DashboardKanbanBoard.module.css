@@ -1,0 +1,12 @@
+.board {
+	display: flex;
+	align-items: flex-start;
+	gap: 22px;
+	width: 100%;
+}
+
+@media (max-width: 1200px) {
+	.board {
+		flex-direction: column;
+	}
+}
