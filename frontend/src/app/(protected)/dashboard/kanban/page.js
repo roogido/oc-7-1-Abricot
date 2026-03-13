@@ -8,8 +8,8 @@ import { cookies } from 'next/headers';
 
 import PageIntro from '@/components/layout/PageIntro/PageIntro';
 import Chip from '@/components/ui/Chip/Chip';
-import Button from '@/components/ui/Button/Button';
 import DashboardKanbanBoard from '@/components/dashboard/DashboardKanbanBoard/DashboardKanbanBoard';
+import DashboardCreateProjectAction from '@/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction';
 
 import checkedIcon from '@/assets/icons/checked-icon.png';
 import kanbanIcon from '@/assets/icons/kanban-icon.png';
@@ -27,11 +27,6 @@ import { getProjects } from '@/services/projectService';
 
 import styles from './page.module.css';
 
-/**
- * Page dashboard en vue kanban.
- *
- * @returns {Promise<JSX.Element>} Interface dashboard kanban
- */
 export default async function DashboardKanbanPage() {
 	const user = await requireUser();
 
@@ -69,8 +64,8 @@ export default async function DashboardKanbanPage() {
 			<section className={styles.introSection}>
 				<PageIntro
 					title="Tableau de bord"
-					subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un aperçu de vos projets et tâches`}
-					actions={<Button>+ Créer un projet</Button>}
+					subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un apercu de vos projets et taches`}
+					actions={<DashboardCreateProjectAction />}
 				/>
 
 				<div className={styles.viewSwitch}>
