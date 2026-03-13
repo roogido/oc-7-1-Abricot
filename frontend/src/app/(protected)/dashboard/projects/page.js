@@ -8,9 +8,9 @@ import { cookies } from 'next/headers';
 
 import PageIntro from '@/components/layout/PageIntro/PageIntro';
 import Chip from '@/components/ui/Chip/Chip';
-import Button from '@/components/ui/Button/Button';
 import DashboardCardsFrame from '@/components/dashboard/DashboardCardsFrame/DashboardCardsFrame';
 import TaskCardDashboardList from '@/components/tasks/TaskCardDashboardList/TaskCardDashboardList';
+import DashboardCreateProjectAction from '@/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction';
 
 import checkedIcon from '@/assets/icons/checked-icon.png';
 import kanbanIcon from '@/assets/icons/kanban-icon.png';
@@ -53,8 +53,8 @@ export default async function DashboardProjectsPage() {
 		<section className={styles.page}>
 			<PageIntro
 				title="Tableau de bord"
-				subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un aperçu de vos projets et tâches`}
-				actions={<Button>+ Créer un projet</Button>}
+				subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un apercu de vos projets et taches`}
+				actions={<DashboardCreateProjectAction />}
 			/>
 
 			<div className={styles.viewSwitch}>
@@ -78,14 +78,14 @@ export default async function DashboardProjectsPage() {
 			) : projectsWithTasks.length === 0 ? (
 				<section className={styles.feedbackSection}>
 					<p className={styles.feedbackMessage}>
-						Aucun projet avec tâches assignées pour le moment.
+						Aucun projet avec taches assignees pour le moment.
 					</p>
 				</section>
 			) : (
 				<div className={styles.projectsGroups}>
 					<DashboardCardsFrame
 						title="Mes projets"
-						subtitle="Projets dans lesquels vous avez des tâches assignées"
+						subtitle="Projets dans lesquels vous avez des taches assignees"
 					>
 						<div className={styles.projectsList}>
 							{projectsWithTasks.map((project) => (
