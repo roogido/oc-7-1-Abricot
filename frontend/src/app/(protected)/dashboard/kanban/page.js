@@ -4,6 +4,8 @@
  * Page dashboard en vue kanban.
  */
 
+import { cookies } from 'next/headers';
+
 import PageIntro from '@/components/layout/PageIntro/PageIntro';
 import Chip from '@/components/ui/Chip/Chip';
 import Button from '@/components/ui/Button/Button';
@@ -11,137 +13,63 @@ import DashboardKanbanBoard from '@/components/dashboard/DashboardKanbanBoard/Da
 
 import checkedIcon from '@/assets/icons/checked-icon.png';
 import kanbanIcon from '@/assets/icons/kanban-icon.png';
+import projectIcon from '@/assets/icons/project-icon.png';
+
+import { TOKEN_COOKIE } from '@/lib/authConstants';
+import { requireUser } from '@/lib/authServer';
+import {
+	extractAssignedTasks,
+	buildProjectsNameMap,
+	buildDashboardKanbanColumns,
+} from '@/lib/mappers/taskMapper';
+import { getAssignedTasks } from '@/services/dashboardService';
+import { getProjects } from '@/services/projectService';
 
 import styles from './page.module.css';
-
-const fullName = 'Alice Dupont';
-
-const kanbanColumns = [
-	{
-		id: 'todo',
-		title: 'À faire',
-		count: 4,
-		tasks: [
-			{
-				id: 1,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'red',
-				statusLabel: 'À faire',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 2,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'red',
-				statusLabel: 'À faire',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 3,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'red',
-				statusLabel: 'À faire',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-		],
-	},
-	{
-		id: 'in-progress',
-		title: 'En cours',
-		count: 4,
-		tasks: [
-			{
-				id: 4,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'orange',
-				statusLabel: 'En cours',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 5,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'orange',
-				statusLabel: 'En cours',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 6,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'orange',
-				statusLabel: 'En cours',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-		],
-	},
-	{
-		id: 'done',
-		title: 'Terminées',
-		count: 4,
-		tasks: [
-			{
-				id: 7,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'green',
-				statusLabel: 'Terminée',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 8,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'green',
-				statusLabel: 'Terminée',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-			{
-				id: 9,
-				title: 'Nom de la tâche',
-				description: 'Description de la tâche',
-				statusVariant: 'green',
-				statusLabel: 'Terminée',
-				projectName: 'Nom du projet',
-				dueDate: '9 mars',
-				commentCount: 2,
-			},
-		],
-	},
-];
 
 /**
  * Page dashboard en vue kanban.
  *
- * @returns {JSX.Element} Interface dashboard kanban
+ * @returns {Promise<JSX.Element>} Interface dashboard kanban
  */
-export default function DashboardKanbanPage() {
+export default async function DashboardKanbanPage() {
+	const user = await requireUser();
+
+	const cookieStore = await cookies();
+	const token = cookieStore.get(TOKEN_COOKIE)?.value;
+
+	let kanbanColumns = [];
+	let errorMessage = '';
+
+	if (!token) {
+		errorMessage = 'Session introuvable.';
+	} else {
+		try {
+			const [assignedTasksResponse, projectsResponse] = await Promise.all(
+				[getAssignedTasks(token), getProjects(token)],
+			);
+
+			const projectsMap = buildProjectsNameMap(projectsResponse);
+			const assignedTasks = extractAssignedTasks(
+				assignedTasksResponse,
+				projectsMap,
+			);
+
+			kanbanColumns = buildDashboardKanbanColumns(assignedTasks);
+		} catch (error) {
+			errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Impossible de charger le tableau kanban.';
+		}
+	}
+
 	return (
 		<div className={styles.page}>
 			<section className={styles.introSection}>
 				<PageIntro
 					title="Tableau de bord"
-					subtitle={`Bonjour ${fullName}, voici un aperçu de vos projets et tâches`}
+					subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un aperçu de vos projets et tâches`}
 					actions={<Button>+ Créer un projet</Button>}
 				/>
 
@@ -153,11 +81,19 @@ export default function DashboardKanbanPage() {
 					<Chip icon={kanbanIcon} href="/dashboard/kanban" active>
 						Kanban
 					</Chip>
+
+					<Chip icon={projectIcon} href="/dashboard/projects">
+						Projets
+					</Chip>
 				</div>
 			</section>
 
 			<section className={styles.kanbanSection}>
-				<DashboardKanbanBoard columns={kanbanColumns} />
+				{errorMessage ? (
+					<p className={styles.feedbackMessage}>{errorMessage}</p>
+				) : (
+					<DashboardKanbanBoard columns={kanbanColumns} />
+				)}
 			</section>
 		</div>
 	);

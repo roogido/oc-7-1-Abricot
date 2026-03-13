@@ -29,7 +29,8 @@ export default function DashboardKanbanColumn({ title, count, tasks = [] }) {
 						statusLabel={task.statusLabel}
 						projectName={task.projectName}
 						dueDate={task.dueDate}
-						commentCount={task.commentCount}
+						commentsCount={task.commentsCount}
+						viewHref={task.viewHref}
 					/>
 				))}
 			</div>

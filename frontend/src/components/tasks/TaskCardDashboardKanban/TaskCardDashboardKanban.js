@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import Button from '@/components/ui/Button/Button';
+import Link from 'next/link';
+
 import Tag from '@/components/ui/Tag/Tag';
 
 import projectIcon from '@/assets/icons/project-icon.png';
@@ -18,7 +19,8 @@ import styles from './TaskCardDashboardKanban.module.css';
  * @param {string} props.statusLabel
  * @param {string} props.projectName
  * @param {string} props.dueDate
- * @param {number} props.commentCount
+ * @param {number} props.commentsCount
+ * @param {string} props.viewHref
  * @returns {JSX.Element} Carte de tache kanban
  */
 export default function TaskCardDashboardKanban({
@@ -28,7 +30,8 @@ export default function TaskCardDashboardKanban({
 	statusLabel,
 	projectName,
 	dueDate,
-	commentCount,
+	commentsCount,
+	viewHref,
 }) {
 	return (
 		<article className={styles.card}>
@@ -73,12 +76,14 @@ export default function TaskCardDashboardKanban({
 						aria-hidden="true"
 						className={styles.commentIcon}
 					/>
-					<span>{commentCount}</span>
+					<span>{commentsCount}</span>
 				</div>
 			</div>
 
 			<div className={styles.actions}>
-				<Button>Voir</Button>
+				<Link href={viewHref} className={styles.viewLink}>
+					Voir
+				</Link>
 			</div>
 		</article>
 	);

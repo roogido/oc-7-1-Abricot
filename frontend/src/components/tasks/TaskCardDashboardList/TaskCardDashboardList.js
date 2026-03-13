@@ -5,7 +5,8 @@
  */
 
 import Image from 'next/image';
-import Button from '@/components/ui/Button/Button';
+import Link from 'next/link';
+
 import Tag from '@/components/ui/Tag/Tag';
 
 import projectIcon from '@/assets/icons/project-icon.png';
@@ -25,6 +26,7 @@ import styles from './TaskCardDashboardList.module.css';
  * @param {string} props.projectName
  * @param {string} props.dueDate
  * @param {number} props.commentsCount
+ * @param {string} props.viewHref
  * @returns {JSX.Element} Carte de tache du dashboard liste
  */
 export default function TaskCardDashboardList({
@@ -35,6 +37,7 @@ export default function TaskCardDashboardList({
 	projectName,
 	dueDate,
 	commentsCount,
+	viewHref,
 }) {
 	return (
 		<article className={styles.card}>
@@ -85,7 +88,9 @@ export default function TaskCardDashboardList({
 				<div className={styles.side}>
 					<Tag variant={statusVariant}>{statusLabel}</Tag>
 
-					<Button type="button">Voir</Button>
+					<Link href={viewHref} className={styles.viewLink}>
+						Voir
+					</Link>
 				</div>
 			</div>
 		</article>

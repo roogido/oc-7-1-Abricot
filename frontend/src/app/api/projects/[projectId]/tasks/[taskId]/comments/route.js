@@ -1,20 +1,19 @@
 /**
- * @file src/app/api/auth/me/route.js
+ * @file src/app/api/projects/[projectId]/tasks/[taskId]/comments/route.js
  * @description
- * Route Handler Next.js retournant l'utilisateur authentifié
- * à partir du cookie JWT httpOnly.
+ * Proxy interne Next.js pour la creation d'un commentaire de tache.
  */
 
 import { NextResponse } from 'next/server';
+
 import { TOKEN_COOKIE, TOKEN_SAMESITE, TOKEN_PATH } from '@/lib/authConstants';
-import { ApiClientError } from '@/services/apiClient';
-import { getCurrentUser } from '@/services/authService';
-import { extractApiUser } from '@/lib/mappers/userMapper';
+import { apiRequest, ApiClientError } from '@/services/apiClient';
 
-export async function GET(request) {
+export async function POST(request, context) {
 	try {
+		const { projectId, taskId } = await context.params;
 		const token = request.cookies.get(TOKEN_COOKIE)?.value;
-
+     
 		if (!token) {
 			return NextResponse.json(
 				{ success: false, message: 'Not authenticated' },
@@ -22,18 +21,31 @@ export async function GET(request) {
 			);
 		}
 
-		const data = await getCurrentUser(token);
-		const user = extractApiUser(data);
+		const body = await request.json().catch(() => null);
+		const content =
+			typeof body?.content === 'string' ? body.content.trim() : '';
 
-		return NextResponse.json({
-			success: true,
-			message: 'Me ok',
-			data: { user },
-		});
+		if (content === '') {
+			return NextResponse.json(
+				{ success: false, message: 'Le commentaire est requis.' },
+				{ status: 400 },
+			);
+		}
+
+		const data = await apiRequest(
+			`/projects/${projectId}/tasks/${taskId}/comments`,
+			{
+				method: 'POST',
+				token,
+				body: { content },
+			},
+		);
+
+		return NextResponse.json(data);
 	} catch (error) {
 		if (error instanceof ApiClientError) {
 			const response = NextResponse.json(
-				{ success: false, message: error.message },
+				{ success: false, message: error.message, data: error.data },
 				{ status: error.status },
 			);
 

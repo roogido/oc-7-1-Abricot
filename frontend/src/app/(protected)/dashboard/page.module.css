@@ -58,6 +58,16 @@
 	margin-top: 13px;
 }
 
+.feedbackSection {
+	padding: 0;
+}
+
+.feedbackMessage {
+	margin: 0;
+	padding: 1rem 0;
+	font-size: 1rem;
+}
+
 @media (max-width: 900px) {
 	.page {
 		gap: 40px;

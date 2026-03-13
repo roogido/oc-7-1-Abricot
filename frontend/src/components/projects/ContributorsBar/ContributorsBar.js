@@ -1,5 +1,5 @@
 /**
- * @file ContributorsBar.js
+ * @file src/components/projects/ContributorsBar/ContributorsBar.js
  * @description
  * Barre affichant les contributeurs d'un projet.
  */
@@ -29,6 +29,10 @@ function isOwnerUser(user) {
  * @returns {JSX.Element}
  */
 export default function ContributorsBar({ contributors = [] }) {
+	const ownerUsers = contributors.filter(isOwnerUser);
+	const memberUsers = contributors.filter((user) => !isOwnerUser(user));
+	const contributorsCount = memberUsers.length;
+
 	return (
 		<section
 			className={styles.container}
@@ -37,31 +41,30 @@ export default function ContributorsBar({ contributors = [] }) {
 			<div className={styles.left}>
 				<span className={styles.title}>Contributeurs</span>
 				<span className={styles.count}>
-					{contributors.length} personnes
+					{contributorsCount}{' '}
+					{contributorsCount > 1 ? 'personnes' : 'personne'}
 				</span>
 			</div>
 
 			<div className={styles.right}>
-				{contributors.map((user) => {
-					const isOwner = isOwnerUser(user);
+				{ownerUsers.map((user) => (
+					<div key={user.id} className={styles.user}>
+						<UserAvatar initials={user.initials} variant="owner" />
+						<Tag variant="brand">{user.role}</Tag>
+					</div>
+				))}
 
-					return (
-						<div key={user.id} className={styles.user}>
-							<UserAvatar
-								initials={user.initials}
-								variant={isOwner ? 'owner' : 'member'}
-							/>
-
-							{isOwner && user.role && (
-								<Tag variant="brand">{user.role}</Tag>
-							)}
-
-							{!isOwner && user.name && (
-								<Tag variant="grey">{user.name}</Tag>
-							)}
-						</div>
-					);
-				})}
+				{memberUsers.map((user) => (
+					<div key={user.id} className={styles.user}>
+						<UserAvatar
+							initials={user.initials}
+							variant={user.variant || 'member'}
+						/>
+						{user.name ? (
+							<Tag variant="grey">{user.name}</Tag>
+						) : null}
+					</div>
+				))}
 			</div>
 		</section>
 	);

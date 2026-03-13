@@ -80,6 +80,11 @@
 	gap: 17px;
 }
 
+.feedbackMessage {
+	margin: 0;
+	padding: 1rem 0;
+	font-size: 1rem;
+}
 
 @media (max-width: 992px) {
 	.tasksFrame {

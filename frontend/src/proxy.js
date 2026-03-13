@@ -12,7 +12,7 @@ import { NextResponse } from 'next/server';
 import { TOKEN_COOKIE } from './lib/authConstants';
 
 // Routes accessibles uniquement si l'utilisateur est authentifié.
-const PROTECTED_PREFIXES = ['/dashboard', '/projects', '/tasks'];
+const PROTECTED_PREFIXES = ['/profile', '/dashboard', '/projects'];
 
 // Pages d'authentification qui ne doivent plus être accessibles
 // si l'utilisateur est déjà connecté.

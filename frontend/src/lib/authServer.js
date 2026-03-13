@@ -10,16 +10,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { TOKEN_COOKIE } from '@/lib/authConstants';
 import { getCurrentUser } from '@/services/authService';
+import { extractApiUser } from '@/lib/mappers/userMapper';
 
-/**
- * Exige un utilisateur authentifié côté serveur.
- *
- * - Lit le token JWT depuis le cookie httpOnly.
- * - Interroge l'API backend pour récupérer le profil.
- * - Redirige vers /login si la session est absente ou invalide.
- *
- * @returns {Promise<Object>}
- */
 export async function requireUser() {
 	const cookieStore = await cookies();
 	const token = cookieStore.get(TOKEN_COOKIE)?.value;
@@ -30,13 +22,7 @@ export async function requireUser() {
 
 	try {
 		const data = await getCurrentUser(token);
-		const user = data?.data?.user ?? null;
-
-		if (!user) {
-			redirect('/login');
-		}
-
-		return user;
+		return extractApiUser(data);
 	} catch {
 		redirect('/login');
 	}

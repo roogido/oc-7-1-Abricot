@@ -1,14 +1,15 @@
-// src/components/tasks/TaskCardProject/TaskCardProject.js
+/**
+ * @file src/components/tasks/TaskCardProject/TaskCardProject.js
+ */
+
 'use client';
 
 import { useId, useMemo, useState } from 'react';
-import Image from 'next/image';
+
 import Tag from '@/components/ui/Tag/Tag';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 
 import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
-import calendarTaskIcon from '@/assets/icons/calendar-task-icon.png';
-import changeTaskIcon from '@/assets/icons/change-task-icon.png';
 
 import styles from './TaskCardProject.module.css';
 
@@ -22,6 +23,12 @@ export default function TaskCardProject({
 	comments = [],
 	defaultExpanded = false,
 	onMoreClick,
+	currentUserInitials = '??',
+	currentUserAvatarVariant = 'member',
+	showMoreButton = true,
+	onCommentSubmit = null,
+	isCommentSubmitting = false,
+	commentErrorMessage = '',
 }) {
 	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 	const [commentText, setCommentText] = useState('');
@@ -33,13 +40,14 @@ export default function TaskCardProject({
 	);
 
 	const commentsCount = comments.length;
-	const isSubmitDisabled = commentText.trim() === '';
+	const isSubmitDisabled =
+		commentText.trim() === '' || isCommentSubmitting === true;
 
 	function handleToggleComments() {
 		setIsExpanded((prev) => !prev);
 	}
 
-	function handleSubmit(event) {
+	async function handleSubmit(event) {
 		event.preventDefault();
 
 		const trimmedComment = commentText.trim();
@@ -48,9 +56,16 @@ export default function TaskCardProject({
 			return;
 		}
 
-		console.log('Commentaire envoyé :', trimmedComment);
+		if (typeof onCommentSubmit !== 'function') {
+			return;
+		}
 
-		setCommentText('');
+		try {
+			await onCommentSubmit(trimmedComment);
+			setCommentText('');
+		} catch {
+			// L'erreur est geree par le conteneur parent.
+		}
 	}
 
 	return (
@@ -70,19 +85,18 @@ export default function TaskCardProject({
 					) : null}
 				</div>
 
-				<button
-					type="button"
-					className={styles.moreButton}
-					onClick={onMoreClick}
-					aria-label="Modifier la tâche"
-				>
-					<Image
-						src={changeTaskIcon}
-						alt=""
-						aria-hidden="true"
-						className={styles.moreIcon}
-					/>
-				</button>
+				{showMoreButton ? (
+					<button
+						type="button"
+						className={styles.moreButton}
+						onClick={onMoreClick}
+						aria-label="Modifier la tâche"
+					>
+						<span className={styles.moreDots} aria-hidden="true">
+							...
+						</span>
+					</button>
+				) : null}
 			</div>
 
 			<div className={styles.metaBlock}>
@@ -90,12 +104,12 @@ export default function TaskCardProject({
 					<span className={styles.metaLabel}>Échéance :</span>
 
 					<div className={styles.dateWrapper}>
-						<Image
-							src={calendarTaskIcon}
-							alt=""
-							aria-hidden="true"
+						<span
 							className={styles.calendarIcon}
-						/>
+							aria-hidden="true"
+						>
+							📅
+						</span>
 						<span className={styles.metaValue}>{dueDateLabel}</span>
 					</div>
 				</div>
@@ -104,18 +118,25 @@ export default function TaskCardProject({
 					<span className={styles.metaLabel}>Assigné à :</span>
 
 					<div className={styles.assignees}>
-						{assignees.map((assignee) => (
-							<div
-								key={assignee.id}
-								className={styles.assigneeItem}
-							>
-								<UserAvatar
-									initials={assignee.initials}
-									variant={assignee.variant || 'member'}
-								/>
-								<Tag variant="grey">{assignee.name}</Tag>
-							</div>
-						))}
+						{assignees.map((assignee) => {
+							const tagVariant =
+								assignee.variant === 'owner' ? 'brand' : 'grey';
+
+							return (
+								<div
+									key={assignee.id}
+									className={styles.assigneeItem}
+								>
+									<UserAvatar
+										initials={assignee.initials}
+										variant={assignee.variant || 'member'}
+									/>
+									<Tag variant={tagVariant}>
+										{assignee.name}
+									</Tag>
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</div>
@@ -133,8 +154,8 @@ export default function TaskCardProject({
 					Commentaires ({commentsCount})
 				</span>
 
-				<Image
-					src={arrowDownIcon}
+				<img
+					src={arrowDownIcon.src}
 					alt=""
 					aria-hidden="true"
 					className={`${styles.chevron} ${
@@ -182,7 +203,10 @@ export default function TaskCardProject({
 					>
 						<div className={styles.commentRow}>
 							<div className={styles.commentAvatarWrapper}>
-								<UserAvatar initials="AD" variant="owner" />
+								<UserAvatar
+									initials={currentUserInitials}
+									variant={currentUserAvatarVariant}
+								/>
 							</div>
 
 							<label
@@ -201,8 +225,15 @@ export default function TaskCardProject({
 									setCommentText(event.target.value)
 								}
 								rows="1"
+								disabled={isCommentSubmitting}
 							/>
 						</div>
+
+						{commentErrorMessage ? (
+							<p className={styles.commentErrorMessage}>
+								{commentErrorMessage}
+							</p>
+						) : null}
 
 						<div className={styles.formActions}>
 							<button
@@ -214,7 +245,7 @@ export default function TaskCardProject({
 								}`.trim()}
 								disabled={isSubmitDisabled}
 							>
-								Envoyer
+								{isCommentSubmitting ? 'Envoi...' : 'Envoyer'}
 							</button>
 						</div>
 					</form>
