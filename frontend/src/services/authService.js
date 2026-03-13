@@ -28,18 +28,28 @@ export async function loginUser({ email, password }) {
 /**
  * Inscrit un nouvel utilisateur.
  *
- * @param {Object} params
- * @param {string} params.email
- * @param {string} params.password
- * @returns {Promise<Object>}
+ * Envoie une requête à l’API d’authentification afin de créer un compte utilisateur.
+ *
+ * @param {Object} params - Données nécessaires à l’inscription.
+ * @param {string} params.email - Adresse email de l’utilisateur.
+ * @param {string} params.password - Mot de passe de l’utilisateur.
+ * @param {string} [params.name] - Nom affiché de l’utilisateur (optionnel).
+ *
+ * @returns {Promise<Object>} Réponse de l’API contenant l’utilisateur créé et le token d’authentification.
  */
-export async function registerUser({ email, password }) {
+export async function registerUser({ email, password, name }) {
+	const body = {
+		email,
+		password,
+	};
+
+	if (typeof name === 'string' && name.trim() !== '') {
+		body.name = name.trim();
+	}
+
 	return apiRequest('/auth/register', {
 		method: 'POST',
-		body: {
-			email,
-			password,
-		},
+		body,
 	});
 }
 

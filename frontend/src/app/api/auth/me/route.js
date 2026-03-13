@@ -9,16 +9,10 @@ import { NextResponse } from 'next/server';
 import { TOKEN_COOKIE, TOKEN_SAMESITE, TOKEN_PATH } from '@/lib/authConstants';
 import { ApiClientError } from '@/services/apiClient';
 import { getCurrentUser } from '@/services/authService';
+import { extractApiUser } from '@/lib/mappers/userMapper';
 
-/**
- * Retourne l'utilisateur associé au token présent dans le cookie.
- *
- * @param {Request} request Requête HTTP entrante
- * @returns {Promise<NextResponse>} Réponse JSON contenant l'utilisateur
- */
 export async function GET(request) {
 	try {
-		// Lecture du JWT depuis le cookie httpOnly
 		const token = request.cookies.get(TOKEN_COOKIE)?.value;
 
 		if (!token) {
@@ -29,14 +23,7 @@ export async function GET(request) {
 		}
 
 		const data = await getCurrentUser(token);
-		const user = data?.data.user ?? null;
-
-		if (!user) {
-			return NextResponse.json(
-				{ success: false, message: 'Unauthorized' },
-				{ status: 401 },
-			);
-		}
+		const user = extractApiUser(data);
 
 		return NextResponse.json({
 			success: true,
@@ -44,14 +31,12 @@ export async function GET(request) {
 			data: { user },
 		});
 	} catch (error) {
-		// Erreur métier remontée par le client API
 		if (error instanceof ApiClientError) {
 			const response = NextResponse.json(
 				{ success: false, message: error.message },
 				{ status: error.status },
 			);
 
-			// Invalidation du cookie si le token est invalide ou expiré
 			if (error.status === 401 || error.status === 403) {
 				response.cookies.set(TOKEN_COOKIE, '', {
 					httpOnly: true,

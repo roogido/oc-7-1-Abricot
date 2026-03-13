@@ -1,0 +1,137 @@
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.leftColumn {
+    flex: 1;
+    min-width: 0;
+}
+
+.titleRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.backButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 57px;
+	height: 57px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: white;
+}
+
+.backButton:hover {
+    background-color: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+.backIcon {
+	width: 15px;
+	height: 15px;
+	object-fit: contain;
+    filter: brightness(0);
+}
+
+.textBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.headingInline {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--color-dark);
+}
+
+.description {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.22;
+    color: var(--color-gray-dark);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+
+.aiButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: var(--btn-height);
+    padding: 0 24px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.aiButton:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.aiIcon {
+    width: 21px;
+    height: 21px;
+    object-fit: contain;
+}
+
+@media (max-width: 1100px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .titleRow {
+        gap: 12px;
+    }
+
+    .backButton {
+        width: 48px;
+        height: 48px;
+        padding: 16px;
+    }
+
+    .description {
+        font-size: 16px;
+    }
+
+    .actions {
+        gap: 10px;
+    }
+}

@@ -1,0 +1,11 @@
+.cardsList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.feedbackMessage {
+	margin: 0;
+	padding: 1rem 0;
+	font-size: 1rem;
+}

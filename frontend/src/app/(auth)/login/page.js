@@ -10,8 +10,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import PasswordInput from '@/components/ui/PasswordInput';
-import AuthPageShell from '@/components/layout/AuthPageShell';
+import PasswordInput from '@/components/ui/Password/PasswordInput';
+import AuthPageShell from '@/components/layout/AuthPageShell/AuthPageShell';
 
 import loginVisual from '@/assets/images/auth/login.png';
 import styles from '../auth.module.css';

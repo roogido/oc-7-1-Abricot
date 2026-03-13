@@ -1,0 +1,135 @@
+.card {
+	display: flex;
+	flex-direction: column;
+	padding: 25px 10px;
+	background-color: var(--color-white);
+	border: 1px solid var(--color-gray-border);
+	border-radius: 10px;
+}
+
+.topRow {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.heading {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	min-width: 0;
+}
+
+.title {
+	margin: 0;
+	color: var(--color-dark);
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.description {
+	margin: 0;
+	color: #687280;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.metaRow {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0;
+	margin-top: 32px;
+	color: #9ca3af;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1;
+}
+
+.metaItem {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.separator {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 10px;
+	color: #9ca3af;
+}
+
+.projectIcon {
+	width: 18px;
+	height: 14px;
+	flex: 0 0 auto;
+}
+
+.calendarIcon {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 auto;
+}
+
+.commentIcon {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 auto;
+}
+
+.actions {
+	margin-top: 37px;
+}
+
+.viewLink {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 121px;
+	height: var(--btn-height);
+	padding: var(--btn-padding-y) var(--btn-padding-x);
+	border-radius: 10px;
+	background-color: var(--btn-primary-bg);
+	color: var(--btn-primary-text);
+	font-size: var(--btn-font-size);
+	font-weight: var(--btn-font-weight);
+	line-height: 1;
+	text-decoration: none;
+	transition:
+		background-color var(--transition-fast),
+		transform var(--transition-fast);
+}
+
+.viewLink:hover,
+.viewLink:focus-visible {
+	background-color: var(--btn-primary-bg-hover);
+}
+
+.viewLink:active {
+	transform: translateY(1px);
+}
+
+@media (max-width: 1200px) {
+	.card {
+		padding: 24px;
+	}
+}
+
+@media (max-width: 576px) {
+	.topRow {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.metaRow {
+		row-gap: 10px;
+	}
+
+	.actions {
+		margin-top: 24px;
+	}
+}

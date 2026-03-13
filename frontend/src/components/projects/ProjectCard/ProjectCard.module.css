@@ -1,0 +1,89 @@
+.card {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+	min-height: var(--project-card-min-height);
+	padding: var(--project-card-padding-y) var(--project-card-padding-x);
+	background: var(--project-card-bg);
+	border: 1px solid var(--project-card-border);
+	border-radius: var(--project-card-radius);
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    font-size: var(--project-card-title-size);
+    font-weight: var(--project-card-title-weight);
+    color: var(--project-card-title-color);
+    line-height: 1.3;
+}
+
+.description {
+    font-size: var(--project-card-description-size);
+    font-weight: var(--project-card-description-weight);
+    color: var(--project-card-description-color);
+    line-height: 1.35;
+}
+
+.progressSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.progressHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.progressLabel,
+.progressValue,
+.progressText,
+.teamLabel {
+    font-size: var(--project-card-meta-size);
+    color: var(--project-card-meta-color);
+    line-height: 1.3;
+}
+
+.teamSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.teamMembers {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--project-card-team-gap);
+}
+
+.teamLabel {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--project-card-team-title-gap);
+
+	font-size: var(--project-card-team-label-size);
+	color: var(--project-card-team-label-color);
+	line-height: 1.3;
+}
+
+.teamLabelIcon {
+	width: 12px;
+	height: 11px;
+	flex-shrink: 0;
+}
+
+.teamMembers {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--project-card-team-gap);
+}

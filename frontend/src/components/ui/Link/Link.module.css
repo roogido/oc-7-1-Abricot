@@ -1,0 +1,18 @@
+.link {
+    font-size: 14px;
+	font-weight: 400; 
+    color: var(--color-primary);
+	text-decoration: underline;
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.link:hover {
+    opacity: 0.7;
+}
+
+.link:focus {
+    outline: none;
+    text-decoration: underline;
+}

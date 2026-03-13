@@ -2,6 +2,7 @@
 |--------------------------------------------------------------------------
 | 1. CSS Reset
 |--------------------------------------------------------------------------
+| Normalise les comportements par défaut des navigateurs.
 */
 
 *,
@@ -25,8 +26,9 @@ body {
 
 /*
 |--------------------------------------------------------------------------
-| 2. Elements media
+| 2. Media elements
 |--------------------------------------------------------------------------
+| Empêche les débordements et garantit un rendu responsive.
 */
 
 img,
@@ -42,6 +44,7 @@ svg {
 |--------------------------------------------------------------------------
 | 3. Form elements
 |--------------------------------------------------------------------------
+| Hérite de la typographie globale pour les éléments de formulaire.
 */
 
 input,
@@ -59,8 +62,9 @@ button {
 
 /*
 |--------------------------------------------------------------------------
-| 4. Liens et texte
+| 4. Links & text
 |--------------------------------------------------------------------------
+| Supprime les styles par défaut non désirés.
 */
 
 a {
@@ -80,12 +84,19 @@ p {
 
 /*
 |--------------------------------------------------------------------------
-| 5. Variables globales (Design System)
+| 5. Global design tokens
 |--------------------------------------------------------------------------
+| Variables CSS utilisées dans toute l'application.
 */
 
 :root {
-	/* Couleurs principales */
+
+	/* ------------------------------------------------ */
+	/* Colors                                            */
+	/* ------------------------------------------------ */
+
+	--color-primary-soft: #ffe8d9;
+
 	--color-primary: #d3590b;
 	--color-primary-hover: #b94d09;
 
@@ -95,7 +106,8 @@ p {
 
 	--color-gray-dark: #595959;
 	--color-gray: #dddddd;
-	--color-gray-light: #f7f7f7;
+	--color-gray-light: #F5F5F5;
+	--color-gray-border: #e5e7eb;
 	--color-gray-border-soft: #f0f0f0;
 
 	--color-white: #ffffff;
@@ -104,31 +116,286 @@ p {
 	--color-page-side: #000000;
 
 	/* Feedback */
+
 	--color-success: #2e7d32;
 	--color-error: #c62828;
 
-	/* Layout */
+
+	/* ------------------------------------------------ */
+	/* Typography                                        */
+	/* ------------------------------------------------ */
+
+	--font-primary: 'Inter', sans-serif;
+
+	--font-size-xs: 12px;
+	--font-size-sm: 14px;
+	--font-size-md: 16px;
+	--font-size-lg: 20px;
+	--font-size-xl: 32px;
+
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
+
+
+	/* ------------------------------------------------ */
+	/* Spacing                                           */
+	/* ------------------------------------------------ */
+
+	--space-2xs: 4px;
+	--space-xs: 8px;
+	--space-sm: 12px;
+	--space-md: 16px;
+	--space-lg: 24px;
+	--space-xl: 32px;
+	--space-2xl: 40px;
+	--space-3xl: 48px;
+
+
+	/* ------------------------------------------------ */
+	/* Layout                                            */
+	/* ------------------------------------------------ */
+
 	--layout-max-width: 1200px;
 	--layout-padding-desktop: 100px;
 	--layout-padding-tablet: 40px;
 	--layout-padding-mobile: 20px;
 
-	/* Radius */
+
+	/* ------------------------------------------------ */
+	/* Radius                                            */
+	/* ------------------------------------------------ */
+
 	--radius-sm: 6px;
 	--radius-md: 10px;
 	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--radius-full: 9999px;
 
-	/* Transition */
+
+	/* ------------------------------------------------ */
+	/* Borders                                           */
+	/* ------------------------------------------------ */
+
+	--border-width-sm: 1px;
+
+
+	/* ------------------------------------------------ */
+	/* Shadows                                           */
+	/* ------------------------------------------------ */
+
+	--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+	--shadow-md: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+
+	/* ------------------------------------------------ */
+	/* Transitions                                       */
+	/* ------------------------------------------------ */
+
 	--transition-fast: 0.18s ease;
+	--transition-base: 0.24s ease;
 
-	/* Font */
-	--font-primary: 'Inter', sans-serif;
+
+	/* ------------------------------------------------ */
+	/* Z-index                                           */
+	/* ------------------------------------------------ */
+
+	--z-base: 1;
+	--z-dropdown: 100;
+	--z-sticky: 200;
+	--z-overlay: 300;
+	--z-modal: 400;
+	--z-toast: 500;
+	--z-tooltip: 600;
+
+
+	/* ------------------------------------------------ */
+	/* Buttons                                           */
+	/* ------------------------------------------------ */
+
+	--btn-height: 44px;
+	--btn-padding-x: 24px;
+	--btn-padding-y: 10px;
+
+	--btn-font-size: var(--font-size-md);
+	--btn-font-weight: var(--font-weight-medium);
+
+	--btn-primary-bg: var(--color-dark);
+	--btn-primary-bg-hover: var(--color-black);
+	--btn-primary-text: var(--color-white);
+
+	--btn-outline-border: var(--color-primary);
+	--btn-outline-text: var(--color-primary);
+	--btn-outline-hover-bg: var(--color-primary);
+	--btn-outline-hover-text: var(--color-white);
+
+	--btn-disabled-bg: #e5e7eb;
+	--btn-disabled-text: #9ca3af;
+
+
+	/* ------------------------------------------------ */
+	/* Inputs                                            */
+	/* ------------------------------------------------ */
+
+	--input-height: 44px;
+	--input-padding-x: 12px;
+
+	--input-font-size: var(--font-size-sm);
+
+	--input-bg: var(--color-white);
+	--input-border: var(--color-gray);
+	--input-border-focus: var(--color-primary);
+	--input-placeholder: var(--color-gray-dark);
+
+	--input-disabled-bg: #f3f4f6;
+
+
+	/* ------------------------------------------------ */
+	/* Cards                                             */
+	/* ------------------------------------------------ */
+
+	--card-bg: var(--color-white);
+	--card-border: var(--color-gray-border-soft);
+	--card-radius: var(--radius-lg);
+	--card-padding: var(--space-lg);
+	--card-shadow: var(--shadow-sm);
+
+
+	/* ------------------------------------------------ */
+	/* Tags / Chips                                     */
+	/* ------------------------------------------------ */
+
+	/* Tags */
+	/* structure */
+	--tag-height: 25px;
+	--tag-padding-x: 16px;
+	--tag-radius: 50px;
+	--tag-font-size: 14px;
+	--tag-font-weight: 500;
+
+	/* green */
+	--tag-green-bg: #E6F4EA;
+	--tag-green-text: #2E7D32;
+
+	/* red */
+	--tag-red-bg: #FEE0E0;
+	--tag-red-text: #EF4444;
+
+	/* orange */
+	--tag-orange-bg: #FFF0D7;
+	--tag-orange-text: #E0A800;
+
+	/* blue */
+	--tag-blue-bg: #E0ECFF;
+	--tag-blue-text: #3B82F6;
+
+	/* brand */
+	--tag-brand-bg: #FFE8D9;
+	--tag-brand-text: #D35908;
+
+	/* grey */
+	--tag-grey-bg: #d9dbdf;
+	--tag-grey-text: #6a7180;
+
+	/* Chips */
+	/* size */
+	--chip-height: 45px;
+	--chip-radius: 8px;
+
+	/* spacing */
+	--chip-padding-x: 15px;
+	--chip-gap: 14px;
+
+	/* typography */
+	--chip-font-size: 14px;
+	--chip-font-weight: 500;
+
+	/* colors */
+	--chip-bg-default: #FFFFFF;
+	--chip-bg-hover: #FFE8D9;
+
+	--chip-text-default: #D35908;
+	--chip-text-hover: #D35908;
+
+	--chip-border: transparent;
+
+
+	/* ------------------------------------------------ */
+	/* Project card                                     */
+	/* ------------------------------------------------ */
+
+	/* PROGRESS BAR TOKENS */
+
+	--progress-height: 8px;
+	--progress-radius: 9999px;
+	--progress-track-bg: #e5e7eb;
+	--progress-fill-bg: #d1d5db;
+
+	/* USER AVATAR TOKENS */
+
+	--user-avatar-size-sm: 27px;
+	--user-avatar-font-size-sm: 12px;
+	--user-avatar-font-weight: 500;
+	--user-avatar-bg: #ffe8d9;
+	--user-avatar-text: #0f0f0f;
+
+	/* PROJECT CARD TOKENS */
+
+	/* --project-card-width: 380px; */
+	--project-card-min-height: 351px;
+	--project-card-padding-x: 24px;
+	--project-card-padding-y: 28px;
+	--project-card-radius: 10px;
+	--project-card-bg: #ffffff;
+	--project-card-border: #e5e7eb;
+	--project-card-team-title-gap: 8px;
+
+	--project-card-title-size: 18px;
+	--project-card-title-weight: 600;
+	--project-card-title-color: #1f1f1f;
+
+	--project-card-description-size: 14px;
+	--project-card-description-weight: 400;
+	--project-card-description-color: #6b7280;
+
+	--project-card-section-gap: 16px;
+	--project-card-content-gap: 24px;
+
+	--project-card-meta-size: 12px;
+	--project-card-meta-color: #6b7280;
+
+	--project-card-team-gap: 8px;
+	--project-card-team-label-size: 12px;
+	--project-card-team-label-color: #6b7280;
+
+	/* ------------------------------------------------ */
+	/* Avatars                                           */
+	/* ------------------------------------------------ */
+
+	--avatar-size-sm: 28px;
+	--avatar-size-md: 36px;
+	--avatar-size-lg: 44px;
+
+	--avatar-bg: var(--color-avatar);
+	--avatar-text: var(--color-dark);
+
+
+	/* ------------------------------------------------ */
+	/* Modals / overlays                                 */
+	/* ------------------------------------------------ */
+
+	--overlay-bg: rgba(0, 0, 0, 0.45);
+	--modal-bg: var(--color-white);
+	--modal-radius: var(--radius-lg);
+	--modal-shadow: var(--shadow-md);
 }
 
 /*
 |--------------------------------------------------------------------------
 | 6. Base typography
 |--------------------------------------------------------------------------
+| Typographie et couleurs globales.
 */
 
 body {
@@ -139,8 +406,9 @@ body {
 
 /*
 |--------------------------------------------------------------------------
-| 7. Layout container global
+| 7. Global layout container
 |--------------------------------------------------------------------------
+| Conteneur central utilisé par les pages principales.
 */
 
 .layout-container {
@@ -154,12 +422,39 @@ body {
 |--------------------------------------------------------------------------
 | 8. Selection
 |--------------------------------------------------------------------------
+| Style de la sélection de texte.
 */
 
 ::selection {
 	background-color: var(--color-primary);
 	color: var(--color-white);
 }
+
+/*
+|--------------------------------------------------------------------------
+| 9. Helpers
+|--------------------------------------------------------------------------
+| Utilitaires globaux légers.
+*/
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| 10. Responsive layout
+|--------------------------------------------------------------------------
+| Ajustement du container selon la taille d'écran.
+*/
 
 @media (max-width: 1100px) {
 	.layout-container {

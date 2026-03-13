@@ -5,7 +5,7 @@
  * Vérifie l'authentification et fournit les données utilisateur au layout.
  */
 
-import AppShell from '@/components/layout/AppShell';
+import AppShell from '@/components/layout/AppShell/AppShell';
 import { requireUser } from '@/lib/authServer';
 
 /**
