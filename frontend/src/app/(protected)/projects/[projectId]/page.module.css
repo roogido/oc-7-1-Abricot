@@ -2,7 +2,17 @@
 	width: 100%;
 	max-width: 1166px;
 	margin: 0 auto;
-	padding-top: 72px;
+	display: block;
+	padding-top: 54px;
+	padding-bottom: 96px;
+}
+
+.page > *:nth-child(2) {
+	margin-top: 24px;
+}
+
+.page > *:nth-child(3) {
+	margin-top: 24px;
 }
 
 .tasksFrame {
@@ -87,6 +97,19 @@
 }
 
 @media (max-width: 992px) {
+	.page {
+		padding-top: 48px;
+		padding-bottom: 72px;
+	}
+
+	.page > *:nth-child(2) {
+		margin-top: 20px;
+	}
+
+	.page > *:nth-child(3) {
+		margin-top: 20px;
+	}
+		
 	.tasksFrame {
 		padding: 32px 24px;
 	}
