@@ -53,7 +53,7 @@ export default async function DashboardProjectsPage() {
 		<section className={styles.page}>
 			<PageIntro
 				title="Tableau de bord"
-				subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un apercu de vos projets et taches`}
+				subtitle={`Bonjour ${user.name || 'utilisateur'}, voici un aperçu de vos projets et tâches`}
 				actions={<DashboardCreateProjectAction />}
 			/>
 
@@ -85,7 +85,7 @@ export default async function DashboardProjectsPage() {
 				<div className={styles.projectsGroups}>
 					<DashboardCardsFrame
 						title="Mes projets"
-						subtitle="Projets dans lesquels vous avez des taches assignees"
+						subtitle="Projets dans lesquels vous avez des tâches assignées"
 					>
 						<div className={styles.projectsList}>
 							{projectsWithTasks.map((project) => (

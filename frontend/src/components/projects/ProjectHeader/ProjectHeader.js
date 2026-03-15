@@ -1,7 +1,4 @@
-/**
- * @file src/components/projects/ProjectHeader/ProjectHeader.js
- */
-
+// src/components/projects/ProjectHeader/ProjectHeader.js
 'use client';
 
 import Image from 'next/image';
@@ -20,7 +17,8 @@ import starIcon from '@/assets/icons/star-icon.png';
  * @param {Object} props
  * @param {string} props.projectName
  * @param {string} props.description
- * @param {string} [props.editHref='#']
+ * @param {string} [props.editHref]
+ * @param {boolean} [props.canEditProject=false]
  * @param {string} [props.backHref='/projects']
  * @param {Function} [props.onBack]
  * @param {Function} [props.onCreateTask]
@@ -30,7 +28,8 @@ import starIcon from '@/assets/icons/star-icon.png';
 export default function ProjectHeader({
 	projectName,
 	description,
-	editHref = '#',
+	editHref,
+	canEditProject = false,
 	backHref = '/projects',
 	onBack,
 	onCreateTask,
@@ -41,11 +40,6 @@ export default function ProjectHeader({
 	function handleBackClick() {
 		if (typeof onBack === 'function') {
 			onBack();
-			return;
-		}
-
-		if (typeof window !== 'undefined' && window.history.length > 1) {
-			router.back();
 			return;
 		}
 
@@ -74,7 +68,18 @@ export default function ProjectHeader({
 						<div className={styles.headingInline}>
 							<h1 className={styles.title}>{projectName}</h1>
 
-							<Link href={editHref}>Modifier</Link>
+							<Link
+								href={editHref}
+								disabled={!canEditProject}
+								ariaDisabled={!canEditProject}
+								title={
+									canEditProject
+										? 'Modifier le projet'
+										: 'Réservé au propriétaire du projet'
+								}
+							>
+								Modifier
+							</Link>
 						</div>
 
 						<p className={styles.description}>{description}</p>

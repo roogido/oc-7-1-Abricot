@@ -38,6 +38,9 @@ export default function ProjectFormModal({
 	onRemoveContributor,
 	contributorsLoading = false,
 	contributorsErrorMessage = '',
+	onDelete = null,
+	isDeleting = false,
+	deleteErrorMessage = '',
 }) {
 	const [formValues, setFormValues] = useState(() =>
 		getInitialFormState(initialValues),
@@ -45,6 +48,10 @@ export default function ProjectFormModal({
 	const [isContributorsOpen, setIsContributorsOpen] = useState(false);
 
 	const contributorsBoxRef = useRef(null);
+
+	useEffect(() => {
+		setFormValues(getInitialFormState(initialValues));
+	}, [initialValues]);
 
 	useEffect(() => {
 		function handleDocumentClick(event) {
@@ -67,7 +74,10 @@ export default function ProjectFormModal({
 	const descriptionValue = formValues.description.trim();
 
 	const isSubmitDisabled =
-		titleValue === '' || descriptionValue === '' || isSubmitting;
+		titleValue === '' ||
+		descriptionValue === '' ||
+		isSubmitting ||
+		isDeleting;
 
 	const modalTitle =
 		mode === 'edit' ? 'Modifier un projet' : 'Créer un projet';
@@ -327,9 +337,30 @@ export default function ProjectFormModal({
 					{errorMessage ? (
 						<p className={styles.errorMessage}>{errorMessage}</p>
 					) : null}
+
+					{deleteErrorMessage ? (
+						<p className={styles.errorMessage}>
+							{deleteErrorMessage}
+						</p>
+					) : null}
 				</div>
 
 				<div className={styles.actions}>
+					{mode === 'edit' && typeof onDelete === 'function' ? (
+						<button
+							type="button"
+							className={styles.deleteButton}
+							onClick={onDelete}
+							disabled={isSubmitting || isDeleting}
+						>
+							{isDeleting
+								? 'Suppression...'
+								: 'Supprimer le projet'}
+						</button>
+					) : (
+						<span />
+					)}
+
 					<Button type="submit" disabled={isSubmitDisabled}>
 						{submitLabel}
 					</Button>

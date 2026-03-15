@@ -1,37 +1,22 @@
-/**
- * @file src/components/projects/ContributorsBar/ContributorsBar.js
- * @description
- * Barre affichant les contributeurs d'un projet.
- */
+// src/components/projects/ContributorsBar/ContributorsBar.js
 
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 import Tag from '@/components/ui/Tag/Tag';
 import styles from './ContributorsBar.module.css';
 
 /**
- * Determine si l'utilisateur est proprietaire.
- *
- * @param {Object} user
- * @returns {boolean}
- */
-function isOwnerUser(user) {
-	return (
-		typeof user?.role === 'string' &&
-		user.role.trim().toLowerCase() === 'proprietaire'
-	);
-}
-
-/**
- * Barre des contributeurs.
+ * Barre affichant les contributeurs d'un projet.
  *
  * @param {Object} props
  * @param {Array<Object>} [props.contributors=[]]
  * @returns {JSX.Element}
  */
 export default function ContributorsBar({ contributors = [] }) {
-	const ownerUsers = contributors.filter(isOwnerUser);
-	const memberUsers = contributors.filter((user) => !isOwnerUser(user));
-	const contributorsCount = memberUsers.length;
+	const ownerUser =
+		contributors.find((user) => user?.isOwner === true) ?? null;
+
+	const memberUsers = contributors.filter((user) => user?.isOwner !== true);
+	const contributorsCount = contributors.length;
 
 	return (
 		<section
@@ -47,12 +32,15 @@ export default function ContributorsBar({ contributors = [] }) {
 			</div>
 
 			<div className={styles.right}>
-				{ownerUsers.map((user) => (
-					<div key={user.id} className={styles.user}>
-						<UserAvatar initials={user.initials} variant="owner" />
-						<Tag variant="brand">{user.role}</Tag>
+				{ownerUser ? (
+					<div className={styles.user}>
+						<UserAvatar
+							initials={ownerUser.initials}
+							variant="owner"
+						/>
+						<Tag variant="brand">{ownerUser.name}</Tag>
 					</div>
-				))}
+				) : null}
 
 				{memberUsers.map((user) => (
 					<div key={user.id} className={styles.user}>

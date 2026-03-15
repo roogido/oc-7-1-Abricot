@@ -1,76 +1,98 @@
+// src/app/(protected)/projects/page.js
 /**
  * @file src/app/(protected)/projects/page.js
  * @description
  * Page listant les projets accessibles a l'utilisateur authentifie.
  */
 
-import Button from '@/components/ui/Button/Button';
+import { cookies } from 'next/headers';
+
 import PageIntro from '@/components/layout/PageIntro/PageIntro';
 import ProjectsGrid from '@/components/projects/ProjectsGrid/ProjectsGrid';
-import styles from './page.module.css';
+import DashboardCreateProjectAction from '@/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction';
 
-const projects = [
-	{
-		id: 1,
-		name: 'API Authentification',
-		description:
-			"Développement de la nouvelle version de l'API REST avec authentification JWT",
-		progress: 20,
-		completedTasks: 1,
-		totalTasks: 5,
-		ownerInitials: 'AD',
-		memberInitials: ['BC', 'CV'],
-	},
-	{
-		id: 2,
-		name: 'Dashboard Analytics',
-		description:
-			"Mise en place d'un tableau de bord pour le suivi des statistiques utilisateurs",
-		progress: 45,
-		completedTasks: 5,
-		totalTasks: 11,
-		ownerInitials: 'AD',
-		memberInitials: ['JD', 'ML'],
-	},
-	{
-		id: 3,
-		name: 'Migration Base de données',
-		description:
-			"Migration de l'ancienne base MySQL vers une architecture PostgreSQL optimisée",
-		progress: 70,
-		completedTasks: 7,
-		totalTasks: 10,
-		ownerInitials: 'AD',
-		memberInitials: ['BC'],
-	},
-	{
-		id: 4,
-		name: 'Application Mobile',
-		description:
-			'Création de l’application mobile pour la gestion des projets en mobilité',
-		progress: 10,
-		completedTasks: 1,
-		totalTasks: 8,
-		ownerInitials: 'AD',
-		memberInitials: ['CV', 'ML', 'JD'],
-	},
-];
+import { TOKEN_COOKIE } from '@/lib/authConstants';
+import { requireUser } from '@/lib/authServer';
+import {
+	extractProjectsList,
+	buildProjectsListItems,
+} from '@/lib/mappers/projectMapper';
+import { getProjects, getProjectTasks } from '@/services/projectService';
+
+import styles from './page.module.css';
 
 /**
  * Page principale des projets.
  *
- * @returns {JSX.Element} Interface des projets
+ * @returns {Promise<JSX.Element>} Interface des projets
  */
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+	await requireUser();
+
+	const cookieStore = await cookies();
+	const token = cookieStore.get(TOKEN_COOKIE)?.value;
+
+	let projects = [];
+	let errorMessage = '';
+
+	if (!token) {
+		errorMessage = 'Session introuvable.';
+	} else {
+		try {
+			const projectsResponse = await getProjects(token);
+			const rawProjects = extractProjectsList(projectsResponse);
+
+			const projectsWithTasks = await Promise.all(
+				rawProjects.map(async (project) => {
+					try {
+						const tasksResponse = await getProjectTasks(
+							token,
+							project.id,
+						);
+
+						return {
+							project,
+							tasksPayload: tasksResponse,
+						};
+					} catch {
+						return {
+							project,
+							tasksPayload: null,
+						};
+					}
+				}),
+			);
+
+			projects = buildProjectsListItems(projectsWithTasks);
+		} catch (error) {
+			errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Impossible de charger les projets.';
+		}
+	}
+
 	return (
 		<section className={styles.page}>
 			<PageIntro
 				title="Mes projets"
 				subtitle="Gérez vos projets"
-				actions={<Button>+ Créer un projet</Button>}
+				actions={<DashboardCreateProjectAction />}
 			/>
 
-			<ProjectsGrid projects={projects} />
+			{errorMessage ? (
+				<section className={styles.feedbackSection}>
+					<p className={styles.feedbackMessage}>{errorMessage}</p>
+				</section>
+			) : projects.length === 0 ? (
+				<section className={styles.feedbackSection}>
+					<p className={styles.feedbackMessage}>
+						Aucun projet pour le moment.
+					</p>
+				</section>
+			) : (
+				<ProjectsGrid projects={projects} />
+			)}
 		</section>
 	);
 }
