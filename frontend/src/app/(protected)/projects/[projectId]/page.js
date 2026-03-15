@@ -1,3 +1,4 @@
+// src/app/(protected)/projects/[projectId]/page.js
 /**
  * @file src/app/(protected)/projects/[projectId]/page.js
  * @description
@@ -9,6 +10,7 @@ import { cookies } from 'next/headers';
 import ProjectHeader from '@/components/projects/ProjectHeader/ProjectHeader';
 import ContributorsBar from '@/components/projects/ContributorsBar/ContributorsBar';
 import ProjectTasksSection from '@/components/projects/ProjectTasksSection/ProjectTasksSection';
+import ProjectEditAction from '@/components/projects/ProjectEditAction/ProjectEditAction';
 
 import { TOKEN_COOKIE } from '@/lib/authConstants';
 import { requireUser } from '@/lib/authServer';
@@ -17,7 +19,6 @@ import {
 	mapProjectDetail,
 	extractProjectTasks,
 	getUserInitials,
-	buildProjectContributorsFromTasks,
 } from '@/lib/mappers/projectMapper';
 import { getProjectById, getProjectTasks } from '@/services/projectService';
 
@@ -91,9 +92,8 @@ export default async function ProjectDetailPage({ params }) {
 	const currentUserAvatarVariant =
 		user?.id === project.ownerId ? 'owner' : 'member';
 
-	const projectContributors = buildProjectContributorsFromTasks(
-		project,
-		projectTasks,
+	const editableContributors = project.contributors.filter(
+		(contributor) => contributor?.isOwner !== true,
 	);
 
 	return (
@@ -101,11 +101,18 @@ export default async function ProjectDetailPage({ params }) {
 			<ProjectHeader
 				projectName={project.name}
 				description={project.description}
-				editHref="#"
+				editHref={`/projects/${project.id}?edit=1`}
 				backHref="/projects"
 			/>
 
-			<ContributorsBar contributors={projectContributors} />
+			<ProjectEditAction
+				projectId={project.id}
+				initialTitle={project.name}
+				initialDescription={project.description}
+				initialContributors={editableContributors}
+			/>
+
+			<ContributorsBar contributors={project.contributors} />
 
 			<ProjectTasksSection
 				tasks={projectTasks}

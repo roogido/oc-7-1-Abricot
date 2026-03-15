@@ -283,6 +283,9 @@ export function mapProjectContributors(project) {
 	const ownerName =
 		typeof project?.owner?.name === 'string' ? project.owner.name : '';
 
+	const ownerEmail =
+		typeof project?.owner?.email === 'string' ? project.owner.email : '';
+
 	const contributors = [];
 
 	if (ownerId !== '') {
@@ -290,6 +293,7 @@ export function mapProjectContributors(project) {
 			id: ownerId,
 			initials: getInitials(ownerName),
 			name: ownerName,
+			email: ownerEmail,
 			variant: 'owner',
 			isOwner: true,
 		});
@@ -303,6 +307,8 @@ export function mapProjectContributors(project) {
 			typeof memberUser?.id === 'string' ? memberUser.id : '';
 		const memberName =
 			typeof memberUser?.name === 'string' ? memberUser.name : '';
+		const memberEmail =
+			typeof memberUser?.email === 'string' ? memberUser.email : '';
 
 		if (memberId === '' || memberId === ownerId) {
 			continue;
@@ -312,6 +318,7 @@ export function mapProjectContributors(project) {
 			id: memberId,
 			initials: getInitials(memberName),
 			name: memberName,
+			email: memberEmail,
 			variant: 'member',
 			isOwner: false,
 		});
@@ -319,7 +326,6 @@ export function mapProjectContributors(project) {
 
 	return contributors;
 }
-
 /**
  * Extrait le projet brut depuis GET /projects/:id.
  *

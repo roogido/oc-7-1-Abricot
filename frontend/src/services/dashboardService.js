@@ -7,7 +7,7 @@
 import { apiRequest } from '@/services/apiClient';
 
 /**
- * Recupere les taches assignees a l'utilisateur connecte.
+ * Recupere les tâches assignées à l'utilisateur connecté.
  *
  * @param {string} token
  * @returns {Promise<Object>}
@@ -20,7 +20,7 @@ export async function getAssignedTasks(token) {
 }
 
 /**
- * Recupere les projets dans lesquels l'utilisateur a des taches assignees.
+ * Recupere les projets dans lesquels l'utilisateur a des tâches assignées.
  *
  * @param {string} token
  * @returns {Promise<Object>}

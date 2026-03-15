@@ -16,7 +16,7 @@ export default function ContributorsBar({ contributors = [] }) {
 		contributors.find((user) => user?.isOwner === true) ?? null;
 
 	const memberUsers = contributors.filter((user) => user?.isOwner !== true);
-	const contributorsCount = memberUsers.length;
+	const contributorsCount = contributors.length;
 
 	return (
 		<section

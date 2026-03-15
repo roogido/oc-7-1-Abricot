@@ -1,7 +1,4 @@
-/**
- * @file src/components/projects/ProjectHeader/ProjectHeader.js
- */
-
+// src/components/projects/ProjectHeader/ProjectHeader.js
 'use client';
 
 import Image from 'next/image';
@@ -41,11 +38,6 @@ export default function ProjectHeader({
 	function handleBackClick() {
 		if (typeof onBack === 'function') {
 			onBack();
-			return;
-		}
-
-		if (typeof window !== 'undefined' && window.history.length > 1) {
-			router.back();
 			return;
 		}
 
