@@ -1,4 +1,3 @@
-// src/app/(protected)/projects/[projectId]/page.js
 /**
  * @file src/app/(protected)/projects/[projectId]/page.js
  * @description
@@ -96,21 +95,30 @@ export default async function ProjectDetailPage({ params }) {
 		(contributor) => contributor?.isOwner !== true,
 	);
 
+	const canEditProject = user?.id === project.ownerId;
+
 	return (
 		<section className={styles.page}>
 			<ProjectHeader
 				projectName={project.name}
 				description={project.description}
-				editHref={`/projects/${project.id}?edit=1`}
+				editHref={
+					canEditProject
+						? `/projects/${project.id}?edit=1`
+						: undefined
+				}
+				canEditProject={canEditProject}
 				backHref="/projects"
 			/>
 
-			<ProjectEditAction
-				projectId={project.id}
-				initialTitle={project.name}
-				initialDescription={project.description}
-				initialContributors={editableContributors}
-			/>
+			{canEditProject ? (
+				<ProjectEditAction
+					projectId={project.id}
+					initialTitle={project.name}
+					initialDescription={project.description}
+					initialContributors={editableContributors}
+				/>
+			) : null}
 
 			<ContributorsBar contributors={project.contributors} />
 

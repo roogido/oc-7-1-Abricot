@@ -1,10 +1,9 @@
 .link {
     font-size: 14px;
-	font-weight: 400; 
+	font-weight: 400;
     color: var(--color-primary);
 	text-decoration: underline;
     cursor: pointer;
-
     transition: opacity 0.2s ease;
 }
 
@@ -15,4 +14,12 @@
 .link:focus {
     outline: none;
     text-decoration: underline;
+}
+
+.disabled {
+    color: var(--btn-disabled-text);
+    text-decoration: underline;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 1;
 }
