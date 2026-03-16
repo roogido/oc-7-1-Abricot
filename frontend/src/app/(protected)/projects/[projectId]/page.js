@@ -6,10 +6,10 @@
 
 import { cookies } from 'next/headers';
 
-import ProjectHeader from '@/components/projects/ProjectHeader/ProjectHeader';
 import ContributorsBar from '@/components/projects/ContributorsBar/ContributorsBar';
 import ProjectTasksSection from '@/components/projects/ProjectTasksSection/ProjectTasksSection';
 import ProjectEditAction from '@/components/projects/ProjectEditAction/ProjectEditAction';
+import ProjectDetailClientActions from './ProjectDetailClientActions';
 
 import { TOKEN_COOKIE } from '@/lib/authConstants';
 import { requireUser } from '@/lib/authServer';
@@ -96,38 +96,40 @@ export default async function ProjectDetailPage({ params }) {
 	);
 
 	const canEditProject = user?.id === project.ownerId;
+	const canCreateTask =
+		user?.id === project.ownerId ||
+		project.contributors.some(
+			(contributor) =>
+				contributor?.isOwner !== true && contributor?.id === user?.id,
+		);
 
 	return (
 		<section className={styles.page}>
-			<ProjectHeader
+			<ProjectDetailClientActions
+				projectId={project.id}
 				projectName={project.name}
 				description={project.description}
-				editHref={
-					canEditProject
-						? `/projects/${project.id}?edit=1`
-						: undefined
-				}
 				canEditProject={canEditProject}
-				backHref="/projects"
-			/>
+				canCreateTask={canCreateTask}
+			>
+				{canEditProject ? (
+					<ProjectEditAction
+						projectId={project.id}
+						initialTitle={project.name}
+						initialDescription={project.description}
+						initialContributors={editableContributors}
+					/>
+				) : null}
 
-			{canEditProject ? (
-				<ProjectEditAction
-					projectId={project.id}
-					initialTitle={project.name}
-					initialDescription={project.description}
-					initialContributors={editableContributors}
+				<ContributorsBar contributors={project.contributors} />
+
+				<ProjectTasksSection
+					tasks={projectTasks}
+					errorMessage={tasksErrorMessage}
+					currentUserInitials={currentUserInitials}
+					currentUserAvatarVariant={currentUserAvatarVariant}
 				/>
-			) : null}
-
-			<ContributorsBar contributors={project.contributors} />
-
-			<ProjectTasksSection
-				tasks={projectTasks}
-				errorMessage={tasksErrorMessage}
-				currentUserInitials={currentUserInitials}
-				currentUserAvatarVariant={currentUserAvatarVariant}
-			/>
+			</ProjectDetailClientActions>
 		</section>
 	);
 }

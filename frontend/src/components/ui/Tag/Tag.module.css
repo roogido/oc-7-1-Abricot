@@ -45,3 +45,8 @@
     background: var(--tag-grey-bg);
     color: var(--tag-grey-text);
 }
+
+.active {
+	box-shadow: 0 0 0 2px rgba(31, 31, 31, 0.12);
+	transform: translateY(-1px);
+}

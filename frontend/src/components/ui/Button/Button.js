@@ -1,3 +1,10 @@
+/**
+ * @file src/components/ui/button/button.js
+ * @description
+ * Composant button reutilisable de l'interface Abricot.
+ */
+
+
 'use client';
 
 import styles from './Button.module.css';
