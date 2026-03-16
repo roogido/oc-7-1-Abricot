@@ -1,13 +1,15 @@
-// src/components/projects/ProjectTasksSection/ProjectTasksSection.js
-
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import Chip from '@/components/ui/Chip/Chip';
 import SearchInput from '@/components/ui/SearchInput/SearchInput';
 import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject';
+import ProjectTaskEditAction from '@/components/projects/ProjectTaskEditAction/ProjectTaskEditAction';
+
+import { createTaskCommentClient } from '@/services/taskClientService';
 
 import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
 import checkedIcon from '@/assets/icons/checked-icon.png';
@@ -22,23 +24,10 @@ const STATUS_OPTIONS = [
 	{ value: 'DONE', label: 'Terminée' },
 ];
 
-/**
- * Normalise une valeur texte.
- *
- * @param {string|null|undefined} value
- * @returns {string}
- */
 function normalizeValue(value) {
 	return typeof value === 'string' ? value.trim().toLowerCase() : '';
 }
 
-/**
- * Vérifie si une tâche correspond à une recherche.
- *
- * @param {Object} task
- * @param {string} normalizedSearchTerm
- * @returns {boolean}
- */
 function matchesSearch(task, normalizedSearchTerm) {
 	if (normalizedSearchTerm === '') {
 		return true;
@@ -61,25 +50,22 @@ function matchesSearch(task, normalizedSearchTerm) {
 	);
 }
 
-/**
- * Section tâches du détail projet.
- *
- * @param {Object} props
- * @param {Object[]} [props.tasks=[]]
- * @param {string} props.currentUserInitials
- * @param {'owner'|'member'} props.currentUserAvatarVariant
- * @param {string} [props.errorMessage='']
- * @returns {JSX.Element}
- */
 export default function ProjectTasksSection({
+	projectId,
 	tasks = [],
 	currentUserInitials,
 	currentUserAvatarVariant,
 	errorMessage = '',
 }) {
+	const router = useRouter();
+
 	const [statusFilter, setStatusFilter] = useState('ALL');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [isStatusOpen, setIsStatusOpen] = useState(false);
+	const [editedTask, setEditedTask] = useState(null);
+
+	const [submittingCommentTaskId, setSubmittingCommentTaskId] = useState('');
+	const [commentErrorByTaskId, setCommentErrorByTaskId] = useState({});
 
 	const normalizedSearchTerm = normalizeValue(searchTerm);
 
@@ -101,6 +87,44 @@ export default function ProjectTasksSection({
 	const currentStatusLabel =
 		STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label ??
 		'Statut';
+
+	function handleOpenEditTask(task) {
+		setEditedTask(task);
+	}
+
+	function handleCloseEditTask() {
+		setEditedTask(null);
+	}
+
+	async function handleCommentSubmit(taskId, content) {
+		setSubmittingCommentTaskId(taskId);
+		setCommentErrorByTaskId((prev) => ({
+			...prev,
+			[taskId]: '',
+		}));
+
+		try {
+			await createTaskCommentClient({
+				projectId,
+				taskId,
+				content,
+			});
+
+			router.refresh();
+		} catch (error) {
+			setCommentErrorByTaskId((prev) => ({
+				...prev,
+				[taskId]:
+					error instanceof Error
+						? error.message
+						: 'Impossible d’ajouter le commentaire.',
+			}));
+
+			throw error;
+		} finally {
+			setSubmittingCommentTaskId('');
+		}
+	}
 
 	return (
 		<section className={styles.tasksFrame} aria-label="Tâches du projet">
@@ -188,12 +212,29 @@ export default function ProjectTasksSection({
 							assignees={task.assignees}
 							comments={task.comments}
 							defaultExpanded={task.defaultExpanded}
+							onMoreClick={() => handleOpenEditTask(task)}
 							currentUserInitials={currentUserInitials}
 							currentUserAvatarVariant={currentUserAvatarVariant}
+							onCommentSubmit={(content) =>
+								handleCommentSubmit(task.id, content)
+							}
+							isCommentSubmitting={
+								submittingCommentTaskId === task.id
+							}
+							commentErrorMessage={
+								commentErrorByTaskId[task.id] || ''
+							}
 						/>
 					))}
 				</div>
 			)}
+
+			<ProjectTaskEditAction
+				projectId={projectId}
+				task={editedTask}
+				isOpen={editedTask !== null}
+				onClose={handleCloseEditTask}
+			/>
 		</section>
 	);
 }
