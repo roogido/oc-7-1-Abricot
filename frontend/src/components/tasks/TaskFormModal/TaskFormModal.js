@@ -14,14 +14,15 @@ import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
 import styles from './TaskFormModal.module.css';
 
 const STATUS_OPTIONS = [
-	{ value: 'TODO', label: 'À faire', variant: 'red', disabled: false },
-	{
-		value: 'IN_PROGRESS',
-		label: 'En cours',
-		variant: 'orange',
-		disabled: true,
-	},
-	{ value: 'DONE', label: 'Terminée', variant: 'green', disabled: true },
+	{ value: 'TODO', label: 'À faire', variant: 'red' },
+	{ value: 'IN_PROGRESS', label: 'En cours', variant: 'orange' },
+	{ value: 'DONE', label: 'Terminée', variant: 'green' },
+];
+
+const PRIORITY_OPTIONS = [
+	{ value: 'LOW', label: 'Faible' },
+	{ value: 'MEDIUM', label: 'Moyenne' },
+	{ value: 'HIGH', label: 'Haute' },
 ];
 
 function getInitialFormState() {
@@ -30,6 +31,7 @@ function getInitialFormState() {
 		description: '',
 		dueDate: '',
 		status: 'TODO',
+		priority: 'LOW',
 	};
 }
 
@@ -50,8 +52,11 @@ export default function TaskFormModal({
 }) {
 	const [formValues, setFormValues] = useState(getInitialFormState);
 	const [isContributorsOpen, setIsContributorsOpen] = useState(false);
+	const [isPriorityOpen, setIsPriorityOpen] = useState(false);
 
 	const contributorsBoxRef = useRef(null);
+	const priorityBoxRef = useRef(null);
+	const dateInputRef = useRef(null);
 
 	useEffect(() => {
 		function handleDocumentClick(event) {
@@ -60,6 +65,13 @@ export default function TaskFormModal({
 				!contributorsBoxRef.current.contains(event.target)
 			) {
 				setIsContributorsOpen(false);
+			}
+
+			if (
+				priorityBoxRef.current &&
+				!priorityBoxRef.current.contains(event.target)
+			) {
+				setIsPriorityOpen(false);
 			}
 		}
 
@@ -73,16 +85,22 @@ export default function TaskFormModal({
 	const titleValue = formValues.title.trim();
 	const descriptionValue = formValues.description.trim();
 	const dueDateValue = formValues.dueDate.trim();
+	const priorityValue = formValues.priority.trim();
 
 	const isSubmitDisabled =
 		titleValue === '' ||
 		descriptionValue === '' ||
 		dueDateValue === '' ||
+		priorityValue === '' ||
 		isSubmitting;
 
 	const submitLabel = useMemo(() => {
-		return isSubmitting ? 'Ajout...' : 'Ajouter une tâche';
+		return isSubmitting ? 'Ajout...' : '+ Ajouter une tâche';
 	}, [isSubmitting]);
+
+	const currentPriorityLabel =
+		PRIORITY_OPTIONS.find((option) => option.value === formValues.priority)
+			?.label ?? 'Faible';
 
 	function handleChange(event) {
 		const { name, value } = event.target;
@@ -91,6 +109,19 @@ export default function TaskFormModal({
 			...prev,
 			[name]: value,
 		}));
+	}
+
+	function handleOpenDatePicker() {
+		if (!dateInputRef.current) {
+			return;
+		}
+
+		if (typeof dateInputRef.current.showPicker === 'function') {
+			dateInputRef.current.showPicker();
+			return;
+		}
+
+		dateInputRef.current.focus();
 	}
 
 	async function handleSubmit(event) {
@@ -104,7 +135,7 @@ export default function TaskFormModal({
 			title: titleValue,
 			description: descriptionValue,
 			dueDate: dueDateValue,
-			status: formValues.status,
+			priority: formValues.priority,
 			assigneeIds: selectedContributors.map(
 				(contributor) => contributor.id,
 			),
@@ -114,6 +145,14 @@ export default function TaskFormModal({
 	function handleContributorSelect(user) {
 		onAddContributor(user);
 		setIsContributorsOpen(false);
+	}
+
+	function handlePrioritySelect(priority) {
+		setFormValues((prev) => ({
+			...prev,
+			priority,
+		}));
+		setIsPriorityOpen(false);
 	}
 
 	const hasSearchResults = contributorOptions.length > 0;
@@ -179,14 +218,8 @@ export default function TaskFormModal({
 							</label>
 
 							<div className={styles.dateInputWrapper}>
-								<Image
-									src={calendarTaskIcon}
-									alt=""
-									aria-hidden="true"
-									className={styles.dateIcon}
-								/>
-
 								<input
+									ref={dateInputRef}
 									id="task-due-date"
 									name="dueDate"
 									type="date"
@@ -194,33 +227,114 @@ export default function TaskFormModal({
 									onChange={handleChange}
 									className={styles.dateInput}
 								/>
+
+								<button
+									type="button"
+									className={styles.dateIconButton}
+									onClick={handleOpenDatePicker}
+									aria-label="Choisir une échéance"
+								>
+									<Image
+										src={calendarTaskIcon}
+										alt=""
+										aria-hidden="true"
+										className={styles.dateIcon}
+									/>
+								</button>
 							</div>
 						</div>
 
 						<div className={styles.field}>
-							<label className={styles.label}>Statut</label>
+							<label className={styles.label}>Statut :</label>
 
 							<div
 								className={styles.statusChips}
 								aria-label="Statut initial de la tâche"
 							>
-								{STATUS_OPTIONS.map((option) => (
-									<button
-										key={option.value}
-										type="button"
-										className={styles.statusChipButton}
-										disabled={option.disabled}
-										title={
-											option.disabled
-												? 'Le statut initial est fixé à À faire à la création.'
-												: 'Statut initial'
-										}
+								{STATUS_OPTIONS.map((option) => {
+									const isActive =
+										formValues.status === option.value;
+
+									return (
+										<button
+											key={option.value}
+											type="button"
+											className={styles.statusChipButton}
+											disabled={!isActive}
+											aria-pressed={isActive}
+											title={
+												isActive
+													? 'Le statut initial est À faire.'
+													: 'Le statut n’est pas modifiable à la création.'
+											}
+										>
+											<Tag
+												variant={option.variant}
+												active={isActive}
+											>
+												{option.label}
+											</Tag>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+
+						<div className={styles.field}>
+							<label
+								htmlFor="task-priority"
+								className={styles.label}
+							>
+								Priorité*
+							</label>
+
+							<div
+								ref={priorityBoxRef}
+								className={styles.priorityBox}
+							>
+								<button
+									id="task-priority"
+									type="button"
+									className={styles.selectLike}
+									onClick={() =>
+										setIsPriorityOpen((prev) => !prev)
+									}
+									aria-expanded={isPriorityOpen}
+									aria-controls="task-priority-panel"
+								>
+									<span className={styles.selectPlaceholder}>
+										{currentPriorityLabel}
+									</span>
+
+									<Image
+										src={arrowDownIcon}
+										alt=""
+										aria-hidden="true"
+										className={styles.selectIcon}
+									/>
+								</button>
+
+								{isPriorityOpen ? (
+									<div
+										id="task-priority-panel"
+										className={styles.priorityPanel}
 									>
-										<Tag variant={option.variant}>
-											{option.label}
-										</Tag>
-									</button>
-								))}
+										{PRIORITY_OPTIONS.map((option) => (
+											<button
+												key={option.value}
+												type="button"
+												className={styles.priorityItem}
+												onClick={() =>
+													handlePrioritySelect(
+														option.value,
+													)
+												}
+											>
+												{option.label}
+											</button>
+										))}
+									</div>
+								) : null}
 							</div>
 						</div>
 
@@ -229,7 +343,7 @@ export default function TaskFormModal({
 								htmlFor="task-contributors"
 								className={styles.label}
 							>
-								Assigné à
+								Assigné à :
 							</label>
 
 							<div

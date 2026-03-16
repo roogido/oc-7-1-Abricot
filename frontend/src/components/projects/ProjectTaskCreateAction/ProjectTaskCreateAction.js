@@ -40,12 +40,6 @@ export default function ProjectTaskCreateAction({
 
 	useEffect(() => {
 		if (!isOpen) {
-			setErrorMessage('');
-			setContributorsSearch('');
-			setContributorOptions([]);
-			setSelectedContributors([]);
-			setContributorsLoading(false);
-			setContributorsErrorMessage('');
 			return;
 		}
 
@@ -102,6 +96,15 @@ export default function ProjectTaskCreateAction({
 		};
 	}, [contributorsSearch, isOpen, selectedContributors]);
 
+	function resetFormState() {
+		setErrorMessage('');
+		setContributorsSearch('');
+		setContributorOptions([]);
+		setSelectedContributors([]);
+		setContributorsLoading(false);
+		setContributorsErrorMessage('');
+	}
+
 	function handleAddContributor(user) {
 		setSelectedContributors((prev) => deduplicateUsers([...prev, user]));
 		setContributorsSearch('');
@@ -120,12 +123,7 @@ export default function ProjectTaskCreateAction({
 			return;
 		}
 
-		setErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setSelectedContributors([]);
-		setContributorsLoading(false);
-		setContributorsErrorMessage('');
+		resetFormState();
 		onClose();
 	}
 
@@ -139,10 +137,12 @@ export default function ProjectTaskCreateAction({
 				title: values.title,
 				description: values.description,
 				dueDate: values.dueDate,
+				priority: values.priority,
 				assigneeIds: values.assigneeIds,
 			});
 
-			handleClose();
+			resetFormState();
+			onClose();
 			router.refresh();
 		} catch (error) {
 			setErrorMessage(

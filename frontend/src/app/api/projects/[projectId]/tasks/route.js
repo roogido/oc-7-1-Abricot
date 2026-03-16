@@ -14,6 +14,37 @@ function clearAuthCookie(response) {
 	});
 }
 
+function normalizeDueDateToIso(dateValue) {
+	if (typeof dateValue !== 'string' || dateValue.trim() === '') {
+		return '';
+	}
+
+	const normalized = dateValue.trim();
+
+	if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+		return new Date(`${normalized}T00:00:00.000Z`).toISOString();
+	}
+
+	const parsedDate = new Date(normalized);
+
+	if (Number.isNaN(parsedDate.getTime())) {
+		return normalized;
+	}
+
+	return parsedDate.toISOString();
+}
+
+function normalizePriority(priorityValue) {
+	switch (priorityValue) {
+		case 'LOW':
+		case 'MEDIUM':
+		case 'HIGH':
+			return priorityValue;
+		default:
+			return 'LOW';
+	}
+}
+
 export async function POST(request, context) {
 	try {
 		const { projectId } = await context.params;
@@ -33,8 +64,10 @@ export async function POST(request, context) {
 			typeof body?.description === 'string'
 				? body.description.trim()
 				: '';
-		const dueDate =
+		const dueDateRaw =
 			typeof body?.dueDate === 'string' ? body.dueDate.trim() : '';
+		const priorityRaw =
+			typeof body?.priority === 'string' ? body.priority.trim() : 'LOW';
 
 		const assigneeIds = Array.isArray(body?.assigneeIds)
 			? body.assigneeIds.filter(
@@ -42,7 +75,7 @@ export async function POST(request, context) {
 				)
 			: [];
 
-		if (title === '' || description === '' || dueDate === '') {
+		if (title === '' || description === '' || dueDateRaw === '') {
 			return NextResponse.json(
 				{
 					success: false,
@@ -53,6 +86,9 @@ export async function POST(request, context) {
 			);
 		}
 
+		const dueDate = normalizeDueDateToIso(dueDateRaw);
+		const priority = normalizePriority(priorityRaw);
+
 		const data = await apiRequest(`/projects/${projectId}/tasks`, {
 			method: 'POST',
 			token,
@@ -60,7 +96,7 @@ export async function POST(request, context) {
 				title,
 				description,
 				dueDate,
-				priority: 'MEDIUM',
+				priority,
 				assigneeIds,
 			},
 		});

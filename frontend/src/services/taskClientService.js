@@ -14,6 +14,7 @@ export async function createTaskClient({
 	title,
 	description,
 	dueDate,
+	priority = 'LOW',
 	assigneeIds = [],
 }) {
 	const response = await fetch(`/api/projects/${projectId}/tasks`, {
@@ -27,6 +28,7 @@ export async function createTaskClient({
 			title,
 			description,
 			dueDate,
+			priority,
 			assigneeIds,
 		}),
 	});
