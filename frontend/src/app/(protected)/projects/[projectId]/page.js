@@ -1,3 +1,4 @@
+// src/app/(protected)/projects/[projectId]/page.js
 /**
  * @file src/app/(protected)/projects/[projectId]/page.js
  * @description
@@ -124,6 +125,7 @@ export default async function ProjectDetailPage({ params }) {
 				<ContributorsBar contributors={project.contributors} />
 
 				<ProjectTasksSection
+					projectId={project.id}
 					tasks={projectTasks}
 					errorMessage={tasksErrorMessage}
 					currentUserInitials={currentUserInitials}

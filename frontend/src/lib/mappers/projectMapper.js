@@ -1,3 +1,4 @@
+// src/lib/mappers/projectMapper.js
 /**
  * @file src/lib/mappers/projectMapper.js
  * @description
@@ -326,6 +327,7 @@ export function mapProjectContributors(project) {
 
 	return contributors;
 }
+
 /**
  * Extrait le projet brut depuis GET /projects/:id.
  *
@@ -404,6 +406,8 @@ function mapProjectTask(rawTask, ownerId) {
 				? rawTask.description.trim()
 				: '',
 		status: typeof rawTask?.status === 'string' ? rawTask.status : 'TODO',
+		priority:
+			typeof rawTask?.priority === 'string' ? rawTask.priority : 'LOW',
 		statusLabel: mapTaskStatusLabel(rawTask?.status),
 		statusVariant: mapTaskStatusVariant(rawTask?.status),
 		dueDateRaw: typeof rawTask?.dueDate === 'string' ? rawTask.dueDate : '',
@@ -414,12 +418,17 @@ function mapProjectTask(rawTask, ownerId) {
 				typeof assigneeUser?.id === 'string' ? assigneeUser.id : '';
 			const assigneeName =
 				typeof assigneeUser?.name === 'string' ? assigneeUser.name : '';
+			const assigneeEmail =
+				typeof assigneeUser?.email === 'string'
+					? assigneeUser.email
+					: '';
 
 			return {
 				id: assigneeUserId,
 				userId: assigneeUserId,
 				initials: getInitials(assigneeName),
 				name: assigneeName,
+				email: assigneeEmail,
 				variant: assigneeUserId === ownerId ? 'owner' : 'member',
 			};
 		}),
