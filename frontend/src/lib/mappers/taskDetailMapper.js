@@ -4,6 +4,7 @@
  * Mappers backend -> front pour la page détail tâche.
  */
 
+import { extractRequiredObject } from './shared/payloadMapper';
 import { formatLongDueDate } from './shared/dateMapper';
 import { mapTaskAssignees, mapTaskComments } from './shared/taskPeopleMapper';
 import {
@@ -19,13 +20,11 @@ import {
  * @throws {Error}
  */
 export function extractTask(payload) {
-	const task = payload?.data?.task;
-
-	if (!task || typeof task !== 'object') {
-		throw new Error('Task not found in API payload');
-	}
-
-	return task;
+	return extractRequiredObject(
+		payload,
+		(currentPayload) => currentPayload?.data?.task,
+		'Task not found in API payload',
+	);
 }
 
 /**

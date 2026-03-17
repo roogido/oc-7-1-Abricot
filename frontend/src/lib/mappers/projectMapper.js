@@ -4,6 +4,10 @@
  * Mappers backend -> front pour les projets Abricot.
  */
 
+import {
+	extractRequiredArray,
+	extractRequiredObject,
+} from './shared/payloadMapper';
 import { getInitials } from './shared/identityMapper';
 
 /**
@@ -14,13 +18,11 @@ import { getInitials } from './shared/identityMapper';
  * @throws {Error}
  */
 export function extractProjectsList(payload) {
-	const projects = payload?.data?.projects;
-
-	if (!Array.isArray(projects)) {
-		throw new Error('Projects not found in API payload');
-	}
-
-	return projects;
+	return extractRequiredArray(
+		payload,
+		(currentPayload) => currentPayload?.data?.projects,
+		'Projects not found in API payload',
+	);
 }
 
 /**
@@ -205,13 +207,11 @@ export function mapProjectContributors(project) {
  * @throws {Error}
  */
 export function extractProject(payload) {
-	const project = payload?.data?.project;
-
-	if (!project || typeof project !== 'object') {
-		throw new Error('Project not found in API payload');
-	}
-
-	return project;
+	return extractRequiredObject(
+		payload,
+		(currentPayload) => currentPayload?.data?.project,
+		'Project not found in API payload',
+	);
 }
 
 /**
