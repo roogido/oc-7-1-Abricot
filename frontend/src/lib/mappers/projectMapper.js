@@ -1,145 +1,17 @@
+// src/lib/mappers/projectMapper.js
 /**
  * @file src/lib/mappers/projectMapper.js
  * @description
  * Mappers backend -> front pour les projets Abricot.
  */
 
-/**
- * Construit des initiales a partir d'un nom.
- *
- * @param {string|null|undefined} fullName
- * @returns {string}
- */
-function getInitials(fullName) {
-	if (typeof fullName !== 'string' || fullName.trim() === '') {
-		return '??';
-	}
-
-	const parts = fullName.trim().split(/\s+/).filter(Boolean).slice(0, 2);
-
-	return parts.map((part) => part.charAt(0).toUpperCase()).join('');
-}
-
-/**
- * Formate une date d'echeance courte.
- *
- * @param {string|null|undefined} dateValue
- * @returns {string}
- */
-function formatDueDateLabel(dateValue) {
-	if (typeof dateValue !== 'string' || dateValue.trim() === '') {
-		return '';
-	}
-
-	const date = new Date(dateValue);
-
-	if (Number.isNaN(date.getTime())) {
-		return '';
-	}
-
-	return new Intl.DateTimeFormat('fr-FR', {
-		day: 'numeric',
-		month: 'short',
-	}).format(date);
-}
-
-/**
- * Formate une date de commentaire.
- *
- * @param {string|null|undefined} dateValue
- * @returns {string}
- */
-function formatCommentDateLabel(dateValue) {
-	if (typeof dateValue !== 'string' || dateValue.trim() === '') {
-		return '';
-	}
-
-	const date = new Date(dateValue);
-
-	if (Number.isNaN(date.getTime())) {
-		return '';
-	}
-
-	return new Intl.DateTimeFormat('fr-FR', {
-		day: 'numeric',
-		month: 'long',
-		hour: '2-digit',
-		minute: '2-digit',
-	}).format(date);
-}
-
-/**
- * Mappe le statut backend vers le libelle UI.
- *
- * @param {string} status
- * @returns {string}
- */
-function mapTaskStatusLabel(status) {
-	switch (status) {
-		case 'TODO':
-			return 'À faire';
-		case 'IN_PROGRESS':
-			return 'En cours';
-		case 'DONE':
-			return 'Terminée';
-		default:
-			return 'Inconnue';
-	}
-}
-
-/**
- * Mappe le statut backend vers la variante visuelle UI.
- *
- * @param {string} status
- * @returns {'red'|'orange'|'green'}
- */
-function mapTaskStatusVariant(status) {
-	switch (status) {
-		case 'TODO':
-			return 'red';
-		case 'IN_PROGRESS':
-			return 'orange';
-		case 'DONE':
-			return 'green';
-		default:
-			return 'red';
-	}
-}
-
-/**
- * Retourne un ordre numerique associe au statut d'une tache.
- *
- * @param {string} status
- * @returns {number}
- */
-function getTaskStatusOrder(status) {
-	switch (status) {
-		case 'TODO':
-			return 0;
-		case 'IN_PROGRESS':
-			return 1;
-		case 'DONE':
-			return 2;
-		default:
-			return 99;
-	}
-}
-
-/**
- * Retourne le timestamp de la date d'echeance d'une tache.
- *
- * @param {Object} task
- * @returns {number}
- */
-function getTaskDueDateTime(task) {
-	if (typeof task?.dueDateRaw !== 'string' || task.dueDateRaw.trim() === '') {
-		return Number.MAX_SAFE_INTEGER;
-	}
-
-	const timestamp = new Date(task.dueDateRaw).getTime();
-
-	return Number.isNaN(timestamp) ? Number.MAX_SAFE_INTEGER : timestamp;
-}
+import { formatCommentDateLabel, formatShortDueDate } from './shared/dateMapper';
+import { getInitials } from './shared/identityMapper';
+import {
+	compareTasksByStatusAndDueDate,
+	mapTaskStatusLabel,
+	mapTaskStatusVariant,
+} from './shared/taskUiMapper';
 
 /**
  * Extrait la liste brute depuis GET /projects.
@@ -159,7 +31,7 @@ export function extractProjectsList(payload) {
 }
 
 /**
- * Extrait les taches brutes d'un projet.
+ * Extrait les tâches brutes d'un projet.
  *
  * @param {Object|null} payload
  * @returns {Object[]}
@@ -171,7 +43,7 @@ function extractProjectTasksFromPayload(payload) {
 }
 
 /**
- * Retourne le nombre de taches terminees.
+ * Retourne le nombre de tâches terminées.
  *
  * @param {Object[]} tasks
  * @returns {number}
@@ -196,19 +68,31 @@ function computeProgress(completedTasks, totalTasks) {
 }
 
 /**
- * Retourne les initiales des membres non proprietaires.
+ * Retourne l'identifiant du propriétaire.
+ *
+ * @param {Object} project
+ * @returns {string}
+ */
+function getProjectOwnerId(project) {
+	if (typeof project?.owner?.id === 'string') {
+		return project.owner.id;
+	}
+
+	if (typeof project?.ownerId === 'string') {
+		return project.ownerId;
+	}
+
+	return '';
+}
+
+/**
+ * Retourne les initiales des membres non propriétaires.
  *
  * @param {Object} project
  * @returns {string[]}
  */
 function mapMemberInitials(project) {
-	const ownerId =
-		typeof project?.owner?.id === 'string'
-			? project.owner.id
-			: typeof project?.ownerId === 'string'
-				? project.ownerId
-				: '';
-
+	const ownerId = getProjectOwnerId(project);
 	const members = Array.isArray(project?.members) ? project.members : [];
 
 	return members
@@ -223,7 +107,7 @@ function mapMemberInitials(project) {
 }
 
 /**
- * Construit le modele UI pour la carte projet de la page /projects.
+ * Construit le modèle UI pour la carte projet de la page /projects.
  *
  * @param {Object} project
  * @param {Object|null} tasksPayload
@@ -273,16 +157,9 @@ export function buildProjectsListItems(entries) {
  * @returns {Object[]}
  */
 export function mapProjectContributors(project) {
-	const ownerId =
-		typeof project?.owner?.id === 'string'
-			? project.owner.id
-			: typeof project?.ownerId === 'string'
-				? project.ownerId
-				: '';
-
+	const ownerId = getProjectOwnerId(project);
 	const ownerName =
 		typeof project?.owner?.name === 'string' ? project.owner.name : '';
-
 	const ownerEmail =
 		typeof project?.owner?.email === 'string' ? project.owner.email : '';
 
@@ -351,13 +228,7 @@ export function extractProject(payload) {
  * @returns {Object}
  */
 export function mapProjectDetail(project) {
-	const ownerId =
-		typeof project?.owner?.id === 'string'
-			? project.owner.id
-			: typeof project?.ownerId === 'string'
-				? project.ownerId
-				: '';
-
+	const ownerId = getProjectOwnerId(project);
 	const ownerName =
 		typeof project?.owner?.name === 'string'
 			? project.owner.name.trim()
@@ -382,7 +253,7 @@ export function mapProjectDetail(project) {
 }
 
 /**
- * Mappe une tache backend vers la carte projet.
+ * Mappe une tâche backend vers la carte projet.
  *
  * @param {Object} rawTask
  * @param {string} ownerId
@@ -410,7 +281,7 @@ function mapProjectTask(rawTask, ownerId) {
 		statusLabel: mapTaskStatusLabel(rawTask?.status),
 		statusVariant: mapTaskStatusVariant(rawTask?.status),
 		dueDateRaw: typeof rawTask?.dueDate === 'string' ? rawTask.dueDate : '',
-		dueDateLabel: formatDueDateLabel(rawTask?.dueDate),
+		dueDateLabel: formatShortDueDate(rawTask?.dueDate),
 		assignees: assignees.map((assignee) => {
 			const assigneeUser = assignee?.user;
 			const assigneeUserId =
@@ -454,7 +325,7 @@ function mapProjectTask(rawTask, ownerId) {
 }
 
 /**
- * Extrait puis mappe les taches d'un projet.
+ * Extrait puis mappe les tâches d'un projet.
  *
  * @param {Object} payload
  * @param {string} ownerId
@@ -470,24 +341,15 @@ export function extractProjectTasks(payload, ownerId) {
 
 	return tasks
 		.map((task) => mapProjectTask(task, ownerId))
-		.sort((a, b) => {
-			const statusOrderDiff =
-				getTaskStatusOrder(a.status) - getTaskStatusOrder(b.status);
-
-			if (statusOrderDiff !== 0) {
-				return statusOrderDiff;
-			}
-
-			return getTaskDueDateTime(a) - getTaskDueDateTime(b);
-		});
+		.sort(compareTasksByStatusAndDueDate);
 }
 
 /**
- * Reconstruit la barre des contributeurs a partir des taches reellement affichees.
+ * Reconstruit la barre des contributeurs à partir des tâches réellement affichées.
  *
- * - Conserve le proprietaire en premier.
- * - Ajoute ensuite les assignees distincts rencontres dans les taches.
- * - Exclut le proprietaire des membres gris.
+ * - Conserve le propriétaire en premier.
+ * - Ajoute ensuite les assignés distincts rencontrés dans les tâches.
+ * - Exclut le propriétaire des membres gris.
  *
  * @param {Object} project
  * @param {Object[]} projectTasks
@@ -548,12 +410,4 @@ export function buildProjectContributorsFromTasks(project, projectTasks) {
 	return contributors;
 }
 
-/**
- * Expose un helper simple d'initiales pour l'utilisateur courant.
- *
- * @param {string|null|undefined} fullName
- * @returns {string}
- */
-export function getUserInitials(fullName) {
-	return getInitials(fullName);
-}
+export { getInitials as getUserInitials };
