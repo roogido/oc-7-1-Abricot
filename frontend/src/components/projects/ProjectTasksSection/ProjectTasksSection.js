@@ -8,6 +8,7 @@ import Chip from '@/components/ui/Chip/Chip';
 import SearchInput from '@/components/ui/SearchInput/SearchInput';
 import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject';
 import ProjectTaskEditAction from '@/components/projects/ProjectTaskEditAction/ProjectTaskEditAction';
+import ProjectTasksCalendarView from '@/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView';
 
 import { createTaskCommentClient } from '@/services/taskClientService';
 
@@ -19,9 +20,9 @@ import styles from './ProjectTasksSection.module.css';
 
 const STATUS_OPTIONS = [
 	{ value: 'ALL', label: 'Tous' },
-	{ value: 'TODO', label: 'À faire' },
+	{ value: 'TODO', label: 'A faire' },
 	{ value: 'IN_PROGRESS', label: 'En cours' },
-	{ value: 'DONE', label: 'Terminée' },
+	{ value: 'DONE', label: 'Terminee' },
 ];
 
 function normalizeValue(value) {
@@ -59,6 +60,7 @@ export default function ProjectTasksSection({
 }) {
 	const router = useRouter();
 
+	const [viewMode, setViewMode] = useState('list');
 	const [statusFilter, setStatusFilter] = useState('ALL');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -87,6 +89,11 @@ export default function ProjectTasksSection({
 	const currentStatusLabel =
 		STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label ??
 		'Statut';
+
+	const tasksSubtitle =
+		viewMode === 'calendar'
+			? 'Par date d écheance'
+			: 'Par ordre de priorité';
 
 	function handleOpenEditTask(task) {
 		setEditedTask(task);
@@ -117,7 +124,7 @@ export default function ProjectTasksSection({
 				[taskId]:
 					error instanceof Error
 						? error.message
-						: 'Impossible d’ajouter le commentaire.',
+						: 'Impossible d ajouter le commentaire.',
 			}));
 
 			throw error;
@@ -131,102 +138,139 @@ export default function ProjectTasksSection({
 			<div className={styles.tasksHeader}>
 				<div className={styles.tasksHeading}>
 					<h2 className={styles.tasksTitle}>Tâches</h2>
-					<p className={styles.tasksSubtitle}>
-						Par ordre de priorité
-					</p>
+					<p className={styles.tasksSubtitle}>{tasksSubtitle}</p>
 				</div>
 
 				<div className={styles.tasksControls}>
-					<Chip icon={checkedIcon} compact active>
+					<Chip
+						icon={checkedIcon}
+						active={viewMode === 'list'}
+						onClick={() => {
+							setViewMode('list');
+							setIsStatusOpen(false);
+						}}
+					>
 						Liste
 					</Chip>
 
-					<Chip icon={kanbanIcon} compact>
+					<Chip
+						icon={kanbanIcon}
+						active={viewMode === 'calendar'}
+						onClick={() => {
+							setViewMode('calendar');
+							setIsStatusOpen(false);
+						}}
+					>
 						Calendrier
 					</Chip>
 
-					<div className={styles.statusDropdown}>
-						<button
-							type="button"
-							className={styles.tasksFilter}
-							onClick={() =>
-								setIsStatusOpen((previous) => !previous)
-							}
-							aria-expanded={isStatusOpen}
-						>
-							<span>{currentStatusLabel}</span>
-							<Image
-								src={arrowDownIcon}
-								alt=""
-								aria-hidden="true"
-								className={styles.statusIcon}
-							/>
-						</button>
+					{viewMode === 'list' ? (
+						<>
+							<div className={styles.statusDropdown}>
+								<button
+									type="button"
+									className={styles.tasksFilter}
+									onClick={() =>
+										setIsStatusOpen((previous) => !previous)
+									}
+									aria-expanded={isStatusOpen}
+									aria-haspopup="menu"
+								>
+									<span>{currentStatusLabel}</span>
+									<Image
+										src={arrowDownIcon}
+										alt=""
+										aria-hidden="true"
+										className={styles.statusIcon}
+									/>
+								</button>
 
-						{isStatusOpen ? (
-							<div className={styles.statusMenu}>
-								{STATUS_OPTIONS.map((option) => (
-									<button
-										key={option.value}
-										type="button"
-										className={styles.statusMenuItem}
-										onClick={() => {
-											setStatusFilter(option.value);
-											setIsStatusOpen(false);
-										}}
-									>
-										{option.label}
-									</button>
-								))}
+								{isStatusOpen ? (
+									<div className={styles.statusMenu}>
+										{STATUS_OPTIONS.map((option) => (
+											<button
+												key={option.value}
+												type="button"
+												className={
+													styles.statusMenuItem
+												}
+												onClick={() => {
+													setStatusFilter(
+														option.value,
+													);
+													setIsStatusOpen(false);
+												}}
+											>
+												{option.label}
+											</button>
+										))}
+									</div>
+								) : null}
 							</div>
-						) : null}
-					</div>
 
-					<SearchInput
-						value={searchTerm}
-						onChange={(event) => setSearchTerm(event.target.value)}
-						placeholder="Rechercher une tâche"
-						ariaLabel="Rechercher une tâche"
-					/>
+							<SearchInput
+								value={searchTerm}
+								onChange={(event) =>
+									setSearchTerm(event.target.value)
+								}
+								placeholder="Rechercher une tache"
+								ariaLabel="Rechercher une tache"
+							/>
+						</>
+					) : null}
 				</div>
 			</div>
 
 			{errorMessage !== '' ? (
 				<p className={styles.feedbackMessage}>
-					Tâches : {errorMessage}
+					Taches : {errorMessage}
 				</p>
-			) : filteredTasks.length === 0 ? (
-				<p className={styles.feedbackMessage}>
-					Aucune tâche ne correspond aux filtres actuels.
-				</p>
+			) : viewMode === 'list' ? (
+				filteredTasks.length === 0 ? (
+					<p className={styles.feedbackMessage}>
+						Aucune tache ne correspond aux filtres actuels.
+					</p>
+				) : (
+					<div className={styles.tasksList}>
+						{filteredTasks.map((task) => (
+							<TaskCardProject
+								key={task.id}
+								title={task.title}
+								description={task.description}
+								statusLabel={task.statusLabel}
+								statusVariant={task.statusVariant}
+								dueDateLabel={task.dueDateLabel}
+								assignees={task.assignees}
+								comments={task.comments}
+								defaultExpanded={task.defaultExpanded}
+								onMoreClick={() => handleOpenEditTask(task)}
+								currentUserInitials={currentUserInitials}
+								currentUserAvatarVariant={
+									currentUserAvatarVariant
+								}
+								onCommentSubmit={(content) =>
+									handleCommentSubmit(task.id, content)
+								}
+								isCommentSubmitting={
+									submittingCommentTaskId === task.id
+								}
+								commentErrorMessage={
+									commentErrorByTaskId[task.id] || ''
+								}
+							/>
+						))}
+					</div>
+				)
 			) : (
-				<div className={styles.tasksList}>
-					{filteredTasks.map((task) => (
-						<TaskCardProject
-							key={task.id}
-							title={task.title}
-							description={task.description}
-							statusLabel={task.statusLabel}
-							statusVariant={task.statusVariant}
-							dueDateLabel={task.dueDateLabel}
-							assignees={task.assignees}
-							comments={task.comments}
-							defaultExpanded={task.defaultExpanded}
-							onMoreClick={() => handleOpenEditTask(task)}
-							currentUserInitials={currentUserInitials}
-							currentUserAvatarVariant={currentUserAvatarVariant}
-							onCommentSubmit={(content) =>
-								handleCommentSubmit(task.id, content)
-							}
-							isCommentSubmitting={
-								submittingCommentTaskId === task.id
-							}
-							commentErrorMessage={
-								commentErrorByTaskId[task.id] || ''
-							}
-						/>
-					))}
-				</div>
+				<ProjectTasksCalendarView
+					tasks={tasks}
+					currentUserInitials={currentUserInitials}
+					currentUserAvatarVariant={currentUserAvatarVariant}
+					onTaskMoreClick={handleOpenEditTask}
+					onTaskCommentSubmit={handleCommentSubmit}
+					submittingCommentTaskId={submittingCommentTaskId}
+					commentErrorByTaskId={commentErrorByTaskId}
+				/>
 			)}
 
 			<ProjectTaskEditAction

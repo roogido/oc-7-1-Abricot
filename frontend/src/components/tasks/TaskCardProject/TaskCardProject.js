@@ -5,6 +5,7 @@
 'use client';
 
 import { useId, useMemo, useState } from 'react';
+import Image from 'next/image';
 
 import Tag from '@/components/ui/Tag/Tag';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
@@ -154,13 +155,15 @@ export default function TaskCardProject({
 					Commentaires ({commentsCount})
 				</span>
 
-				<img
-					src={arrowDownIcon.src}
+				<Image
+					src={arrowDownIcon}
 					alt=""
 					aria-hidden="true"
 					className={`${styles.chevron} ${
 						isExpanded ? styles.chevronExpanded : ''
 					}`.trim()}
+					width={16}
+					height={16}
 				/>
 			</button>
 
