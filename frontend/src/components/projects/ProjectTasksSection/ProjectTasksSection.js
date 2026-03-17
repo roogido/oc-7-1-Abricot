@@ -10,7 +10,7 @@ import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject'
 import ProjectTaskEditAction from '@/components/projects/ProjectTaskEditAction/ProjectTaskEditAction';
 import ProjectTasksCalendarView from '@/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView';
 
-import { createTaskCommentClient } from '@/services/taskClientService';
+import { createTaskCommentClient } from '@/services/commentClientService';
 
 import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
 import checkedIcon from '@/assets/icons/checked-icon.png';
@@ -213,8 +213,8 @@ export default function ProjectTasksSection({
 								onChange={(event) =>
 									setSearchTerm(event.target.value)
 								}
-								placeholder="Rechercher une tache"
-								ariaLabel="Rechercher une tache"
+								placeholder="Rechercher une tâche"
+								ariaLabel="Rechercher une tâche"
 							/>
 						</>
 					) : null}

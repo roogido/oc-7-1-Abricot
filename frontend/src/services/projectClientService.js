@@ -1,42 +1,46 @@
-// src/services/projectClientService.js
-async function parseJsonSafe(response) {
-	return response.json().catch(() => null);
-}
+/**
+ * @file src/services/projectClientService.js
+ * @description
+ * Services client pour les projets via les routes internes Next.js.
+ */
 
-function getErrorMessage(data, response) {
-	return typeof data?.message === 'string' && data.message.trim() !== ''
-		? data.message.trim()
-		: `HTTP ${response.status}`;
-}
+import { internalApiRequest } from '@/services/internalApiClient';
 
+/**
+ * Crée un projet via la route interne Next.js.
+ *
+ * @param {Object} params
+ * @param {string} params.title
+ * @param {string} params.description
+ * @param {string[]} [params.contributors=[]]
+ * @returns {Promise<Object|null>}
+ */
 export async function createProjectClient({
 	title,
 	description,
 	contributors = [],
 }) {
-	const response = await fetch('/api/projects', {
+	return internalApiRequest('/api/projects', {
 		method: 'POST',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-		body: JSON.stringify({
+		body: {
 			title,
 			description,
 			contributors,
-		}),
+		},
 	});
-
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
 }
 
+/**
+ * Met à jour un projet via la route interne Next.js.
+ *
+ * @param {Object} params
+ * @param {string} params.projectId
+ * @param {string} params.title
+ * @param {string} params.description
+ * @param {string[]} [params.contributors=[]]
+ * @param {string[]} [params.initialContributorIds=[]]
+ * @returns {Promise<Object|null>}
+ */
 export async function updateProjectClient({
 	projectId,
 	title,
@@ -44,44 +48,25 @@ export async function updateProjectClient({
 	contributors = [],
 	initialContributorIds = [],
 }) {
-	const response = await fetch(`/api/projects/${projectId}`, {
+	return internalApiRequest(`/api/projects/${projectId}`, {
 		method: 'PUT',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-		body: JSON.stringify({
+		body: {
 			title,
 			description,
 			contributors,
 			initialContributorIds,
-		}),
-	});
-
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
-}
-
-export async function deleteProjectClient(projectId) {
-	const response = await fetch(`/api/projects/${projectId}`, {
-		method: 'DELETE',
-		credentials: 'include',
-		headers: {
-			Accept: 'application/json',
 		},
 	});
+}
 
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
+/**
+ * Supprime un projet via la route interne Next.js.
+ *
+ * @param {string} projectId
+ * @returns {Promise<Object|null>}
+ */
+export async function deleteProjectClient(projectId) {
+	return internalApiRequest(`/api/projects/${projectId}`, {
+		method: 'DELETE',
+	});
 }

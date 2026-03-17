@@ -1,4 +1,17 @@
-// src/services/userClientService.js
+/**
+ * @file src/services/userClientService.js
+ * @description
+ * Services client pour les utilisateurs via les routes internes Next.js.
+ */
+
+import { internalApiRequest } from '@/services/internalApiClient';
+
+/**
+ * Recherche des utilisateurs via la route interne Next.js.
+ *
+ * @param {string} query
+ * @returns {Promise<Object[]>}
+ */
 export async function searchUsersClient(query) {
 	const normalizedQuery = typeof query === 'string' ? query.trim() : '';
 
@@ -6,27 +19,12 @@ export async function searchUsersClient(query) {
 		return [];
 	}
 
-	const response = await fetch(
+	const data = await internalApiRequest(
 		`/api/users/search?query=${encodeURIComponent(normalizedQuery)}`,
 		{
 			method: 'GET',
-			credentials: 'include',
-			headers: {
-				Accept: 'application/json',
-			},
 		},
 	);
-
-	const data = await response.json().catch(() => null);
-
-	if (!response.ok) {
-		const message =
-			typeof data?.message === 'string' && data.message.trim() !== ''
-				? data.message.trim()
-				: `HTTP ${response.status}`;
-
-		throw new Error(message);
-	}
 
 	return Array.isArray(data?.data?.users) ? data.data.users : [];
 }
