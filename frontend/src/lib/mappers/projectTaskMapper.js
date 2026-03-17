@@ -4,11 +4,9 @@
  * Mappers backend -> front pour les tâches dans le contexte projet.
  */
 
-import {
-	formatCommentDateLabel,
-	formatShortDueDate,
-} from './shared/dateMapper';
 import { getInitials } from './shared/identityMapper';
+import { formatShortDueDate } from './shared/dateMapper';
+import { mapTaskAssignees, mapTaskComments } from './shared/taskPeopleMapper';
 import {
 	compareTasksByStatusAndDueDate,
 	mapTaskStatusLabel,
@@ -23,11 +21,6 @@ import {
  * @returns {Object}
  */
 function mapProjectTask(rawTask, ownerId) {
-	const assignees = Array.isArray(rawTask?.assignees)
-		? rawTask.assignees
-		: [];
-	const comments = Array.isArray(rawTask?.comments) ? rawTask.comments : [];
-
 	return {
 		id: typeof rawTask?.id === 'string' ? rawTask.id : '',
 		title:
@@ -45,44 +38,11 @@ function mapProjectTask(rawTask, ownerId) {
 		statusVariant: mapTaskStatusVariant(rawTask?.status),
 		dueDateRaw: typeof rawTask?.dueDate === 'string' ? rawTask.dueDate : '',
 		dueDateLabel: formatShortDueDate(rawTask?.dueDate),
-		assignees: assignees.map((assignee) => {
-			const assigneeUser = assignee?.user;
-			const assigneeUserId =
-				typeof assigneeUser?.id === 'string' ? assigneeUser.id : '';
-			const assigneeName =
-				typeof assigneeUser?.name === 'string' ? assigneeUser.name : '';
-			const assigneeEmail =
-				typeof assigneeUser?.email === 'string'
-					? assigneeUser.email
-					: '';
-
-			return {
-				id: assigneeUserId,
-				userId: assigneeUserId,
-				initials: getInitials(assigneeName),
-				name: assigneeName,
-				email: assigneeEmail,
-				variant: assigneeUserId === ownerId ? 'owner' : 'member',
-			};
+		assignees: mapTaskAssignees(rawTask?.assignees, ownerId, {
+			includeEmail: true,
+			preserveAssignmentId: false,
 		}),
-		comments: comments.map((comment) => {
-			const author = comment?.author;
-			const authorId = typeof author?.id === 'string' ? author.id : '';
-			const authorName =
-				typeof author?.name === 'string' ? author.name : '';
-
-			return {
-				id: typeof comment?.id === 'string' ? comment.id : '',
-				authorInitials: getInitials(authorName),
-				authorName,
-				authorVariant: authorId === ownerId ? 'owner' : 'member',
-				dateLabel: formatCommentDateLabel(comment?.createdAt),
-				message:
-					typeof comment?.content === 'string'
-						? comment.content.trim()
-						: '',
-			};
-		}),
+		comments: mapTaskComments(rawTask?.comments, ownerId),
 		defaultExpanded: false,
 	};
 }
