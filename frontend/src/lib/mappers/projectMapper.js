@@ -9,6 +9,7 @@ import {
 	extractRequiredObject,
 } from './shared/payloadMapper';
 import { getInitials } from './shared/identityMapper';
+import { DEFAULT_UNNAMED_PROJECT_LABEL } from './shared/mapperConstants';
 
 /**
  * Extrait la liste brute depuis GET /projects.
@@ -118,7 +119,7 @@ function mapProjectListItem(project, tasksPayload) {
 		name:
 			typeof project?.name === 'string' && project.name.trim() !== ''
 				? project.name.trim()
-				: 'Projet sans nom',
+				: DEFAULT_UNNAMED_PROJECT_LABEL,
 		description:
 			typeof project?.description === 'string'
 				? project.description.trim()
@@ -232,7 +233,7 @@ export function mapProjectDetail(project) {
 		name:
 			typeof project?.name === 'string' && project.name.trim() !== ''
 				? project.name.trim()
-				: 'Projet sans nom',
+				: DEFAULT_UNNAMED_PROJECT_LABEL,
 		description:
 			typeof project?.description === 'string'
 				? project.description.trim()

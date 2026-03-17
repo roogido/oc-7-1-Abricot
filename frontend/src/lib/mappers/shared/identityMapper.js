@@ -4,6 +4,8 @@
  * Helpers d'identité partagés pour les mappers Abricot.
  */
 
+import { DEFAULT_INITIALS } from './mapperConstants';
+
 /**
  * Construit des initiales à partir d'un nom complet.
  *
@@ -12,7 +14,7 @@
  */
 export function getInitials(fullName) {
 	if (typeof fullName !== 'string' || fullName.trim() === '') {
-		return '??';
+		return DEFAULT_INITIALS;
 	}
 
 	const parts = fullName.trim().split(/\s+/).filter(Boolean).slice(0, 2);

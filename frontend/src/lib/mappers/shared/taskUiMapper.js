@@ -4,6 +4,8 @@
  * Helpers UI partagés pour les tâches Abricot.
  */
 
+import { DEFAULT_UNKNOWN_STATUS_LABEL } from './mapperConstants';
+
 /**
  * Retourne le libellé UI du statut d'une tâche.
  *
@@ -19,7 +21,7 @@ export function mapTaskStatusLabel(status) {
 		case 'DONE':
 			return 'Terminée';
 		default:
-			return 'Inconnue';
+			return DEFAULT_UNKNOWN_STATUS_LABEL;
 	}
 }
 

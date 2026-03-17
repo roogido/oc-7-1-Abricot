@@ -8,6 +8,10 @@ import { extractRequiredObject } from './shared/payloadMapper';
 import { formatLongDueDate } from './shared/dateMapper';
 import { mapTaskAssignees, mapTaskComments } from './shared/taskPeopleMapper';
 import {
+	DEFAULT_PROJECT_NAME,
+	DEFAULT_TASK_TITLE,
+} from './shared/mapperConstants';
+import {
 	mapTaskStatusLabel,
 	mapTaskStatusVariant,
 } from './shared/taskUiMapper';
@@ -43,11 +47,11 @@ export function mapTaskDetail(rawTask, ownerId = '') {
 			typeof rawTask?.project?.name === 'string' &&
 			rawTask.project.name.trim() !== ''
 				? rawTask.project.name.trim()
-				: 'Projet',
+				: DEFAULT_PROJECT_NAME,
 		title:
 			typeof rawTask?.title === 'string' && rawTask.title.trim() !== ''
 				? rawTask.title.trim()
-				: 'Tâche sans titre',
+				: DEFAULT_TASK_TITLE,
 		description:
 			typeof rawTask?.description === 'string'
 				? rawTask.description.trim()

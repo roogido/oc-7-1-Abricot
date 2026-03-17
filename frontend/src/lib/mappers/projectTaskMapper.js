@@ -7,6 +7,7 @@
 import { getInitials } from './shared/identityMapper';
 import { formatShortDueDate } from './shared/dateMapper';
 import { mapTaskAssignees, mapTaskComments } from './shared/taskPeopleMapper';
+import { DEFAULT_INITIALS, DEFAULT_TASK_TITLE } from './shared/mapperConstants';
 import {
 	compareTasksByStatusAndDueDate,
 	mapTaskStatusLabel,
@@ -26,7 +27,7 @@ function mapProjectTask(rawTask, ownerId) {
 		title:
 			typeof rawTask?.title === 'string' && rawTask.title.trim() !== ''
 				? rawTask.title.trim()
-				: 'Tâche sans titre',
+				: DEFAULT_TASK_TITLE,
 		description:
 			typeof rawTask?.description === 'string'
 				? rawTask.description.trim()
@@ -122,7 +123,7 @@ export function buildProjectContributorsFromTasks(project, projectTasks) {
 				initials:
 					typeof assignee?.initials === 'string'
 						? assignee.initials
-						: '??',
+						: DEFAULT_INITIALS,
 				name: typeof assignee?.name === 'string' ? assignee.name : '',
 				variant: 'member',
 				isOwner: false,

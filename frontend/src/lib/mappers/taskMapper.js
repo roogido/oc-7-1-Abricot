@@ -7,6 +7,10 @@
 import { extractProjectsList } from './projectMapper';
 import { formatMediumDueDate } from './shared/dateMapper';
 import {
+	DEFAULT_ASSOCIATED_PROJECT_NAME,
+	DEFAULT_TASK_TITLE,
+} from './shared/mapperConstants';
+import {
 	compareTasksByStatusAndDueDate,
 	getTaskDueDateTime,
 	getTaskPriorityOrder,
@@ -83,10 +87,10 @@ function getTaskProjectName(rawTask, projectsMap) {
 	const projectId = getTaskProjectId(rawTask);
 
 	if (projectId !== '') {
-		return projectsMap.get(projectId) ?? 'Projet associé';
+		return projectsMap.get(projectId) ?? DEFAULT_ASSOCIATED_PROJECT_NAME;
 	}
 
-	return 'Projet associé';
+	return DEFAULT_ASSOCIATED_PROJECT_NAME;
 }
 
 /**
@@ -144,7 +148,7 @@ export function buildProjectsNameMap(payload) {
 		const projectName =
 			typeof project?.name === 'string' && project.name.trim() !== ''
 				? project.name.trim()
-				: 'Projet associé';
+				: DEFAULT_ASSOCIATED_PROJECT_NAME;
 
 		if (projectId !== '') {
 			projectsMap.set(projectId, projectName);
@@ -175,7 +179,7 @@ export function mapAssignedTaskToDashboardListItem(rawTask, projectsMap) {
 		title:
 			typeof rawTask.title === 'string' && rawTask.title.trim() !== ''
 				? rawTask.title.trim()
-				: 'Tâche sans titre',
+				: DEFAULT_TASK_TITLE,
 		description:
 			typeof rawTask.description === 'string'
 				? rawTask.description.trim()
@@ -247,7 +251,7 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 			const projectName =
 				typeof project?.name === 'string' && project.name.trim() !== ''
 					? project.name.trim()
-					: 'Projet associé';
+					: DEFAULT_ASSOCIATED_PROJECT_NAME;
 
 			const rawTasks = Array.isArray(project?.tasks) ? project.tasks : [];
 
