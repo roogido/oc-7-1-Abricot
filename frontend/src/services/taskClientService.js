@@ -1,43 +1,44 @@
-// src/services/taskClientService.js
-async function parseJsonSafe(response) {
-	return response.json().catch(() => null);
-}
+/**
+ * @file src/services/taskClientService.js
+ * @description
+ * Services client pour les tâches via les routes internes Next.js.
+ */
 
-function getErrorMessage(data, response) {
-	return typeof data?.message === 'string' && data.message.trim() !== ''
-		? data.message.trim()
-		: `HTTP ${response.status}`;
-}
+import { internalApiRequest } from '@/services/internalApiClient';
 
-export async function createTaskCommentClient({
-	projectId,
-	taskId,
-	content,
-}) {
-	const response = await fetch(
+/**
+ * Crée un commentaire sur une tâche via la route interne Next.js.
+ *
+ * @param {Object} params
+ * @param {string} params.projectId
+ * @param {string} params.taskId
+ * @param {string} params.content
+ * @returns {Promise<Object|null>}
+ */
+export async function createTaskCommentClient({ projectId, taskId, content }) {
+	return internalApiRequest(
 		`/api/projects/${projectId}/tasks/${taskId}/comments`,
 		{
 			method: 'POST',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
-			},
-			body: JSON.stringify({
+			body: {
 				content,
-			}),
+			},
 		},
 	);
-
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
 }
 
+/**
+ * Crée une tâche via la route interne Next.js.
+ *
+ * @param {Object} params
+ * @param {string} params.projectId
+ * @param {string} params.title
+ * @param {string} params.description
+ * @param {string} params.dueDate
+ * @param {string} [params.priority='LOW']
+ * @param {string[]} [params.assigneeIds=[]]
+ * @returns {Promise<Object|null>}
+ */
 export async function createTaskClient({
 	projectId,
 	title,
@@ -46,31 +47,32 @@ export async function createTaskClient({
 	priority = 'LOW',
 	assigneeIds = [],
 }) {
-	const response = await fetch(`/api/projects/${projectId}/tasks`, {
+	return internalApiRequest(`/api/projects/${projectId}/tasks`, {
 		method: 'POST',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-		body: JSON.stringify({
+		body: {
 			title,
 			description,
 			dueDate,
 			priority,
 			assigneeIds,
-		}),
+		},
 	});
-
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
 }
 
+/**
+ * Met à jour une tâche via la route interne Next.js.
+ *
+ * @param {Object} params
+ * @param {string} params.projectId
+ * @param {string} params.taskId
+ * @param {string} params.title
+ * @param {string} params.description
+ * @param {string} params.dueDate
+ * @param {string} params.status
+ * @param {string} params.priority
+ * @param {string[]} [params.assigneeIds=[]]
+ * @returns {Promise<Object|null>}
+ */
 export async function updateTaskClient({
 	projectId,
 	taskId,
@@ -81,46 +83,28 @@ export async function updateTaskClient({
 	priority,
 	assigneeIds = [],
 }) {
-	const response = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
+	return internalApiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
 		method: 'PUT',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-		body: JSON.stringify({
+		body: {
 			title,
 			description,
 			dueDate,
 			status,
 			priority,
 			assigneeIds,
-		}),
-	});
-
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
-}
-
-export async function deleteTaskClient(projectId, taskId) {
-	const response = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
-		method: 'DELETE',
-		credentials: 'include',
-		headers: {
-			Accept: 'application/json',
 		},
 	});
+}
 
-	const data = await parseJsonSafe(response);
-
-	if (!response.ok) {
-		throw new Error(getErrorMessage(data, response));
-	}
-
-	return data;
+/**
+ * Supprime une tâche via la route interne Next.js.
+ *
+ * @param {string} projectId
+ * @param {string} taskId
+ * @returns {Promise<Object|null>}
+ */
+export async function deleteTaskClient(projectId, taskId) {
+	return internalApiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
+		method: 'DELETE',
+	});
 }

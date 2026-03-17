@@ -213,8 +213,8 @@ export default function ProjectTasksSection({
 								onChange={(event) =>
 									setSearchTerm(event.target.value)
 								}
-								placeholder="Rechercher une tache"
-								ariaLabel="Rechercher une tache"
+								placeholder="Rechercher une tâche"
+								ariaLabel="Rechercher une tâche"
 							/>
 						</>
 					) : null}

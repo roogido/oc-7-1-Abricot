@@ -1,11 +1,13 @@
 /**
  * @file src/services/commentService.js
  * @description
- * Services client pour les commentaires de taches.
+ * Services client pour les commentaires de tâches via les routes internes Next.js.
  */
 
+import { internalApiRequest } from '@/services/internalApiClient';
+
 /**
- * Cree un commentaire sur une tache via la route interne Next.js.
+ * Crée un commentaire sur une tâche via la route interne Next.js.
  *
  * @param {Object} params
  * @param {string} params.projectId
@@ -14,29 +16,13 @@
  * @returns {Promise<Object|null>}
  */
 export async function createTaskComment({ projectId, taskId, content }) {
-	const response = await fetch(
+	return internalApiRequest(
 		`/api/projects/${projectId}/tasks/${taskId}/comments`,
 		{
 			method: 'POST',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
+			body: {
+				content,
 			},
-			body: JSON.stringify({ content }),
 		},
 	);
-
-	const data = await response.json().catch(() => null);
-
-	if (!response.ok) {
-		const message =
-			typeof data?.message === 'string' && data.message.trim() !== ''
-				? data.message.trim()
-				: `HTTP ${response.status}`;
-
-		throw new Error(message);
-	}
-
-	return data;
 }
