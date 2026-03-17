@@ -1,4 +1,3 @@
-// src/lib/mappers/projectMapper.js
 /**
  * @file src/lib/mappers/projectMapper.js
  * @description

@@ -1,0 +1,249 @@
+.calendarView {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.calendarHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.monthButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border: 1px solid var(--color-gray-border);
+	border-radius: 10px;
+	background-color: var(--color-white);
+	cursor: pointer;
+	transition:
+		background-color var(--transition-fast),
+		border-color var(--transition-fast),
+		transform var(--transition-fast);
+	color: var(--color-dark);
+}
+
+.monthButton:hover,
+.monthButton:focus-visible {
+	background-color: var(--color-primary-soft);
+	border-color: var(--color-primary);
+}
+
+.monthButton:active {
+	transform: translateY(1px);
+}
+
+.monthButtonNext img {
+	transform: rotate(180deg);
+}
+
+.monthLabel {
+	margin: 0;
+	color: var(--color-dark);
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-transform: capitalize;
+}
+
+.weekdaysGrid,
+.daysGrid {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+.weekdayCell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 32px;
+	color: #6b7280;
+	font-size: 0.85rem;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.dayCell {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-between;
+	min-height: 96px;
+	padding: 0.875rem;
+	border: 1px solid var(--color-gray-border);
+	border-radius: 12px;
+	background-color: var(--color-white);
+	cursor: pointer;
+	text-align: left;
+	transition:
+		border-color var(--transition-fast),
+		background-color var(--transition-fast),
+		box-shadow var(--transition-fast),
+		transform var(--transition-fast);
+}
+
+.dayCell:hover,
+.dayCell:focus-visible {
+	border-color: var(--color-primary);
+	background-color: #fff8f3;
+}
+
+.dayCell:active {
+	transform: translateY(1px);
+}
+
+.dayCellOutside {
+	opacity: 0.45;
+}
+
+.dayCellHasTasks {
+	border-color: #f0c6aa;
+}
+
+.dayCellSelected {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
+	background-color: #fff8f3;
+}
+
+.dayNumber {
+	color: var(--color-dark);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.dayMarkers {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	flex-wrap: wrap;
+}
+
+.dayMarker {
+	display: inline-flex;
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+}
+
+.dayMarkerTodo {
+	background-color: #f28b82;
+}
+
+.dayMarkerInProgress {
+	background-color: #f4b266;
+}
+
+.dayMarkerDone {
+	background-color: #7cc38a;
+}
+
+.dayCountExtra {
+	color: #6b7280;
+	font-size: 0.75rem;
+	font-weight: 500;
+	line-height: 1;
+}
+
+.selectedDaySection {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding-top: 0.5rem;
+}
+
+.selectedDayTitle {
+	margin: 0;
+	color: var(--color-dark);
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.selectedDayEmpty,
+.emptyState {
+	margin: 0;
+	color: #687280;
+	font-size: 1rem;
+	line-height: 1.4;
+}
+
+.selectedDayTasks {
+	display: flex;
+	flex-direction: column;
+	gap: 0.875rem;
+}
+
+@media (max-width: 992px) {
+	.weekdaysGrid,
+	.daysGrid {
+		gap: 0.5rem;
+	}
+
+	.dayCell {
+		min-height: 84px;
+		padding: 0.75rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.weekdaysGrid,
+	.daysGrid {
+		gap: 0.375rem;
+	}
+
+	.weekdayCell {
+		font-size: 0.75rem;
+	}
+
+	.dayCell {
+		min-height: 72px;
+		padding: 0.625rem;
+	}
+
+	.dayNumber {
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.calendarHeader {
+		gap: 0.75rem;
+	}
+
+	.monthButton {
+		width: 40px;
+		height: 40px;
+	}
+
+	.weekdaysGrid,
+	.daysGrid {
+		gap: 0.25rem;
+	}
+
+	.dayCell {
+		min-height: 64px;
+		padding: 0.5rem;
+		border-radius: 10px;
+	}
+
+	.dayMarkers {
+		gap: 0.25rem;
+	}
+
+	.dayMarker {
+		width: 6px;
+		height: 6px;
+	}
+
+	.dayCountExtra {
+		font-size: 0.68rem;
+	}
+}

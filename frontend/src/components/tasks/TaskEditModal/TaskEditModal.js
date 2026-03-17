@@ -294,7 +294,6 @@ export default function TaskEditModal({
 											onClick={() =>
 												handleStatusSelect(option.value)
 											}
-											aria-pressed={isActive}
 											role="radio"
 											aria-checked={isActive}
 										>
