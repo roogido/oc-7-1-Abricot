@@ -5,6 +5,8 @@
  * Permet de sécuriser et normaliser les objets utilisateur côté frontend.
  */
 
+import { extractRequiredObject } from './shared/payloadMapper';
+
 /**
  * Transforme un objet utilisateur brut provenant de l'API
  * en structure utilisateur sécurisée pour le frontend.
@@ -14,18 +16,14 @@
  * @throws {Error}
  */
 export function mapApiUser(rawUser) {
-	// Vérifie que le payload utilisateur est valide
-	if (!rawUser || typeof rawUser !== 'object') {
+	if (!rawUser || typeof rawUser !== 'object' || Array.isArray(rawUser)) {
 		throw new Error('Invalid user payload');
 	}
 
 	return {
-		// Normalisation des champs pour garantir un type stable côté frontend
 		id: typeof rawUser.id === 'string' ? rawUser.id : '',
 		email: typeof rawUser.email === 'string' ? rawUser.email : '',
 		name: typeof rawUser.name === 'string' ? rawUser.name : '',
-
-		// Dates retournées telles quelles si présentes
 		createdAt: rawUser.createdAt ?? null,
 		updatedAt: rawUser.updatedAt ?? null,
 	};
@@ -40,14 +38,11 @@ export function mapApiUser(rawUser) {
  * @throws {Error}
  */
 export function extractApiUser(payload) {
-	// Supporte deux formats possibles de réponse API
-	const candidate = payload?.data?.user ?? payload?.data ?? null;
+	const user = extractRequiredObject(
+		payload,
+		(currentPayload) => currentPayload?.data?.user ?? currentPayload?.data,
+		'User not found in API payload',
+	);
 
-	// Vérifie que l'utilisateur est bien présent dans la réponse
-	if (!candidate || typeof candidate !== 'object') {
-		throw new Error('User not found in API payload');
-	}
-
-	// Transforme l'utilisateur brut en objet frontend normalisé
-	return mapApiUser(candidate);
+	return mapApiUser(user);
 }

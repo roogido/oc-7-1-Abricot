@@ -1,142 +1,41 @@
 /**
  * @file src/lib/mappers/taskMapper.js
  * @description
- * Mappers des taches backend vers les modeles front utilises par l'UI.
+ * Mappers des tâches backend vers les modèles front utilisés par l'UI.
  */
 
-/**
- * Formate une date ISO en libelle court francais.
- *
- * @param {string|null|undefined} dateValue
- * @returns {string}
- */
-function formatDueDate(dateValue) {
-	if (typeof dateValue !== 'string' || dateValue.trim() === '') {
-		return '';
-	}
+import { extractProjectsList } from './projectMapper';
+import { formatMediumDueDate } from './shared/dateMapper';
+import {
+	DEFAULT_ASSOCIATED_PROJECT_NAME,
+	DEFAULT_TASK_TITLE,
+} from './shared/mapperConstants';
+import {
+	compareTasksByStatusAndDueDate,
+	getTaskDueDateTime,
+	getTaskPriorityOrder,
+	getTaskStatusOrder,
+	mapTaskStatusLabel,
+	mapTaskStatusVariant,
+} from './shared/taskUiMapper';
 
-	const date = new Date(dateValue);
-
-	if (Number.isNaN(date.getTime())) {
-		return '';
-	}
-
-	return new Intl.DateTimeFormat('fr-FR', {
-		day: 'numeric',
-		month: 'long',
-	}).format(date);
-}
-
-/**
- * Retourne le libelle UI du statut.
- *
- * @param {string} status
- * @returns {string}
- */
-function mapTaskStatusLabel(status) {
-	switch (status) {
-		case 'TODO':
-			return 'À faire';
-		case 'IN_PROGRESS':
-			return 'En cours';
-		case 'DONE':
-			return 'Terminée';
-		default:
-			return 'Inconnue';
-	}
-}
-
-/**
- * Retourne la variante visuelle UI du statut.
- *
- * @param {string} status
- * @returns {'red'|'orange'|'green'}
- */
-function mapTaskStatusVariant(status) {
-	switch (status) {
-		case 'TODO':
-			return 'red';
-		case 'IN_PROGRESS':
-			return 'orange';
-		case 'DONE':
-			return 'green';
-		default:
-			return 'red';
-	}
-}
-
-/**
- * Extrait la liste brute des projets depuis le payload backend.
- *
- * @param {Object} payload
- * @returns {Object[]}
- * @throws {Error}
- */
-function extractProjects(payload) {
-	const projects = payload?.data?.projects;
-
-	if (!Array.isArray(projects)) {
-		throw new Error('Projects not found in API payload');
-	}
-
-	return projects;
-}
-
-/**
- * Retourne un ordre numérique associé au statut d'une tâche.
- * Permet de trier les tâches selon l'ordre métier :
- * TODO -> IN_PROGRESS -> DONE.
- *
- * @param {string} status
- * @returns {number}
- */
-function getTaskStatusOrder(status) {
-	switch (status) {
-		case 'TODO':
-			return 0;
-		case 'IN_PROGRESS':
-			return 1;
-		case 'DONE':
-			return 2;
-		default:
-			return 99;
-	}
-}
-
-/**
- * Retourne le timestamp de la date d'échéance d'une tâche.
- * Si la date est invalide ou absente, retourne une valeur maximale.
- *
- * @param {Object} task
- * @returns {number}
- */
-function getTaskDueDateTime(task) {
-	if (typeof task?.dueDateRaw !== 'string' || task.dueDateRaw.trim() === '') {
-		return Number.MAX_SAFE_INTEGER;
-	}
-
-	const timestamp = new Date(task.dueDateRaw).getTime();
-
-	return Number.isNaN(timestamp) ? Number.MAX_SAFE_INTEGER : timestamp;
-}
-
-/**
- * Compare deux tâches selon l'ordre métier du dashboard.
- *
- * @param {Object} a
- * @param {Object} b
- * @returns {number}
- */
-function compareDashboardTasks(a, b) {
-	const statusOrderDiff =
-		getTaskStatusOrder(a.status) - getTaskStatusOrder(b.status);
-
-	if (statusOrderDiff !== 0) {
-		return statusOrderDiff;
-	}
-
-	return getTaskDueDateTime(a) - getTaskDueDateTime(b);
-}
+const KANBAN_COLUMNS_CONFIG = [
+	{
+		id: 'todo',
+		title: 'À faire',
+		status: 'TODO',
+	},
+	{
+		id: 'in-progress',
+		title: 'En cours',
+		status: 'IN_PROGRESS',
+	},
+	{
+		id: 'done',
+		title: 'Terminées',
+		status: 'DONE',
+	},
+];
 
 /**
  * Vérifie si une tâche est assignée à l'utilisateur courant.
@@ -160,13 +59,88 @@ function isTaskAssignedToUser(rawTask, currentUserId) {
 }
 
 /**
+ * Retourne l'identifiant du projet lié à une tâche.
+ *
+ * @param {Object} rawTask
+ * @returns {string}
+ */
+function getTaskProjectId(rawTask) {
+	if (typeof rawTask?.projectId === 'string') {
+		return rawTask.projectId;
+	}
+
+	if (typeof rawTask?.project?.id === 'string') {
+		return rawTask.project.id;
+	}
+
+	return '';
+}
+
+/**
+ * Retourne le nom du projet lié à une tâche.
+ *
+ * @param {Object} rawTask
+ * @param {Map<string, string>} projectsMap
+ * @returns {string}
+ */
+function getTaskProjectName(rawTask, projectsMap) {
+	const projectId = getTaskProjectId(rawTask);
+
+	if (projectId !== '') {
+		return projectsMap.get(projectId) ?? DEFAULT_ASSOCIATED_PROJECT_NAME;
+	}
+
+	return DEFAULT_ASSOCIATED_PROJECT_NAME;
+}
+
+/**
+ * Mappe une tâche dashboard vers le format attendu par une carte Kanban.
+ *
+ * @param {Object} task
+ * @returns {Object}
+ */
+function mapTaskToKanbanCard(task) {
+	return {
+		id: task.id,
+		title: task.title,
+		description: task.description,
+		statusVariant: task.statusVariant,
+		statusLabel: task.statusLabel,
+		projectName: task.projectName,
+		dueDate: task.dueDateLabel,
+		commentsCount: task.commentsCount,
+		viewHref: `/projects/${task.projectId}/tasks/${task.id}`,
+	};
+}
+
+/**
+ * Construit une colonne Kanban.
+ *
+ * @param {Object} config
+ * @param {Object[]} tasks
+ * @returns {Object}
+ */
+function buildKanbanColumn(config, tasks) {
+	const filteredTasks = tasks
+		.filter((task) => task.status === config.status)
+		.sort(compareTasksByStatusAndDueDate);
+
+	return {
+		id: config.id,
+		title: config.title,
+		count: filteredTasks.length,
+		tasks: filteredTasks.map(mapTaskToKanbanCard),
+	};
+}
+
+/**
  * Construit une map projectId -> projectName.
  *
  * @param {Object} payload
  * @returns {Map<string, string>}
  */
 export function buildProjectsNameMap(payload) {
-	const projects = extractProjects(payload);
+	const projects = extractProjectsList(payload);
 	const projectsMap = new Map();
 
 	for (const project of projects) {
@@ -174,7 +148,7 @@ export function buildProjectsNameMap(payload) {
 		const projectName =
 			typeof project?.name === 'string' && project.name.trim() !== ''
 				? project.name.trim()
-				: 'Projet associé';
+				: DEFAULT_ASSOCIATED_PROJECT_NAME;
 
 		if (projectId !== '') {
 			projectsMap.set(projectId, projectName);
@@ -185,7 +159,7 @@ export function buildProjectsNameMap(payload) {
 }
 
 /**
- * Transforme une tache API en modele front pour la vue liste du dashboard.
+ * Transforme une tâche API en modèle front pour la vue liste du dashboard.
  *
  * @param {Object} rawTask
  * @param {Map<string, string>} projectsMap
@@ -197,35 +171,28 @@ export function mapAssignedTaskToDashboardListItem(rawTask, projectsMap) {
 		throw new Error('Invalid assigned task payload');
 	}
 
-	const projectId =
-		typeof rawTask.projectId === 'string'
-			? rawTask.projectId
-			: typeof rawTask?.project?.id === 'string'
-				? rawTask.project.id
-				: '';
-
-	const projectName =
-		projectId !== ''
-			? (projectsMap.get(projectId) ?? 'Projet associé')
-			: 'Projet associé';
+	const projectId = getTaskProjectId(rawTask);
+	const projectName = getTaskProjectName(rawTask, projectsMap);
 
 	return {
 		id: typeof rawTask.id === 'string' ? rawTask.id : '',
 		title:
 			typeof rawTask.title === 'string' && rawTask.title.trim() !== ''
 				? rawTask.title.trim()
-				: 'Tâche sans titre',
+				: DEFAULT_TASK_TITLE,
 		description:
 			typeof rawTask.description === 'string'
 				? rawTask.description.trim()
 				: '',
 		status: typeof rawTask.status === 'string' ? rawTask.status : 'TODO',
+		priority:
+			typeof rawTask.priority === 'string' ? rawTask.priority : 'LOW',
 		statusLabel: mapTaskStatusLabel(rawTask.status),
 		statusVariant: mapTaskStatusVariant(rawTask.status),
 		projectId,
 		projectName,
 		dueDateRaw: typeof rawTask.dueDate === 'string' ? rawTask.dueDate : '',
-		dueDateLabel: formatDueDate(rawTask.dueDate),
+		dueDateLabel: formatMediumDueDate(rawTask.dueDate),
 		commentsCount: Array.isArray(rawTask.comments)
 			? rawTask.comments.length
 			: 0,
@@ -233,7 +200,7 @@ export function mapAssignedTaskToDashboardListItem(rawTask, projectsMap) {
 }
 
 /**
- * Extrait puis transforme la liste des taches assignees.
+ * Extrait puis transforme la liste des tâches assignées.
  *
  * @param {Object} payload
  * @param {Map<string, string>} projectsMap
@@ -249,11 +216,11 @@ export function extractAssignedTasks(payload, projectsMap) {
 
 	return tasks
 		.map((task) => mapAssignedTaskToDashboardListItem(task, projectsMap))
-		.sort(compareDashboardTasks);
+		.sort(compareTasksByStatusAndDueDate);
 }
 
 /**
- * Construit les colonnes Kanban du dashboard a partir des taches assignees.
+ * Construit les colonnes Kanban du dashboard à partir des tâches assignées.
  *
  * @param {Object[]} tasks
  * @returns {Object[]}
@@ -261,62 +228,9 @@ export function extractAssignedTasks(payload, projectsMap) {
 export function buildDashboardKanbanColumns(tasks) {
 	const safeTasks = Array.isArray(tasks) ? tasks : [];
 
-	const todoTasks = safeTasks.filter((task) => task.status === 'TODO');
-	const inProgressTasks = safeTasks.filter(
-		(task) => task.status === 'IN_PROGRESS',
+	return KANBAN_COLUMNS_CONFIG.map((config) =>
+		buildKanbanColumn(config, safeTasks),
 	);
-	const doneTasks = safeTasks.filter((task) => task.status === 'DONE');
-
-	return [
-		{
-			id: 'todo',
-			title: 'À faire',
-			count: todoTasks.length,
-			tasks: todoTasks.map((task) => ({
-				id: task.id,
-				title: task.title,
-				description: task.description,
-				statusVariant: task.statusVariant,
-				statusLabel: task.statusLabel,
-				projectName: task.projectName,
-				dueDate: task.dueDateLabel,
-				commentsCount: task.commentsCount,
-				viewHref: `/projects/${task.projectId}/tasks/${task.id}`,
-			})),
-		},
-		{
-			id: 'in-progress',
-			title: 'En cours',
-			count: inProgressTasks.length,
-			tasks: inProgressTasks.map((task) => ({
-				id: task.id,
-				title: task.title,
-				description: task.description,
-				statusVariant: task.statusVariant,
-				statusLabel: task.statusLabel,
-				projectName: task.projectName,
-				dueDate: task.dueDateLabel,
-				commentsCount: task.commentsCount,
-				viewHref: `/projects/${task.projectId}/tasks/${task.id}`,
-			})),
-		},
-		{
-			id: 'done',
-			title: 'Terminées',
-			count: doneTasks.length,
-			tasks: doneTasks.map((task) => ({
-				id: task.id,
-				title: task.title,
-				description: task.description,
-				statusVariant: task.statusVariant,
-				statusLabel: task.statusLabel,
-				projectName: task.projectName,
-				dueDate: task.dueDateLabel,
-				commentsCount: task.commentsCount,
-				viewHref: `/projects/${task.projectId}/tasks/${task.id}`,
-			})),
-		},
-	];
 }
 
 /**
@@ -329,7 +243,7 @@ export function buildDashboardKanbanColumns(tasks) {
  * @throws {Error}
  */
 export function extractProjectsWithAssignedTasks(payload, currentUserId) {
-	const projects = extractProjects(payload);
+	const projects = extractProjectsList(payload);
 
 	return projects
 		.map((project) => {
@@ -337,7 +251,7 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 			const projectName =
 				typeof project?.name === 'string' && project.name.trim() !== ''
 					? project.name.trim()
-					: 'Projet associé';
+					: DEFAULT_ASSOCIATED_PROJECT_NAME;
 
 			const rawTasks = Array.isArray(project?.tasks) ? project.tasks : [];
 
@@ -356,7 +270,7 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 						new Map([[projectId, projectName]]),
 					),
 				)
-				.sort(compareDashboardTasks);
+				.sort(compareTasksByStatusAndDueDate);
 
 			return {
 				id: projectId,
@@ -366,6 +280,10 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 						? project.description.trim()
 						: '',
 				tasks: mappedTasks,
+				firstTaskPriorityOrder:
+					mappedTasks.length > 0
+						? getTaskPriorityOrder(mappedTasks[0].priority)
+						: 99,
 				firstTaskStatusOrder:
 					mappedTasks.length > 0
 						? getTaskStatusOrder(mappedTasks[0].status)
@@ -378,6 +296,13 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 		})
 		.filter((project) => project.tasks.length > 0)
 		.sort((a, b) => {
+			const priorityDiff =
+				a.firstTaskPriorityOrder - b.firstTaskPriorityOrder;
+
+			if (priorityDiff !== 0) {
+				return priorityDiff;
+			}
+
 			const statusDiff = a.firstTaskStatusOrder - b.firstTaskStatusOrder;
 
 			if (statusDiff !== 0) {

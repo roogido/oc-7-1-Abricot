@@ -1,8 +1,7 @@
-// src/app/(protected)/projects/[projectId]/page.js
 /**
  * @file src/app/(protected)/projects/[projectId]/page.js
  * @description
- * Page detail d'un projet avec donnees backend reelles.
+ * Page détail d'un projet avec données backend réelles.
  */
 
 import { cookies } from 'next/headers';
@@ -17,9 +16,9 @@ import { requireUser } from '@/lib/authServer';
 import {
 	extractProject,
 	mapProjectDetail,
-	extractProjectTasks,
 	getUserInitials,
 } from '@/lib/mappers/projectMapper';
+import { extractProjectTasks } from '@/lib/mappers/projectTaskMapper';
 import { getProjectById, getProjectTasks } from '@/services/projectService';
 
 import styles from './page.module.css';

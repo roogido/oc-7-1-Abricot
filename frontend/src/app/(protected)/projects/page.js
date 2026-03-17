@@ -1,4 +1,3 @@
-// src/app/(protected)/projects/page.js
 /**
  * @file src/app/(protected)/projects/page.js
  * @description
