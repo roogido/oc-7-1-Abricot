@@ -9,7 +9,7 @@
 import { useState } from 'react';
 
 import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject';
-import { createTaskComment } from '@/services/commentService';
+import { createTaskCommentClient } from '@/services/commentClientService';
 
 function formatNowLabel() {
 	return new Intl.DateTimeFormat('fr-FR', {
@@ -37,7 +37,7 @@ export default function TaskCommentsCardClient({
 		setCommentErrorMessage('');
 
 		try {
-			await createTaskComment({
+			await createTaskCommentClient({
 				projectId: task.projectId,
 				taskId: task.id,
 				content,

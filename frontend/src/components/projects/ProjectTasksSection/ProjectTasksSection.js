@@ -10,7 +10,7 @@ import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject'
 import ProjectTaskEditAction from '@/components/projects/ProjectTaskEditAction/ProjectTaskEditAction';
 import ProjectTasksCalendarView from '@/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView';
 
-import { createTaskCommentClient } from '@/services/taskClientService';
+import { createTaskCommentClient } from '@/services/commentClientService';
 
 import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
 import checkedIcon from '@/assets/icons/checked-icon.png';
