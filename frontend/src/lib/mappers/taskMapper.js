@@ -9,6 +9,7 @@ import { formatMediumDueDate } from './shared/dateMapper';
 import {
 	compareTasksByStatusAndDueDate,
 	getTaskDueDateTime,
+	getTaskPriorityOrder,
 	getTaskStatusOrder,
 	mapTaskStatusLabel,
 	mapTaskStatusVariant,
@@ -116,7 +117,9 @@ function mapTaskToKanbanCard(task) {
  * @returns {Object}
  */
 function buildKanbanColumn(config, tasks) {
-	const filteredTasks = tasks.filter((task) => task.status === config.status);
+	const filteredTasks = tasks
+		.filter((task) => task.status === config.status)
+		.sort(compareTasksByStatusAndDueDate);
 
 	return {
 		id: config.id,
@@ -178,6 +181,8 @@ export function mapAssignedTaskToDashboardListItem(rawTask, projectsMap) {
 				? rawTask.description.trim()
 				: '',
 		status: typeof rawTask.status === 'string' ? rawTask.status : 'TODO',
+		priority:
+			typeof rawTask.priority === 'string' ? rawTask.priority : 'LOW',
 		statusLabel: mapTaskStatusLabel(rawTask.status),
 		statusVariant: mapTaskStatusVariant(rawTask.status),
 		projectId,
@@ -271,6 +276,10 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 						? project.description.trim()
 						: '',
 				tasks: mappedTasks,
+				firstTaskPriorityOrder:
+					mappedTasks.length > 0
+						? getTaskPriorityOrder(mappedTasks[0].priority)
+						: 99,
 				firstTaskStatusOrder:
 					mappedTasks.length > 0
 						? getTaskStatusOrder(mappedTasks[0].status)
@@ -283,6 +292,13 @@ export function extractProjectsWithAssignedTasks(payload, currentUserId) {
 		})
 		.filter((project) => project.tasks.length > 0)
 		.sort((a, b) => {
+			const priorityDiff =
+				a.firstTaskPriorityOrder - b.firstTaskPriorityOrder;
+
+			if (priorityDiff !== 0) {
+				return priorityDiff;
+			}
+
 			const statusDiff = a.firstTaskStatusOrder - b.firstTaskStatusOrder;
 
 			if (statusDiff !== 0) {

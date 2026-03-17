@@ -43,6 +43,28 @@ export function mapTaskStatusVariant(status) {
 }
 
 /**
+ * Retourne un ordre numérique associé à la priorité d'une tâche.
+ *
+ * Ordre métier :
+ * HIGH -> MEDIUM -> LOW
+ *
+ * @param {string} priority
+ * @returns {number}
+ */
+export function getTaskPriorityOrder(priority) {
+	switch (priority) {
+		case 'HIGH':
+			return 0;
+		case 'MEDIUM':
+			return 1;
+		case 'LOW':
+			return 2;
+		default:
+			return 99;
+	}
+}
+
+/**
  * Retourne un ordre numérique associé au statut d'une tâche.
  *
  * @param {string} status
@@ -79,13 +101,20 @@ export function getTaskDueDateTime(task) {
 
 /**
  * Compare deux tâches selon l'ordre métier :
- * statut, puis date d'échéance.
+ * priorité, puis statut, puis date d'échéance.
  *
  * @param {Object} a
  * @param {Object} b
  * @returns {number}
  */
 export function compareTasksByStatusAndDueDate(a, b) {
+	const priorityOrderDiff =
+		getTaskPriorityOrder(a?.priority) - getTaskPriorityOrder(b?.priority);
+
+	if (priorityOrderDiff !== 0) {
+		return priorityOrderDiff;
+	}
+
 	const statusOrderDiff =
 		getTaskStatusOrder(a?.status) - getTaskStatusOrder(b?.status);
 
