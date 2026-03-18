@@ -1,25 +1,31 @@
 /**
  * @file src/app/api/auth/me/route.js
  * @description
- * Route Handler Next.js retournant l'utilisateur authentifié
- * à partir du cookie JWT httpOnly.
+ * Route Handler Next.js retournant l'utilisateur authentifié depuis le cookie JWT.
  */
 
 import { NextResponse } from 'next/server';
-import { TOKEN_COOKIE, TOKEN_SAMESITE, TOKEN_PATH } from '@/lib/authConstants';
-import { ApiClientError } from '@/services/apiClient';
 import { getCurrentUser } from '@/services/authService';
 import { extractApiUser } from '@/lib/mappers/userMapper';
+import {
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	createNotAuthenticatedResponse,
+	getAuthToken,
+} from '@/app/api/_shared/routeHelpers';
 
+/**
+ * Retourne l'utilisateur authentifié courant.
+ *
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
+ */
 export async function GET(request) {
 	try {
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
 		const data = await getCurrentUser(token);
@@ -31,28 +37,6 @@ export async function GET(request) {
 			data: { user },
 		});
 	} catch (error) {
-		if (error instanceof ApiClientError) {
-			const response = NextResponse.json(
-				{ success: false, message: error.message },
-				{ status: error.status },
-			);
-
-			if (error.status === 401 || error.status === 403) {
-				response.cookies.set(TOKEN_COOKIE, '', {
-					httpOnly: true,
-					sameSite: TOKEN_SAMESITE,
-					secure: process.env.NODE_ENV === 'production',
-					path: TOKEN_PATH,
-					maxAge: 0,
-				});
-			}
-
-			return response;
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
-		);
+		return createApiErrorResponse(error) ?? createInternalErrorResponse();
 	}
 }

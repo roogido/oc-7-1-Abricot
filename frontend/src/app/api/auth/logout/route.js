@@ -10,7 +10,7 @@ import { TOKEN_COOKIE } from '@/lib/authConstants';
 /**
  * Supprime le cookie d'authentification JWT.
  *
- * @returns {NextResponse} Réponse JSON confirmant la déconnexion
+ * @returns {NextResponse}
  */
 export async function POST() {
 	const response = NextResponse.json({
@@ -18,7 +18,6 @@ export async function POST() {
 		message: 'Logged out',
 	});
 
-	// Suppression du cookie httpOnly contenant le JWT
 	response.cookies.delete(TOKEN_COOKIE);
 
 	return response;

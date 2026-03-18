@@ -1,32 +1,37 @@
-// src/app/api/projects/[projectId]/route.js
+/**
+ * @file src/app/api/projects/[projectId]/route.js
+ * @description
+ * Route Handler Next.js de mise à jour et suppression d'un projet.
+ */
+
 import { NextResponse } from 'next/server';
 
-import { TOKEN_COOKIE, TOKEN_SAMESITE, TOKEN_PATH } from '@/lib/authConstants';
-import { apiRequest, ApiClientError } from '@/services/apiClient';
+import { apiRequest } from '@/services/apiClient';
+import {
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	createNotAuthenticatedResponse,
+	getAuthToken,
+	parseJsonBody,
+} from '@/app/api/_shared/routeHelpers';
 
-function clearAuthCookie(response) {
-	response.cookies.set(TOKEN_COOKIE, '', {
-		httpOnly: true,
-		sameSite: TOKEN_SAMESITE,
-		secure: process.env.NODE_ENV === 'production',
-		path: TOKEN_PATH,
-		maxAge: 0,
-	});
-}
-
+/**
+ * Met à jour un projet et synchronise ses contributeurs.
+ *
+ * @param {Request} request
+ * @param {Object} context
+ * @returns {Promise<NextResponse>}
+ */
 export async function PUT(request, context) {
 	try {
 		const { projectId } = await context.params;
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
-		const body = await request.json().catch(() => null);
+		const body = await parseJsonBody(request);
 
 		const title = typeof body?.title === 'string' ? body.title.trim() : '';
 		const description =
@@ -73,7 +78,6 @@ export async function PUT(request, context) {
 		const nextContributorIds = new Set(
 			contributors.map((user) => user.id.trim()),
 		);
-
 		const initialContributorIdsSet = new Set(initialContributorIds);
 
 		const contributorsToAdd = contributors.filter(
@@ -107,40 +111,24 @@ export async function PUT(request, context) {
 
 		return NextResponse.json(updatedProject);
 	} catch (error) {
-		if (error instanceof ApiClientError) {
-			const response = NextResponse.json(
-				{
-					success: false,
-					message: error.message,
-					data: error.data,
-				},
-				{ status: error.status },
-			);
-
-			if (error.status === 401 || error.status === 403) {
-				clearAuthCookie(response);
-			}
-
-			return response;
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
-		);
+		return createApiErrorResponse(error) ?? createInternalErrorResponse();
 	}
 }
 
+/**
+ * Supprime un projet.
+ *
+ * @param {Request} request
+ * @param {Object} context
+ * @returns {Promise<NextResponse>}
+ */
 export async function DELETE(request, context) {
 	try {
 		const { projectId } = await context.params;
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
 		const data = await apiRequest(`/projects/${projectId}`, {
@@ -150,26 +138,6 @@ export async function DELETE(request, context) {
 
 		return NextResponse.json(data);
 	} catch (error) {
-		if (error instanceof ApiClientError) {
-			const response = NextResponse.json(
-				{
-					success: false,
-					message: error.message,
-					data: error.data,
-				},
-				{ status: error.status },
-			);
-
-			if (error.status === 401 || error.status === 403) {
-				clearAuthCookie(response);
-			}
-
-			return response;
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
-		);
+		return createApiErrorResponse(error) ?? createInternalErrorResponse();
 	}
 }

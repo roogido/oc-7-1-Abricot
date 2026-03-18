@@ -5,40 +5,38 @@
  */
 
 import { NextResponse } from 'next/server';
-import { TOKEN_COOKIE } from '@/lib/authConstants';
-import { ApiClientError } from '@/services/apiClient';
 import { updateCurrentUserPassword } from '@/services/authService';
+import {
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	createNotAuthenticatedResponse,
+	getAuthToken,
+	parseJsonBody,
+} from '@/app/api/_shared/routeHelpers';
 
 /**
  * Met à jour le mot de passe de l'utilisateur authentifié.
  *
- * @param {Request} request Requête HTTP entrante
- * @returns {Promise<NextResponse>} Réponse JSON de succès ou d'erreur
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
  */
 export async function PUT(request) {
 	try {
-		// Lecture du JWT depuis le cookie httpOnly
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
-		// Parsing tolérant du corps JSON
-		const body = await request.json().catch(() => null);
+		const body = await parseJsonBody(request);
 
 		const currentPassword =
 			typeof body?.currentPassword === 'string'
 				? body.currentPassword
 				: '';
-
 		const newPassword =
 			typeof body?.newPassword === 'string' ? body.newPassword : '';
 
-		// Validation minimale du payload
 		if (currentPassword.trim() === '' || newPassword.trim() === '') {
 			return NextResponse.json(
 				{ success: false, message: 'Invalid payload' },
@@ -57,22 +55,11 @@ export async function PUT(request) {
 			data: data?.data ?? null,
 		});
 	} catch (error) {
-		// Erreur métier remontée par le client API
-		if (error instanceof ApiClientError) {
-			return NextResponse.json(
-				{
-					success: false,
-					message: error.message,
-					error: error.data?.error ?? null,
-					data: error.data?.data ?? null,
-				},
-				{ status: error.status },
-			);
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
+		return (
+			createApiErrorResponse(error, {
+				includeError: true,
+				includeData: true,
+			}) ?? createInternalErrorResponse()
 		);
 	}
 }
