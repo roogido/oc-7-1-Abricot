@@ -1,25 +1,17 @@
-// src/components/projects/ProjectTaskCreateAction/ProjectTaskCreateAction.js
+/**
+ * @file src/components/projects/ProjectTaskCreateAction/ProjectTaskCreateAction.js
+ * @description
+ * Action client d'ouverture et de soumission de la modale de création de tâche.
+ */
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import TaskFormModal from '@/components/tasks/TaskFormModal/TaskFormModal';
 import { createTaskClient } from '@/services/taskClientService';
-import { searchUsersClient } from '@/services/userClientService';
-
-function deduplicateUsers(users) {
-	const seen = new Set();
-
-	return users.filter((user) => {
-		if (!user?.id || seen.has(user.id)) {
-			return false;
-		}
-
-		seen.add(user.id);
-		return true;
-	});
-}
+import useContributorSelection from '@/hooks/useContributorSelection';
 
 export default function ProjectTaskCreateAction({
 	projectId,
@@ -31,99 +23,30 @@ export default function ProjectTaskCreateAction({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
-	const [contributorsSearch, setContributorsSearch] = useState('');
-	const [contributorOptions, setContributorOptions] = useState([]);
-	const [selectedContributors, setSelectedContributors] = useState([]);
-	const [contributorsLoading, setContributorsLoading] = useState(false);
-	const [contributorsErrorMessage, setContributorsErrorMessage] =
-		useState('');
+	const emptyInitialContributors = useMemo(() => [], []);
 
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		const normalizedQuery = contributorsSearch.trim();
-
-		if (normalizedQuery.length < 2) {
-			setContributorOptions([]);
-			setContributorsLoading(false);
-			setContributorsErrorMessage('');
-			return;
-		}
-
-		let isCancelled = false;
-
-		const timeoutId = window.setTimeout(async () => {
-			setContributorsLoading(true);
-			setContributorsErrorMessage('');
-
-			try {
-				const users = await searchUsersClient(normalizedQuery);
-
-				if (isCancelled) {
-					return;
-				}
-
-				const selectedIds = new Set(
-					selectedContributors.map((user) => user.id),
-				);
-
-				setContributorOptions(
-					users.filter((user) => !selectedIds.has(user.id)),
-				);
-			} catch (error) {
-				if (isCancelled) {
-					return;
-				}
-
-				setContributorOptions([]);
-				setContributorsErrorMessage(
-					error instanceof Error
-						? error.message
-						: 'Impossible de rechercher les utilisateurs.',
-				);
-			} finally {
-				if (!isCancelled) {
-					setContributorsLoading(false);
-				}
-			}
-		}, 250);
-
-		return () => {
-			isCancelled = true;
-			window.clearTimeout(timeoutId);
-		};
-	}, [contributorsSearch, isOpen, selectedContributors]);
-
-	function resetFormState() {
-		setErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setSelectedContributors([]);
-		setContributorsLoading(false);
-		setContributorsErrorMessage('');
-	}
-
-	function handleAddContributor(user) {
-		setSelectedContributors((prev) => deduplicateUsers([...prev, user]));
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsErrorMessage('');
-	}
-
-	function handleRemoveContributor(userId) {
-		setSelectedContributors((prev) =>
-			prev.filter((user) => user.id !== userId),
-		);
-	}
+	const {
+		contributorsSearch,
+		setContributorsSearch,
+		contributorOptions,
+		selectedContributors,
+		contributorsLoading,
+		contributorsErrorMessage,
+		resetContributorState,
+		handleAddContributor,
+		handleRemoveContributor,
+	} = useContributorSelection({
+		isOpen,
+		initialSelectedItems: emptyInitialContributors,
+	});
 
 	function handleClose() {
 		if (isSubmitting) {
 			return;
 		}
 
-		resetFormState();
+		setErrorMessage('');
+		resetContributorState();
 		onClose();
 	}
 
@@ -141,7 +64,8 @@ export default function ProjectTaskCreateAction({
 				assigneeIds: values.assigneeIds,
 			});
 
-			resetFormState();
+			setErrorMessage('');
+			resetContributorState();
 			onClose();
 			router.refresh();
 		} catch (error) {

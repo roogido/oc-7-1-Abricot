@@ -1,395 +1,288 @@
-/* src/components/tasks/TaskEditModal/TaskEditModal.module.css */
+/**
+ * @file src/components/tasks/TaskEditModal/TaskEditModal.module.css
+ * @description
+ * Styles de la modale d'édition et de suppression d'une tâche projet.
+ */
+
 .form {
-    display: flex;
-    flex-direction: column;
-    min-height: 616px;
-    padding: 79px 73px 79px 73px;
-    box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	min-height: 616px;
+	padding: 79px 73px 79px 73px;
+	box-sizing: border-box;
 }
 
 .fieldsBlock {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 }
 
 .title {
-    margin: 0;
-    color: #1f1f1f;
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 1.2;
+	margin: 0;
+	color: #1f1f1f;
+	font-size: 24px;
+	font-weight: 400;
+	line-height: 1.2;
 }
 
 .fields {
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    width: 100%;
+	margin-top: 40px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	width: 100%;
 }
 
 .field {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	width: 100%;
 }
 
 .label {
-    color: #000000;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.2;
+	color: #000000;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.2;
 }
 
 .input,
 .textarea,
 .dateInput,
-.selectLike,
-.searchInput {
-    width: 100%;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    background: #ffffff;
-    color: #000000;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.2;
-    outline: none;
-    box-sizing: border-box;
-    transition:
-        border-color var(--transition-fast),
-        box-shadow var(--transition-fast);
+.selectLike {
+	width: 100%;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+	background: #ffffff;
+	color: #000000;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.2;
+	outline: none;
+	box-sizing: border-box;
+	transition:
+		border-color var(--transition-fast),
+		box-shadow var(--transition-fast);
 }
 
 .input,
 .dateInput,
-.selectLike,
-.searchInput {
-    height: 53px;
-    padding: 17px 19px;
+.selectLike {
+	height: 53px;
+	padding: 17px 19px;
 }
 
 .textarea {
-    min-height: 77px;
-    padding: 17px 19px;
-    resize: none;
+	min-height: 77px;
+	padding: 17px 19px;
+	resize: none;
 }
 
 .input:focus,
 .textarea:focus,
 .selectLike:focus-visible,
-.searchInput:focus,
 .dateInput:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
 }
 
 .dateInputWrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
 }
 
 .dateInput {
-    padding-right: 52px;
+	padding-right: 52px;
 }
 
 .dateInput::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    position: absolute;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
+	opacity: 0;
+	position: absolute;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
 }
 
 .dateIconButton {
-    position: absolute;
-    right: 19px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    z-index: 2;
+	position: absolute;
+	right: 19px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	z-index: 2;
 }
 
 .dateIcon {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-    pointer-events: none;
+	width: 18px;
+	height: 18px;
+	object-fit: contain;
+	pointer-events: none;
 }
 
 .statusChips {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 
 .statusChipButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
 }
 
-.priorityBox,
-.contributorsBox {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.priorityBox {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .selectLike {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    text-align: left;
-    cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	text-align: left;
+	cursor: pointer;
 }
 
 .selectPlaceholder {
-    color: #687280;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	color: #687280;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .selectIcon {
-    width: 16px;
-    height: 8px;
-    flex: 0 0 auto;
-    object-fit: contain;
+	width: 16px;
+	height: 8px;
+	flex: 0 0 auto;
+	object-fit: contain;
 }
 
 .priorityPanel {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    background: #ffffff;
-    overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+	background: #ffffff;
+	overflow: hidden;
 }
 
 .priorityItem {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    border: none;
-    border-bottom: 1px solid #f3f4f6;
-    background: #ffffff;
-    color: #111827;
-    font-size: 13px;
-    line-height: 1.2;
-    text-align: left;
-    cursor: pointer;
+	display: flex;
+	align-items: center;
+	padding: 12px 16px;
+	border: none;
+	border-bottom: 1px solid #f3f4f6;
+	background: #ffffff;
+	color: #111827;
+	font-size: 13px;
+	line-height: 1.2;
+	text-align: left;
+	cursor: pointer;
 }
 
 .priorityItem:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .priorityItem:hover,
 .priorityItem:focus-visible {
-    background: #f9fafb;
-}
-
-.selectedContributors {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.selectedContributor {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: var(--tag-grey-bg);
-    color: var(--tag-grey-text);
-    max-width: 100%;
-}
-
-.selectedContributorText {
-    font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.removeContributorButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    flex: 0 0 auto;
-}
-
-.searchPanel {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.resultsList {
-    display: flex;
-    flex-direction: column;
-    max-height: 180px;
-    overflow-y: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    background: #ffffff;
-}
-
-.resultItem {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px 16px;
-    border: none;
-    border-bottom: 1px solid #f3f4f6;
-    background: #ffffff;
-    text-align: left;
-    cursor: pointer;
-}
-
-.resultItem:last-child {
-    border-bottom: none;
-}
-
-.resultItem:hover,
-.resultItem:focus-visible {
-    background: #f9fafb;
-}
-
-.resultName {
-    color: #111827;
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.2;
-}
-
-.resultEmail {
-    color: #687280;
-    font-size: 12px;
-    line-height: 1.2;
-}
-
-.resultsMessage {
-    margin: 0;
-    padding: 12px 16px;
-    color: #687280;
-    font-size: 12px;
-    line-height: 1.3;
-}
-
-.resultsErrorMessage {
-    margin: 0;
-    padding: 12px 16px;
-    color: var(--tag-red-text);
-    font-size: 12px;
-    line-height: 1.3;
+	background: #f9fafb;
 }
 
 .errorMessage {
-    margin: 20px 0 0;
-    color: var(--tag-red-text);
-    font-size: 14px;
-    line-height: 1.3;
+	margin: 20px 0 0;
+	color: var(--tag-red-text);
+	font-size: 14px;
+	line-height: 1.3;
 }
 
 .actions {
-    margin-top: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+	margin-top: 56px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
 }
 
 .actions :global(button) {
-    min-width: 181px;
-    height: 50px;
+	min-width: 181px;
+	height: 50px;
 }
 
 .deleteButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 50px;
-    padding: 0 18px;
-    border: 1px solid #ef4444;
-    border-radius: 10px;
-    background: #ffffff;
-    color: #ef4444;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1;
-    cursor: pointer;
-    transition:
-        background-color var(--transition-fast),
-        color var(--transition-fast),
-        border-color var(--transition-fast);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 50px;
+	padding: 0 18px;
+	border: 1px solid #ef4444;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #ef4444;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+	transition:
+		background-color var(--transition-fast),
+		color var(--transition-fast),
+		border-color var(--transition-fast);
 }
 
 .deleteButton:hover,
 .deleteButton:focus-visible {
-    background: #fef2f2;
+	background: #fef2f2;
 }
 
 .deleteButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 @media (max-width: 640px) {
-    .form {
-        min-height: auto;
-        padding: 64px 24px 32px;
-    }
+	.form {
+		min-height: auto;
+		padding: 64px 24px 32px;
+	}
 
-    .title {
-        font-size: 22px;
-    }
+	.title {
+		font-size: 22px;
+	}
 
-    .fields {
-        margin-top: 32px;
-    }
+	.fields {
+		margin-top: 32px;
+	}
 
-    .actions {
-        margin-top: 40px;
-        flex-direction: column-reverse;
-        align-items: stretch;
-    }
+	.actions {
+		margin-top: 40px;
+		flex-direction: column-reverse;
+		align-items: stretch;
+	}
 
-    .deleteButton {
-        width: 100%;
-    }
+	.deleteButton {
+		width: 100%;
+	}
 }
