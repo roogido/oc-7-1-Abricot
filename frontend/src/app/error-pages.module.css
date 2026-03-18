@@ -1,0 +1,140 @@
+/**
+ * @file src/app/error-pages.module.css
+ * @description
+ * Styles partagés des pages d'erreur personnalisées d'Abricot.
+ */
+
+.body {
+    margin: 0;
+    background: var(--color-background, #f7f7f8);
+    font-family: inherit;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    background: var(--color-background, #f7f7f8);
+}
+
+.card {
+    width: 100%;
+    max-width: 560px;
+    padding: 40px 32px;
+    border: 1px solid var(--color-gray-border, #e5e7eb);
+    border-radius: 16px;
+    background: var(--color-white, #ffffff);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    text-align: center;
+}
+
+.code {
+    margin: 0 0 12px;
+    color: var(--color-primary, #d3590b);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 0;
+    color: var(--color-dark, #1f1f1f);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.description {
+    margin: 16px 0 0;
+    color: #687280;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.actions {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.primaryAction,
+.secondaryAction,
+.primaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    height: 50px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.primaryAction,
+.primaryButton {
+    border: 1px solid var(--color-dark, #1f1f1f);
+    background: var(--color-dark, #1f1f1f);
+    color: var(--color-white, #ffffff);
+    cursor: pointer;
+}
+
+.primaryAction:hover,
+.primaryAction:focus-visible,
+.primaryButton:hover,
+.primaryButton:focus-visible {
+    background: #111111;
+    border-color: #111111;
+}
+
+.secondaryAction {
+    border: 1px solid var(--color-gray-border, #e5e7eb);
+    background: var(--color-white, #ffffff);
+    color: var(--color-dark, #1f1f1f);
+}
+
+.secondaryAction:hover,
+.secondaryAction:focus-visible {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.primaryButton:active,
+.primaryAction:active,
+.secondaryAction:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 640px) {
+    .card {
+        padding: 32px 20px;
+    }
+
+    .title {
+        font-size: 26px;
+    }
+
+    .description {
+        font-size: 15px;
+    }
+
+    .primaryAction,
+    .secondaryAction,
+    .primaryButton {
+        width: 100%;
+        min-width: 0;
+    }
+}
