@@ -1,18 +1,31 @@
-// src/app/api/users/search/route.js
+/**
+ * @file src/app/api/users/search/route.js
+ * @description
+ * Route Handler Next.js de recherche d'utilisateurs.
+ */
+
 import { NextResponse } from 'next/server';
 
-import { TOKEN_COOKIE, TOKEN_SAMESITE, TOKEN_PATH } from '@/lib/authConstants';
-import { apiRequest, ApiClientError } from '@/services/apiClient';
+import { apiRequest } from '@/services/apiClient';
+import {
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	createNotAuthenticatedResponse,
+	getAuthToken,
+} from '@/app/api/_shared/routeHelpers';
 
+/**
+ * Recherche des utilisateurs via l'API backend.
+ *
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
+ */
 export async function GET(request) {
 	try {
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
 		const { searchParams } = new URL(request.url);
@@ -36,28 +49,6 @@ export async function GET(request) {
 
 		return NextResponse.json(data);
 	} catch (error) {
-		if (error instanceof ApiClientError) {
-			const response = NextResponse.json(
-				{ success: false, message: error.message, data: error.data },
-				{ status: error.status },
-			);
-
-			if (error.status === 401 || error.status === 403) {
-				response.cookies.set(TOKEN_COOKIE, '', {
-					httpOnly: true,
-					sameSite: TOKEN_SAMESITE,
-					secure: process.env.NODE_ENV === 'production',
-					path: TOKEN_PATH,
-					maxAge: 0,
-				});
-			}
-
-			return response;
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
-		);
+		return createApiErrorResponse(error) ?? createInternalErrorResponse();
 	}
 }

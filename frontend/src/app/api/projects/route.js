@@ -1,28 +1,37 @@
-// src/app/api/projects/route.js
+/**
+ * @file src/app/api/projects/route.js
+ * @description
+ * Route Handler Next.js de création de projet.
+ */
+
 import { NextResponse } from 'next/server';
 
+import { apiRequest } from '@/services/apiClient';
 import {
-	TOKEN_COOKIE,
-	TOKEN_SAMESITE,
-	TOKEN_PATH,
-} from '@/lib/authConstants';
-import { apiRequest, ApiClientError } from '@/services/apiClient';
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	createNotAuthenticatedResponse,
+	getAuthToken,
+	parseJsonBody,
+} from '@/app/api/_shared/routeHelpers';
 
+/**
+ * Crée un projet via le backend Abricot.
+ *
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
+ */
 export async function POST(request) {
 	try {
-		const token = request.cookies.get(TOKEN_COOKIE)?.value;
+		const token = getAuthToken(request);
 
 		if (!token) {
-			return NextResponse.json(
-				{ success: false, message: 'Not authenticated' },
-				{ status: 401 },
-			);
+			return createNotAuthenticatedResponse();
 		}
 
-		const body = await request.json().catch(() => null);
+		const body = await parseJsonBody(request);
 
-		const title =
-			typeof body?.title === 'string' ? body.title.trim() : '';
+		const title = typeof body?.title === 'string' ? body.title.trim() : '';
 		const description =
 			typeof body?.description === 'string'
 				? body.description.trim()
@@ -32,8 +41,7 @@ export async function POST(request) {
 			? body.contributors
 					.filter(
 						(email) =>
-							typeof email === 'string' &&
-							email.trim() !== '',
+							typeof email === 'string' && email.trim() !== '',
 					)
 					.map((email) => email.trim().toLowerCase())
 			: [];
@@ -60,28 +68,6 @@ export async function POST(request) {
 
 		return NextResponse.json(data);
 	} catch (error) {
-		if (error instanceof ApiClientError) {
-			const response = NextResponse.json(
-				{ success: false, message: error.message, data: error.data },
-				{ status: error.status },
-			);
-
-			if (error.status === 401 || error.status === 403) {
-				response.cookies.set(TOKEN_COOKIE, '', {
-					httpOnly: true,
-					sameSite: TOKEN_SAMESITE,
-					secure: process.env.NODE_ENV === 'production',
-					path: TOKEN_PATH,
-					maxAge: 0,
-				});
-			}
-
-			return response;
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
-		);
+		return createApiErrorResponse(error) ?? createInternalErrorResponse();
 	}
 }

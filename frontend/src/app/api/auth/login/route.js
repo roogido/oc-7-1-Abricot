@@ -8,34 +8,33 @@ import { NextResponse } from 'next/server';
 import {
 	TOKEN_COOKIE,
 	TOKEN_MAX_AGE_SECONDS,
-	TOKEN_SAMESITE,
 	TOKEN_PATH,
+	TOKEN_SAMESITE,
 } from '@/lib/authConstants';
-import { ApiClientError } from '@/services/apiClient';
 import { loginUser } from '@/services/authService';
+import {
+	createApiErrorResponse,
+	createInternalErrorResponse,
+	parseJsonBody,
+} from '@/app/api/_shared/routeHelpers';
 
 /**
- * Traite la connexion utilisateur.
- * Valide la charge utile, appelle le service d'authentification
- * et stocke le token dans un cookie httpOnly.
+ * Traite la connexion utilisateur et stocke le token dans un cookie httpOnly.
  *
- * @param {Request} request Requête HTTP entrante
- * @returns {Promise<NextResponse>} Réponse JSON de succès ou d'erreur
+ * @param {Request} request
+ * @returns {Promise<NextResponse>}
  */
 export async function POST(request) {
 	try {
-		// Parsing tolérant du corps JSON
-		const body = await request.json().catch(() => null);
+		const body = await parseJsonBody(request);
 
 		const email =
 			typeof body?.email === 'string'
 				? body.email.trim().toLowerCase()
 				: '';
-
 		const password =
 			typeof body?.password === 'string' ? body.password : '';
 
-		// Validation minimale des identifiants
 		if (email === '' || password.trim() === '') {
 			return NextResponse.json(
 				{ success: false, message: 'Invalid payload' },
@@ -43,10 +42,7 @@ export async function POST(request) {
 			);
 		}
 
-		const data = await loginUser({
-			email,
-			password,
-		});
+		const data = await loginUser({ email, password });
 
 		const token = data?.data?.token;
 		const user = data?.data?.user ?? null;
@@ -64,7 +60,6 @@ export async function POST(request) {
 			data: { user },
 		});
 
-		// Stockage sécurisé du JWT côté serveur
 		response.cookies.set(TOKEN_COOKIE, token, {
 			httpOnly: true,
 			sameSite: TOKEN_SAMESITE,
@@ -75,17 +70,11 @@ export async function POST(request) {
 
 		return response;
 	} catch (error) {
-		// Erreur métier remontée par le client API
-		if (error instanceof ApiClientError) {
-			return NextResponse.json(
-				{ success: false, message: error.message },
-				{ status: error.status },
-			);
-		}
-
-		return NextResponse.json(
-			{ success: false, message: 'Internal error' },
-			{ status: 500 },
+		return (
+			createApiErrorResponse(error, {
+				includeData: false,
+				clearAuthOnUnauthorized: false,
+			}) ?? createInternalErrorResponse()
 		);
 	}
 }
