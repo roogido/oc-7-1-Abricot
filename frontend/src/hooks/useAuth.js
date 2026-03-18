@@ -12,15 +12,17 @@ import { AuthContext } from '@/context/AuthContext';
 /**
  * Accède au contexte d'authentification.
  *
- * @returns {Object} Contexte d'authentification (user, login, logout, etc.)
- * @throws {Error} Si utilisé en dehors du AuthProvider
+ * @returns {Object}
+ * @throws {Error}
  */
 export function useAuth() {
-	const ctx = useContext(AuthContext);
+	const context = useContext(AuthContext);
 
-	if (!ctx) {
-		throw new Error('useAuth must be used within <AuthProvider>');
+	if (context === null) {
+		throw new Error(
+			"useAuth doit être utilisé à l'intérieur de <AuthProvider>.",
+		);
 	}
 
-	return ctx;
+	return context;
 }
