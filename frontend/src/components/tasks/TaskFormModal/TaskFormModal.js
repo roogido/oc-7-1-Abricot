@@ -6,16 +6,14 @@
 
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
+import { useMemo, useState } from 'react';
 
 import Button from '@/components/ui/Button/Button';
 import ModalShell from '@/components/ui/ModalShell/ModalShell';
 import Tag from '@/components/ui/Tag/Tag';
 import UserMultiSelectField from '@/components/ui/UserMultiSelectField/UserMultiSelectField';
-
-import calendarTaskIcon from '@/assets/icons/calendar-task-icon.png';
-import arrowDownIcon from '@/assets/icons/arrow-down-icon.png';
+import TaskDateField from '@/components/tasks/TaskDateField/TaskDateField';
+import TaskPriorityField from '@/components/tasks/TaskPriorityField/TaskPriorityField';
 
 import styles from './TaskFormModal.module.css';
 
@@ -23,12 +21,6 @@ const STATUS_OPTIONS = [
 	{ value: 'TODO', label: 'À faire', variant: 'red' },
 	{ value: 'IN_PROGRESS', label: 'En cours', variant: 'orange' },
 	{ value: 'DONE', label: 'Terminée', variant: 'green' },
-];
-
-const PRIORITY_OPTIONS = [
-	{ value: 'LOW', label: 'Faible' },
-	{ value: 'MEDIUM', label: 'Moyenne' },
-	{ value: 'HIGH', label: 'Haute' },
 ];
 
 function getInitialFormState() {
@@ -57,10 +49,6 @@ export default function TaskFormModal({
 	contributorsErrorMessage = '',
 }) {
 	const [formValues, setFormValues] = useState(getInitialFormState);
-	const [isPriorityOpen, setIsPriorityOpen] = useState(false);
-
-	const priorityBoxRef = useRef(null);
-	const dateInputRef = useRef(null);
 
 	const titleValue = formValues.title.trim();
 	const descriptionValue = formValues.description.trim();
@@ -78,10 +66,6 @@ export default function TaskFormModal({
 		return isSubmitting ? 'Ajout...' : '+ Ajouter une tâche';
 	}, [isSubmitting]);
 
-	const currentPriorityLabel =
-		PRIORITY_OPTIONS.find((option) => option.value === formValues.priority)
-			?.label ?? 'Faible';
-
 	function handleChange(event) {
 		const { name, value } = event.target;
 
@@ -91,17 +75,11 @@ export default function TaskFormModal({
 		}));
 	}
 
-	function handleOpenDatePicker() {
-		if (!dateInputRef.current) {
-			return;
-		}
-
-		if (typeof dateInputRef.current.showPicker === 'function') {
-			dateInputRef.current.showPicker();
-			return;
-		}
-
-		dateInputRef.current.focus();
+	function handlePriorityChange(priority) {
+		setFormValues((prev) => ({
+			...prev,
+			priority,
+		}));
 	}
 
 	async function handleSubmit(event) {
@@ -120,14 +98,6 @@ export default function TaskFormModal({
 				(contributor) => contributor.id,
 			),
 		});
-	}
-
-	function handlePrioritySelect(priority) {
-		setFormValues((prev) => ({
-			...prev,
-			priority,
-		}));
-		setIsPriorityOpen(false);
 	}
 
 	return (
@@ -176,40 +146,11 @@ export default function TaskFormModal({
 							/>
 						</div>
 
-						<div className={styles.field}>
-							<label
-								htmlFor="task-due-date"
-								className={styles.label}
-							>
-								Échéance*
-							</label>
-
-							<div className={styles.dateInputWrapper}>
-								<input
-									ref={dateInputRef}
-									id="task-due-date"
-									name="dueDate"
-									type="date"
-									value={formValues.dueDate}
-									onChange={handleChange}
-									className={styles.dateInput}
-								/>
-
-								<button
-									type="button"
-									className={styles.dateIconButton}
-									onClick={handleOpenDatePicker}
-									aria-label="Choisir une échéance"
-								>
-									<Image
-										src={calendarTaskIcon}
-										alt=""
-										aria-hidden="true"
-										className={styles.dateIcon}
-									/>
-								</button>
-							</div>
-						</div>
+						<TaskDateField
+							id="task-due-date"
+							value={formValues.dueDate}
+							onChange={handleChange}
+						/>
 
 						<div className={styles.field}>
 							<label className={styles.label}>Statut :</label>
@@ -247,63 +188,11 @@ export default function TaskFormModal({
 							</div>
 						</div>
 
-						<div className={styles.field}>
-							<label
-								htmlFor="task-priority"
-								className={styles.label}
-							>
-								Priorité*
-							</label>
-
-							<div
-								ref={priorityBoxRef}
-								className={styles.priorityBox}
-							>
-								<button
-									id="task-priority"
-									type="button"
-									className={styles.selectLike}
-									onClick={() =>
-										setIsPriorityOpen((prev) => !prev)
-									}
-									aria-expanded={isPriorityOpen}
-									aria-controls="task-priority-panel"
-								>
-									<span className={styles.selectPlaceholder}>
-										{currentPriorityLabel}
-									</span>
-
-									<Image
-										src={arrowDownIcon}
-										alt=""
-										aria-hidden="true"
-										className={styles.selectIcon}
-									/>
-								</button>
-
-								{isPriorityOpen ? (
-									<div
-										id="task-priority-panel"
-										className={styles.priorityPanel}
-									>
-										{PRIORITY_OPTIONS.map((option) => (
-											<button
-												key={option.value}
-												type="button"
-												className={styles.priorityItem}
-												onClick={() =>
-													handlePrioritySelect(
-														option.value,
-													)
-												}
-											>
-												{option.label}
-											</button>
-										))}
-									</div>
-								) : null}
-							</div>
-						</div>
+						<TaskPriorityField
+							id="task-priority"
+							value={formValues.priority}
+							onChange={handlePriorityChange}
+						/>
 
 						<UserMultiSelectField
 							id="task-contributors"
