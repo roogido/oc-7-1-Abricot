@@ -12,6 +12,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 
@@ -23,26 +24,29 @@ export const AuthContext = createContext(null);
 /**
  * Envoie une requête HTTP JSON vers les route handlers Next.js.
  *
- * @param {string} path URL relative de l'endpoint
- * @param {Object} [options={}] Options fetch
- * @returns {Promise<Object|null>} Données JSON retournées
- * @throws {Error} Si la réponse HTTP n'est pas OK
+ * @param {string} path
+ * @param {Object} [options={}]
+ * @returns {Promise<Object|null>}
+ * @throws {Error}
  */
 async function requestJson(path, options = {}) {
 	const response = await fetch(path, {
 		...options,
-		credentials: 'include', // Inclut les cookies (auth)
+		credentials: 'include',
 		headers: {
 			Accept: 'application/json',
 			...(options.headers || {}),
 		},
 	});
 
-	// Parsing tolérant si la réponse ne contient pas de JSON
 	const data = await response.json().catch(() => null);
 
 	if (!response.ok) {
-		const message = data?.message || `HTTP ${response.status}`;
+		const message =
+			typeof data?.message === 'string' && data.message.trim() !== ''
+				? data.message
+				: `HTTP ${response.status}`;
+
 		throw new Error(message);
 	}
 
@@ -50,24 +54,43 @@ async function requestJson(path, options = {}) {
 }
 
 /**
+ * Normalise les identifiants de connexion.
+ *
+ * @param {Object} params
+ * @param {string} params.email
+ * @param {string} params.password
+ * @returns {{ email: string, password: string }}
+ */
+function normalizeCredentials({ email, password }) {
+	return {
+		email: typeof email === 'string' ? email.trim().toLowerCase() : '',
+		password: typeof password === 'string' ? password : '',
+	};
+}
+
+/**
  * Provider global de session utilisateur.
  *
- * Initialise la session au chargement de l'application et
- * expose les actions d'authentification.
- *
  * @param {Object} props
- * @param {React.ReactNode} props.children Contenu de l'application
- * @returns {JSX.Element} Provider d'authentification
+ * @param {React.ReactNode} props.children
+ * @returns {JSX.Element}
  */
 export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null);
 	const [isBootstrapping, setIsBootstrapping] = useState(true);
 
+	const isMountedRef = useRef(true);
+
+	useEffect(() => {
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
+
 	/**
 	 * Recharge l'utilisateur courant depuis l'API.
-	 * Silencieux en cas d'absence de session.
 	 *
-	 * @returns {Promise<Object|null>} Utilisateur courant ou null
+	 * @returns {Promise<Object|null>}
 	 */
 	const refreshMe = useCallback(async () => {
 		try {
@@ -76,44 +99,52 @@ export function AuthProvider({ children }) {
 			});
 
 			const nextUser = data?.data?.user ?? null;
-			setUser(nextUser);
+
+			if (isMountedRef.current) {
+				setUser(nextUser);
+			}
 
 			return nextUser;
 		} catch {
-			setUser(null);
+			if (isMountedRef.current) {
+				setUser(null);
+			}
+
 			return null;
 		}
 	}, []);
 
 	/**
-	 * Initialise la session utilisateur au montage de l'application.
+	 * Initialise la session utilisateur au montage.
 	 */
 	useEffect(() => {
-		(async () => {
+		async function bootstrapAuth() {
 			setIsBootstrapping(true);
 
 			try {
 				await refreshMe();
 			} finally {
-				setIsBootstrapping(false);
+				if (isMountedRef.current) {
+					setIsBootstrapping(false);
+				}
 			}
-		})();
+		}
+
+		bootstrapAuth();
 	}, [refreshMe]);
 
 	/**
-	 * Authentifie l'utilisateur via l'API.
+	 * Authentifie l'utilisateur.
 	 *
 	 * @param {Object} params
-	 * @param {string} params.email Adresse e-mail
-	 * @param {string} params.password Mot de passe
-	 * @returns {Promise<Object|null>} Utilisateur authentifié
+	 * @param {string} params.email
+	 * @param {string} params.password
+	 * @returns {Promise<Object|null>}
 	 */
 	const login = useCallback(async ({ email, password }) => {
-		const normalizedEmail =
-			typeof email === 'string' ? email.trim().toLowerCase() : '';
-		const normalizedPassword = typeof password === 'string' ? password : '';
+		const credentials = normalizeCredentials({ email, password });
 
-		if (normalizedEmail === '' || normalizedPassword.trim() === '') {
+		if (credentials.email === '' || credentials.password.trim() === '') {
 			throw new Error('E-mail et mot de passe requis.');
 		}
 
@@ -122,20 +153,20 @@ export function AuthProvider({ children }) {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				email: normalizedEmail,
-				password: normalizedPassword,
-			}),
+			body: JSON.stringify(credentials),
 		});
 
 		const nextUser = data?.data?.user ?? null;
-		setUser(nextUser);
+
+		if (isMountedRef.current) {
+			setUser(nextUser);
+		}
 
 		return nextUser;
 	}, []);
 
 	/**
-	 * Déconnecte l'utilisateur et réinitialise la session.
+	 * Déconnecte l'utilisateur et vide la session locale.
 	 *
 	 * @returns {Promise<void>}
 	 */
@@ -145,7 +176,9 @@ export function AuthProvider({ children }) {
 				method: 'POST',
 			});
 		} finally {
-			setUser(null);
+			if (isMountedRef.current) {
+				setUser(null);
+			}
 		}
 	}, []);
 
@@ -155,7 +188,7 @@ export function AuthProvider({ children }) {
 	const value = useMemo(
 		() => ({
 			user,
-			isAuthenticated: Boolean(user),
+			isAuthenticated: user !== null,
 			isBootstrapping,
 			login,
 			logout,
