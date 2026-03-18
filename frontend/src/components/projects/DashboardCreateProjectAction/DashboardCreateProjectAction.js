@@ -1,26 +1,18 @@
-// src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+/**
+ * @file src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+ * @description
+ * Action client d'ouverture et de création d'un projet depuis le dashboard.
+ */
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/Button/Button';
 import ProjectFormModal from '@/components/projects/ProjectFormModal/ProjectFormModal';
 import { createProjectClient } from '@/services/projectClientService';
-import { searchUsersClient } from '@/services/userClientService';
-
-function deduplicateContributors(users) {
-	const seen = new Set();
-
-	return users.filter((user) => {
-		if (!user?.id || seen.has(user.id)) {
-			return false;
-		}
-
-		seen.add(user.id);
-		return true;
-	});
-}
+import useContributorSelection from '@/hooks/useContributorSelection';
 
 export default function DashboardCreateProjectAction() {
 	const router = useRouter();
@@ -29,77 +21,26 @@ export default function DashboardCreateProjectAction() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
-	const [contributorsSearch, setContributorsSearch] = useState('');
-	const [contributorOptions, setContributorOptions] = useState([]);
-	const [selectedContributors, setSelectedContributors] = useState([]);
-	const [contributorsLoading, setContributorsLoading] = useState(false);
-	const [contributorsErrorMessage, setContributorsErrorMessage] =
-		useState('');
+	const emptyInitialContributors = useMemo(() => [], []);
 
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		const normalizedQuery = contributorsSearch.trim();
-
-		if (normalizedQuery.length < 2) {
-			setContributorOptions([]);
-			setContributorsLoading(false);
-			setContributorsErrorMessage('');
-			return;
-		}
-
-		let isCancelled = false;
-
-		const timeoutId = window.setTimeout(async () => {
-			setContributorsLoading(true);
-			setContributorsErrorMessage('');
-
-			try {
-				const users = await searchUsersClient(normalizedQuery);
-
-				if (isCancelled) {
-					return;
-				}
-
-				const selectedIds = new Set(
-					selectedContributors.map((user) => user.id),
-				);
-
-				setContributorOptions(
-					users.filter((user) => !selectedIds.has(user.id)),
-				);
-			} catch (error) {
-				if (isCancelled) {
-					return;
-				}
-
-				setContributorOptions([]);
-				setContributorsErrorMessage(
-					error instanceof Error
-						? error.message
-						: 'Impossible de rechercher les utilisateurs.',
-				);
-			} finally {
-				if (!isCancelled) {
-					setContributorsLoading(false);
-				}
-			}
-		}, 250);
-
-		return () => {
-			isCancelled = true;
-			window.clearTimeout(timeoutId);
-		};
-	}, [contributorsSearch, isOpen, selectedContributors]);
+	const {
+		contributorsSearch,
+		setContributorsSearch,
+		contributorOptions,
+		selectedContributors,
+		contributorsLoading,
+		contributorsErrorMessage,
+		resetContributorState,
+		handleAddContributor,
+		handleRemoveContributor,
+	} = useContributorSelection({
+		isOpen,
+		initialSelectedItems: emptyInitialContributors,
+	});
 
 	function handleOpen() {
 		setErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setSelectedContributors([]);
-		setContributorsErrorMessage('');
+		resetContributorState();
 		setIsOpen(true);
 	}
 
@@ -109,26 +50,8 @@ export default function DashboardCreateProjectAction() {
 		}
 
 		setErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setSelectedContributors([]);
-		setContributorsErrorMessage('');
+		resetContributorState();
 		setIsOpen(false);
-	}
-
-	function handleAddContributor(user) {
-		setSelectedContributors((prev) =>
-			deduplicateContributors([...prev, user]),
-		);
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsErrorMessage('');
-	}
-
-	function handleRemoveContributor(userId) {
-		setSelectedContributors((prev) =>
-			prev.filter((user) => user.id !== userId),
-		);
 	}
 
 	async function handleSubmit(values) {
@@ -137,6 +60,8 @@ export default function DashboardCreateProjectAction() {
 
 		try {
 			await createProjectClient(values);
+			setErrorMessage('');
+			resetContributorState();
 			setIsOpen(false);
 			router.refresh();
 		} catch (error) {

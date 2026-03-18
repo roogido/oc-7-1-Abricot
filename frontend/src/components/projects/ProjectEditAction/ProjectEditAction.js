@@ -1,4 +1,9 @@
-// src/components/projects/ProjectEditAction/ProjectEditAction.js
+/**
+ * @file src/components/projects/ProjectEditAction/ProjectEditAction.js
+ * @description
+ * Action client d'ouverture, de mise à jour et de suppression d'un projet.
+ */
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -9,20 +14,7 @@ import {
 	updateProjectClient,
 	deleteProjectClient,
 } from '@/services/projectClientService';
-import { searchUsersClient } from '@/services/userClientService';
-
-function deduplicateContributors(users) {
-	const seen = new Set();
-
-	return users.filter((user) => {
-		if (!user?.id || seen.has(user.id)) {
-			return false;
-		}
-
-		seen.add(user.id);
-		return true;
-	});
-}
+import useContributorSelection from '@/hooks/useContributorSelection';
 
 export default function ProjectEditAction({
 	projectId,
@@ -42,84 +34,37 @@ export default function ProjectEditAction({
 	const [errorMessage, setErrorMessage] = useState('');
 	const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
 
-	const [contributorsSearch, setContributorsSearch] = useState('');
-	const [contributorOptions, setContributorOptions] = useState([]);
-	const [selectedContributors, setSelectedContributors] =
-		useState(initialContributors);
-	const [contributorsLoading, setContributorsLoading] = useState(false);
-	const [contributorsErrorMessage, setContributorsErrorMessage] =
-		useState('');
+	const {
+		contributorsSearch,
+		setContributorsSearch,
+		contributorOptions,
+		selectedContributors,
+		setSelectedContributors,
+		contributorsLoading,
+		contributorsErrorMessage,
+		resetContributorState,
+		handleAddContributor,
+		handleRemoveContributor,
+	} = useContributorSelection({
+		isOpen,
+		initialSelectedItems: initialContributors,
+	});
 
 	useEffect(() => {
 		setIsOpen(editModeActive);
 
 		if (editModeActive) {
 			setSelectedContributors(initialContributors);
-			setContributorsSearch('');
-			setContributorOptions([]);
-			setContributorsErrorMessage('');
+			resetContributorState({ preserveSelected: true });
 			setErrorMessage('');
 			setDeleteErrorMessage('');
 		}
-	}, [editModeActive, initialContributors]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		const normalizedQuery = contributorsSearch.trim();
-
-		if (normalizedQuery.length < 2) {
-			setContributorOptions([]);
-			setContributorsLoading(false);
-			setContributorsErrorMessage('');
-			return;
-		}
-
-		let isCancelled = false;
-
-		const timeoutId = window.setTimeout(async () => {
-			setContributorsLoading(true);
-			setContributorsErrorMessage('');
-
-			try {
-				const users = await searchUsersClient(normalizedQuery);
-
-				if (isCancelled) {
-					return;
-				}
-
-				const selectedIds = new Set(
-					selectedContributors.map((user) => user.id),
-				);
-
-				setContributorOptions(
-					users.filter((user) => !selectedIds.has(user.id)),
-				);
-			} catch (error) {
-				if (isCancelled) {
-					return;
-				}
-
-				setContributorOptions([]);
-				setContributorsErrorMessage(
-					error instanceof Error
-						? error.message
-						: 'Impossible de rechercher les utilisateurs.',
-				);
-			} finally {
-				if (!isCancelled) {
-					setContributorsLoading(false);
-				}
-			}
-		}, 250);
-
-		return () => {
-			isCancelled = true;
-			window.clearTimeout(timeoutId);
-		};
-	}, [contributorsSearch, isOpen, selectedContributors]);
+	}, [
+		editModeActive,
+		initialContributors,
+		resetContributorState,
+		setSelectedContributors,
+	]);
 
 	const modalInitialValues = useMemo(
 		() => ({
@@ -136,30 +81,13 @@ export default function ProjectEditAction({
 
 		setErrorMessage('');
 		setDeleteErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsErrorMessage('');
 		setSelectedContributors(initialContributors);
+		resetContributorState({ preserveSelected: true });
 		setIsOpen(false);
 
 		if (editModeActive) {
 			router.replace(pathname);
 		}
-	}
-
-	function handleAddContributor(user) {
-		setSelectedContributors((prev) =>
-			deduplicateContributors([...prev, user]),
-		);
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsErrorMessage('');
-	}
-
-	function handleRemoveContributor(userId) {
-		setSelectedContributors((prev) =>
-			prev.filter((user) => user.id !== userId),
-		);
 	}
 
 	async function handleSubmit(values) {

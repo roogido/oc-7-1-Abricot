@@ -1,0 +1,81 @@
+/**
+ * @file src/components/tasks/TaskDateField/TaskDateField.module.css
+ * @description
+ * Styles du champ partagé de date d'échéance pour les modales de tâche.
+ */
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+}
+
+.label {
+    color: #000000;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.dateInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.dateInput {
+    width: 100%;
+    height: 53px;
+    padding: 17px 19px;
+    padding-right: 52px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.dateInput:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.dateIconButton {
+    position: absolute;
+    right: 19px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.dateIcon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    pointer-events: none;
+}

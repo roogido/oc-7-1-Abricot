@@ -1,7 +1,12 @@
-// src/components/projects/ProjectTaskEditAction/ProjectTaskEditAction.js
+/**
+ * @file src/components/projects/ProjectTaskEditAction/ProjectTaskEditAction.js
+ * @description
+ * Action client d'ouverture, de mise à jour et de suppression d'une tâche projet.
+ */
+
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import TaskEditModal from '@/components/tasks/TaskEditModal/TaskEditModal';
@@ -9,20 +14,7 @@ import {
 	updateTaskClient,
 	deleteTaskClient,
 } from '@/services/taskClientService';
-import { searchUsersClient } from '@/services/userClientService';
-
-function deduplicateUsers(users) {
-	const seen = new Set();
-
-	return users.filter((user) => {
-		if (!user?.id || seen.has(user.id)) {
-			return false;
-		}
-
-		seen.add(user.id);
-		return true;
-	});
-}
+import useContributorSelection from '@/hooks/useContributorSelection';
 
 export default function ProjectTaskEditAction({
 	projectId,
@@ -35,13 +27,6 @@ export default function ProjectTaskEditAction({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-
-	const [contributorsSearch, setContributorsSearch] = useState('');
-	const [contributorOptions, setContributorOptions] = useState([]);
-	const [selectedContributors, setSelectedContributors] = useState([]);
-	const [contributorsLoading, setContributorsLoading] = useState(false);
-	const [contributorsErrorMessage, setContributorsErrorMessage] =
-		useState('');
 
 	const initialContributors = useMemo(() => {
 		const assignees = Array.isArray(task?.assignees) ? task.assignees : [];
@@ -56,89 +41,19 @@ export default function ProjectTaskEditAction({
 		}));
 	}, [task]);
 
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		setErrorMessage('');
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsLoading(false);
-		setContributorsErrorMessage('');
-		setSelectedContributors(initialContributors);
-	}, [isOpen, initialContributors]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		const normalizedQuery = contributorsSearch.trim();
-
-		if (normalizedQuery.length < 2) {
-			setContributorOptions([]);
-			setContributorsLoading(false);
-			setContributorsErrorMessage('');
-			return;
-		}
-
-		let isCancelled = false;
-
-		const timeoutId = window.setTimeout(async () => {
-			setContributorsLoading(true);
-			setContributorsErrorMessage('');
-
-			try {
-				const users = await searchUsersClient(normalizedQuery);
-
-				if (isCancelled) {
-					return;
-				}
-
-				const selectedIds = new Set(
-					selectedContributors.map((user) => user.id),
-				);
-
-				setContributorOptions(
-					users.filter((user) => !selectedIds.has(user.id)),
-				);
-			} catch (error) {
-				if (isCancelled) {
-					return;
-				}
-
-				setContributorOptions([]);
-				setContributorsErrorMessage(
-					error instanceof Error
-						? error.message
-						: 'Impossible de rechercher les utilisateurs.',
-				);
-			} finally {
-				if (!isCancelled) {
-					setContributorsLoading(false);
-				}
-			}
-		}, 250);
-
-		return () => {
-			isCancelled = true;
-			window.clearTimeout(timeoutId);
-		};
-	}, [contributorsSearch, isOpen, selectedContributors]);
-
-	function handleAddContributor(user) {
-		setSelectedContributors((prev) => deduplicateUsers([...prev, user]));
-		setContributorsSearch('');
-		setContributorOptions([]);
-		setContributorsErrorMessage('');
-	}
-
-	function handleRemoveContributor(userId) {
-		setSelectedContributors((prev) =>
-			prev.filter((user) => user.id !== userId),
-		);
-	}
+	const {
+		contributorsSearch,
+		setContributorsSearch,
+		contributorOptions,
+		selectedContributors,
+		contributorsLoading,
+		contributorsErrorMessage,
+		handleAddContributor,
+		handleRemoveContributor,
+	} = useContributorSelection({
+		isOpen,
+		initialSelectedItems: initialContributors,
+	});
 
 	function handleClose() {
 		if (isSubmitting || isDeleting) {
