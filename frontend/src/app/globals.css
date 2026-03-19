@@ -97,8 +97,8 @@ p {
 
 	--color-primary-soft: #ffe8d9;
 
-	--color-primary: #d3590b;
-	--color-primary-hover: #b94d09;
+	--color-primary: #b94d09;
+	--color-primary-hover: #a84407;
 
 	--color-black: #0f0f0f;
 	--color-dark: #111111;
@@ -280,23 +280,23 @@ p {
 
 	/* red */
 	--tag-red-bg: #FEE0E0;
-	--tag-red-text: #EF4444;
+	--tag-red-text: #B91C1C;
 
 	/* orange */
 	--tag-orange-bg: #FFF0D7;
-	--tag-orange-text: #E0A800;
+	--tag-orange-text: #8A5A00;
 
 	/* blue */
 	--tag-blue-bg: #E0ECFF;
-	--tag-blue-text: #3B82F6;
+	--tag-blue-text: #1D4ED8;
 
 	/* brand */
 	--tag-brand-bg: #FFE8D9;
-	--tag-brand-text: #D35908;
+	--tag-brand-text: #A84407;
 
 	/* grey */
 	--tag-grey-bg: #d9dbdf;
-	--tag-grey-text: #6a7180;
+	--tag-grey-text: #525866;
 
 	/* Chips */
 	/* size */
@@ -315,8 +315,8 @@ p {
 	--chip-bg-default: #FFFFFF;
 	--chip-bg-hover: #FFE8D9;
 
-	--chip-text-default: #D35908;
-	--chip-text-hover: #D35908;
+	--chip-text-default: var(--color-primary);
+	--chip-text-hover: var(--tag-brand-text);
 
 	--chip-border: transparent;
 

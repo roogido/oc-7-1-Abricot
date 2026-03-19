@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -61,6 +61,8 @@ export default function ProjectTasksSection({
 	errorMessage = '',
 }) {
 	const router = useRouter();
+	const statusButtonRef = useRef(null);
+	const statusMenuItemRefs = useRef([]);
 
 	const [viewMode, setViewMode] = useState('list');
 	const [statusFilter, setStatusFilter] = useState('ALL');
@@ -92,6 +94,10 @@ export default function ProjectTasksSection({
 	const currentStatusLabel =
 		STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label ??
 		'Statut';
+	const currentStatusIndex = Math.max(
+		0,
+		STATUS_OPTIONS.findIndex((option) => option.value === statusFilter),
+	);
 
 	const tasksSubtitle =
 		viewMode === 'calendar'
@@ -104,6 +110,74 @@ export default function ProjectTasksSection({
 
 	function handleCloseEditTask() {
 		setEditedTask(null);
+	}
+
+	function focusStatusButton() {
+		if (statusButtonRef.current instanceof HTMLButtonElement) {
+			statusButtonRef.current.focus();
+		}
+	}
+
+	function focusStatusItemAt(index) {
+		const target = statusMenuItemRefs.current[index];
+
+		if (target instanceof HTMLButtonElement) {
+			target.focus();
+		}
+	}
+
+	function closeStatusMenu({ returnFocus = false } = {}) {
+		setIsStatusOpen(false);
+
+		if (returnFocus) {
+			requestAnimationFrame(() => {
+				focusStatusButton();
+			});
+		}
+	}
+
+	function handleStatusButtonKeyDown(event) {
+		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+			event.preventDefault();
+
+			if (!isStatusOpen) {
+				setIsStatusOpen(true);
+
+				requestAnimationFrame(() => {
+					focusStatusItemAt(currentStatusIndex);
+				});
+
+				return;
+			}
+
+			focusStatusItemAt(currentStatusIndex);
+		}
+
+		if (event.key === 'Escape' && isStatusOpen) {
+			event.preventDefault();
+			closeStatusMenu();
+		}
+	}
+
+	function handleStatusItemKeyDown(event, index) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			closeStatusMenu({ returnFocus: true });
+			return;
+		}
+
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			focusStatusItemAt((index + 1) % STATUS_OPTIONS.length);
+			return;
+		}
+
+		if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			focusStatusItemAt(
+				(index - 1 + STATUS_OPTIONS.length) % STATUS_OPTIONS.length,
+			);
+		}
 	}
 
 	// Reposte le commentaire puis recharge la source de verite serveur.
@@ -172,13 +246,16 @@ export default function ProjectTasksSection({
 						<>
 							<div className={styles.statusDropdown}>
 								<button
+									ref={statusButtonRef}
 									type="button"
 									className={styles.tasksFilter}
 									onClick={() =>
 										setIsStatusOpen((previous) => !previous)
 									}
+									onKeyDown={handleStatusButtonKeyDown}
 									aria-expanded={isStatusOpen}
 									aria-haspopup="menu"
+									aria-controls="project-tasks-status-menu"
 								>
 									<span>{currentStatusLabel}</span>
 									<Image
@@ -190,20 +267,43 @@ export default function ProjectTasksSection({
 								</button>
 
 								{isStatusOpen ? (
-									<div className={styles.statusMenu}>
-										{STATUS_OPTIONS.map((option) => (
+									<div
+										id="project-tasks-status-menu"
+										className={styles.statusMenu}
+										role="menu"
+										aria-label="Filtrer les tâches par statut"
+									>
+										{STATUS_OPTIONS.map((option, index) => (
 											<button
 												key={option.value}
+												ref={(element) => {
+													statusMenuItemRefs.current[
+														index
+													] = element;
+												}}
 												type="button"
 												className={
 													styles.statusMenuItem
+												}
+												onKeyDown={(event) =>
+													handleStatusItemKeyDown(
+														event,
+														index,
+													)
 												}
 												onClick={() => {
 													setStatusFilter(
 														option.value,
 													);
-													setIsStatusOpen(false);
+													closeStatusMenu({
+														returnFocus: true,
+													});
 												}}
+												role="menuitemradio"
+												aria-checked={
+													statusFilter ===
+													option.value
+												}
 											>
 												{option.label}
 											</button>
@@ -226,12 +326,16 @@ export default function ProjectTasksSection({
 			</div>
 
 			{errorMessage !== '' ? (
-				<p className={styles.feedbackMessage}>
+				<p className={styles.feedbackMessage} role="alert">
 					Taches : {errorMessage}
 				</p>
 			) : viewMode === 'list' ? (
 				filteredTasks.length === 0 ? (
-					<p className={styles.feedbackMessage}>
+					<p
+						className={styles.feedbackMessage}
+						role="status"
+						aria-live="polite"
+					>
 						Aucune tache ne correspond aux filtres actuels.
 					</p>
 				) : (

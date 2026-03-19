@@ -102,7 +102,7 @@ export default function AiTaskSuggestionsModal({
 									<div className={styles.cardActions}>
 										<button
 											type="button"
-											className={styles.actionButton}
+											className={`${styles.actionButton} ${styles.deleteActionButton}`}
 											onClick={() =>
 												onDeleteTask(task.id)
 											}
@@ -144,7 +144,9 @@ export default function AiTaskSuggestionsModal({
 					</div>
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 
 					<div className={styles.footer}>

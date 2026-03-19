@@ -31,12 +31,9 @@ export default function Chip({
 	const content = (
 		<>
 			{icon ? (
-				<Image
-					src={icon}
-					alt=""
-					aria-hidden="true"
-					className={styles.icon}
-				/>
+				<span className={styles.iconSlot} aria-hidden="true">
+					<Image src={icon} alt="" className={styles.icon} />
+				</span>
 			) : null}
 
 			<span>{children}</span>
@@ -45,14 +42,23 @@ export default function Chip({
 
 	if (href) {
 		return (
-			<Link href={href} className={className}>
+			<Link
+				href={href}
+				className={className}
+				aria-current={active ? 'page' : undefined}
+			>
 				{content}
 			</Link>
 		);
 	}
 
 	return (
-		<button type="button" className={className} onClick={onClick}>
+		<button
+			type="button"
+			className={className}
+			onClick={onClick}
+			aria-pressed={active}
+		>
 			{content}
 		</button>
 	);

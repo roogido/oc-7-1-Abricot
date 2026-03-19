@@ -31,7 +31,7 @@ export default function AuthPageShell({
 }) {
 	return (
 		<div className={styles.page}>
-			<div className={styles.frame}>
+			<main className={styles.frame}>
 				<section className={styles.leftPanel}>
 					{/* Logo de l'application */}
 					<div className={styles.logoWrapper}>
@@ -63,7 +63,7 @@ export default function AuthPageShell({
 						priority
 					/>
 				</aside>
-			</div>
+			</main>
 		</div>
 	);
 }

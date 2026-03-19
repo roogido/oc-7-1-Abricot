@@ -12,6 +12,15 @@ import styles from './ProjectTasksCalendarView.module.css';
 
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
+function getAccessibleDateLabel(date) {
+	return new Intl.DateTimeFormat('fr-FR', {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+	}).format(date);
+}
+
 function getDateKey(date) {
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -288,8 +297,8 @@ export default function ProjectTasksCalendarView({
 							aria-pressed={isSelected}
 							aria-label={
 								hasTasks
-									? `${entry.date.getDate()} - ${dayTasks.length} tâche(s)`
-									: `${entry.date.getDate()}`
+									? `${getAccessibleDateLabel(entry.date)} - ${dayTasks.length} tâche(s)`
+									: `${getAccessibleDateLabel(entry.date)} - aucune tâche`
 							}
 						>
 							<span className={styles.dayNumber}>
@@ -325,14 +334,12 @@ export default function ProjectTasksCalendarView({
 			</div>
 
 			<div className={styles.selectedDaySection}>
-				<h3 className={styles.selectedDayTitle}>
+				<h3 className={styles.selectedDayTitle} aria-live="polite">
 					{selectedDayKey === ''
 						? 'Aucune date sélectionnée'
-						: `Tâches du ${new Intl.DateTimeFormat('fr-FR', {
-								day: 'numeric',
-								month: 'long',
-								year: 'numeric',
-							}).format(getLocalDateFromRaw(selectedDayKey))}`}
+						: `Tâches du ${getAccessibleDateLabel(
+								getLocalDateFromRaw(selectedDayKey),
+							)}`}
 				</h3>
 
 				{selectedDayTasks.length === 0 ? (

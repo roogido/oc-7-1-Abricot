@@ -212,7 +212,9 @@ export default function TaskFormModal({
 					</div>
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 				</div>
 

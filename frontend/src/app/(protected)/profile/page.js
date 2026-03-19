@@ -273,7 +273,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<main className={styles.page}>
+		<div className={styles.page}>
 			<section aria-labelledby="profile-title" className={styles.card}>
 				<header className={styles.header}>
 					<div className={styles.headingBlock}>
@@ -405,16 +405,22 @@ export default function ProfilePage() {
 					</div>
 
 					{successMessage ? (
-						<p className={styles.successMessage}>
+						<p
+							className={styles.successMessage}
+							role="status"
+							aria-live="polite"
+						>
 							{successMessage}
 						</p>
 					) : null}
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 				</form>
 			</section>
-		</main>
+		</div>
 	);
 }

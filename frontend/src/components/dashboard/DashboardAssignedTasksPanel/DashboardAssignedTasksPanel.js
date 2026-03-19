@@ -77,7 +77,11 @@ export default function DashboardAssignedTasksPanel({
 			}
 		>
 			{filteredTasks.length === 0 ? (
-				<p className={styles.feedbackMessage}>
+				<p
+					className={styles.feedbackMessage}
+					role="status"
+					aria-live="polite"
+				>
 					{normalizedSearchTerm === ''
 						? 'Aucune tâche assignée pour le moment.'
 						: 'Aucune tâche ne correspond à votre recherche.'}

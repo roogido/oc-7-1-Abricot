@@ -40,7 +40,7 @@
 
 .subtitle {
     margin: 0;
-    color: #7b7b7b;
+    color: var(--project-card-meta-color);
     font-family: var(--font-primary);
     font-size: 16px;
     font-weight: 400;

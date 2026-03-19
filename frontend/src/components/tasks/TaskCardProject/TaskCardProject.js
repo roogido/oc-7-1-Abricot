@@ -235,7 +235,10 @@ export default function TaskCardProject({
 						</div>
 
 						{commentErrorMessage ? (
-							<p className={styles.commentErrorMessage}>
+							<p
+								className={styles.commentErrorMessage}
+								role="alert"
+							>
 								{commentErrorMessage}
 							</p>
 						) : null}

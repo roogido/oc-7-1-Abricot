@@ -81,11 +81,17 @@ export default async function ProjectsPage() {
 
 			{errorMessage ? (
 				<section className={styles.feedbackSection}>
-					<p className={styles.feedbackMessage}>{errorMessage}</p>
+					<p className={styles.feedbackMessage} role="alert">
+						{errorMessage}
+					</p>
 				</section>
 			) : projects.length === 0 ? (
 				<section className={styles.feedbackSection}>
-					<p className={styles.feedbackMessage}>
+					<p
+						className={styles.feedbackMessage}
+						role="status"
+						aria-live="polite"
+					>
 						Aucun projet pour le moment.
 					</p>
 				</section>

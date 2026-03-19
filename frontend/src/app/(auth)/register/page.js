@@ -44,6 +44,7 @@ function extractBackendErrorMessage(data, status) {
 export default function RegisterPage() {
 	const router = useRouter();
 	const { isAuthenticated, isBootstrapping, refreshMe } = useAuth();
+	const errorMessageId = 'register-form-error';
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -153,6 +154,10 @@ export default function RegisterPage() {
 						}}
 						autoComplete="email"
 						className={styles.input}
+						aria-invalid={Boolean(errorMessage)}
+						aria-describedby={
+							errorMessage ? errorMessageId : undefined
+						}
 					/>
 				</div>
 
@@ -186,7 +191,13 @@ export default function RegisterPage() {
 				</button>
 
 				{errorMessage ? (
-					<p className={styles.errorMessage}>{errorMessage}</p>
+					<p
+						id={errorMessageId}
+						className={styles.errorMessage}
+						role="alert"
+					>
+						{errorMessage}
+					</p>
 				) : null}
 			</form>
 		</AuthPageShell>

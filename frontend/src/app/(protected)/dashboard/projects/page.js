@@ -73,11 +73,17 @@ export default async function DashboardProjectsPage() {
 
 			{errorMessage ? (
 				<section className={styles.feedbackSection}>
-					<p className={styles.feedbackMessage}>{errorMessage}</p>
+					<p className={styles.feedbackMessage} role="alert">
+						{errorMessage}
+					</p>
 				</section>
 			) : projectsWithTasks.length === 0 ? (
 				<section className={styles.feedbackSection}>
-					<p className={styles.feedbackMessage}>
+					<p
+						className={styles.feedbackMessage}
+						role="status"
+						aria-live="polite"
+					>
 						Aucun projet avec taches assignees pour le moment.
 					</p>
 				</section>
