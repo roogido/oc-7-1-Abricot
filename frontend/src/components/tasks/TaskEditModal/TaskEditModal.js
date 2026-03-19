@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Button from '@/components/ui/Button/Button';
 import ModalShell from '@/components/ui/ModalShell/ModalShell';
@@ -65,6 +65,7 @@ export default function TaskEditModal({
 	const [formValues, setFormValues] = useState(() =>
 		getInitialFormState(task),
 	);
+	const statusOptionRefs = useRef([]);
 
 	// Recharge les champs quand on passe d'une tache a une autre.
 	useEffect(() => {
@@ -93,6 +94,10 @@ export default function TaskEditModal({
 	const deleteLabel = useMemo(() => {
 		return isDeleting ? 'Suppression...' : 'Supprimer';
 	}, [isDeleting]);
+	const currentStatusIndex = Math.max(
+		0,
+		STATUS_OPTIONS.findIndex((option) => option.value === formValues.status),
+	);
 
 	function handleChange(event) {
 		const { name, value } = event.target;
@@ -108,6 +113,68 @@ export default function TaskEditModal({
 			...prev,
 			status,
 		}));
+	}
+
+	function focusStatusOptionAt(index) {
+		const target = statusOptionRefs.current[index];
+
+		if (target instanceof HTMLButtonElement) {
+			target.focus();
+		}
+	}
+
+	function handleStatusKeyDown(event, index) {
+		if (
+			event.key === 'ArrowRight' ||
+			event.key === 'ArrowDown'
+		) {
+			event.preventDefault();
+
+			const nextIndex = (index + 1) % STATUS_OPTIONS.length;
+			const nextStatus = STATUS_OPTIONS[nextIndex];
+
+			handleStatusSelect(nextStatus.value);
+			requestAnimationFrame(() => {
+				focusStatusOptionAt(nextIndex);
+			});
+			return;
+		}
+
+		if (
+			event.key === 'ArrowLeft' ||
+			event.key === 'ArrowUp'
+		) {
+			event.preventDefault();
+
+			const previousIndex =
+				(index - 1 + STATUS_OPTIONS.length) % STATUS_OPTIONS.length;
+			const previousStatus = STATUS_OPTIONS[previousIndex];
+
+			handleStatusSelect(previousStatus.value);
+			requestAnimationFrame(() => {
+				focusStatusOptionAt(previousIndex);
+			});
+			return;
+		}
+
+		if (event.key === 'Home') {
+			event.preventDefault();
+			handleStatusSelect(STATUS_OPTIONS[0].value);
+			requestAnimationFrame(() => {
+				focusStatusOptionAt(0);
+			});
+			return;
+		}
+
+		if (event.key === 'End') {
+			event.preventDefault();
+			const lastIndex = STATUS_OPTIONS.length - 1;
+
+			handleStatusSelect(STATUS_OPTIONS[lastIndex].value);
+			requestAnimationFrame(() => {
+				focusStatusOptionAt(lastIndex);
+			});
+		}
 	}
 
 	function handlePriorityChange(priority) {
@@ -197,20 +264,35 @@ export default function TaskEditModal({
 								aria-label="Sélection du statut"
 								role="radiogroup"
 							>
-								{STATUS_OPTIONS.map((option) => {
+								{STATUS_OPTIONS.map((option, index) => {
 									const isActive =
 										formValues.status === option.value;
 
 									return (
 										<button
 											key={option.value}
+											ref={(element) => {
+												statusOptionRefs.current[index] =
+													element;
+											}}
 											type="button"
 											className={styles.statusChipButton}
 											onClick={() =>
 												handleStatusSelect(option.value)
 											}
+											onKeyDown={(event) =>
+												handleStatusKeyDown(
+													event,
+													index,
+												)
+											}
 											role="radio"
 											aria-checked={isActive}
+											tabIndex={
+												index === currentStatusIndex
+													? 0
+													: -1
+											}
 										>
 											<Tag
 												variant={option.variant}
@@ -245,7 +327,9 @@ export default function TaskEditModal({
 					</div>
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 				</div>
 

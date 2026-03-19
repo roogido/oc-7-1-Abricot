@@ -405,13 +405,19 @@ export default function ProfilePage() {
 					</div>
 
 					{successMessage ? (
-						<p className={styles.successMessage}>
+						<p
+							className={styles.successMessage}
+							role="status"
+							aria-live="polite"
+						>
 							{successMessage}
 						</p>
 					) : null}
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 				</form>
 			</section>

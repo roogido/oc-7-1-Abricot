@@ -45,14 +45,23 @@ export default function Chip({
 
 	if (href) {
 		return (
-			<Link href={href} className={className}>
+			<Link
+				href={href}
+				className={className}
+				aria-current={active ? 'page' : undefined}
+			>
 				{content}
 			</Link>
 		);
 	}
 
 	return (
-		<button type="button" className={className} onClick={onClick}>
+		<button
+			type="button"
+			className={className}
+			onClick={onClick}
+			aria-pressed={active}
+		>
 			{content}
 		</button>
 	);

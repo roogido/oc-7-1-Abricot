@@ -158,11 +158,13 @@ export default function ProjectFormModal({
 					</div>
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 
 					{deleteErrorMessage ? (
-						<p className={styles.errorMessage}>
+						<p className={styles.errorMessage} role="alert">
 							{deleteErrorMessage}
 						</p>
 					) : null}

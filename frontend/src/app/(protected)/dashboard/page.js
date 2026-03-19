@@ -76,7 +76,9 @@ export default async function DashboardPage() {
 
 			{errorMessage ? (
 				<section className={styles.feedbackSection}>
-					<p className={styles.feedbackMessage}>{errorMessage}</p>
+					<p className={styles.feedbackMessage} role="alert">
+						{errorMessage}
+					</p>
 				</section>
 			) : (
 				<DashboardAssignedTasksPanel tasks={assignedTasks} />

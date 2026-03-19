@@ -29,6 +29,14 @@ export default function UserMultiSelectField({
 }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const boxRef = useRef(null);
+	const triggerRef = useRef(null);
+	const searchInputRef = useRef(null);
+	const resultItemRefs = useRef([]);
+
+	const labelId = `${id}-label`;
+	const panelId = `${id}-panel`;
+	const searchInputId = `${id}-search`;
+	const resultsStatusId = `${id}-results-status`;
 
 	// Referme le panneau des qu'un clic se produit hors du champ.
 	useEffect(() => {
@@ -45,10 +53,105 @@ export default function UserMultiSelectField({
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+
+		if (searchInputRef.current instanceof HTMLInputElement) {
+			searchInputRef.current.focus();
+		}
+	}, [isOpen]);
+
+	function focusTrigger() {
+		if (triggerRef.current instanceof HTMLButtonElement) {
+			triggerRef.current.focus();
+		}
+	}
+
+	function focusResultAt(index) {
+		const target = resultItemRefs.current[index];
+
+		if (target instanceof HTMLButtonElement) {
+			target.focus();
+		}
+	}
+
+	function closePanel({ returnFocus = false } = {}) {
+		setIsOpen(false);
+
+		if (returnFocus) {
+			requestAnimationFrame(() => {
+				focusTrigger();
+			});
+		}
+	}
+
 	// Ajoute l'utilisateur puis replie la liste pour garder un flux simple.
 	function handleSelectUser(user) {
 		onAddUser(user);
-		setIsOpen(false);
+		closePanel({ returnFocus: true });
+	}
+
+	function handleTriggerKeyDown(event) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+
+			if (!isOpen) {
+				setIsOpen(true);
+				return;
+			}
+
+			if (hasSearchResults) {
+				focusResultAt(0);
+			}
+		}
+
+		if (event.key === 'Escape' && isOpen) {
+			event.preventDefault();
+			closePanel();
+		}
+	}
+
+	function handleSearchInputKeyDown(event) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			closePanel({ returnFocus: true });
+			return;
+		}
+
+		if (event.key === 'ArrowDown' && hasSearchResults) {
+			event.preventDefault();
+			focusResultAt(0);
+		}
+	}
+
+	function handleResultItemKeyDown(event, index) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			closePanel({ returnFocus: true });
+			return;
+		}
+
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			focusResultAt((index + 1) % options.length);
+			return;
+		}
+
+		if (event.key === 'ArrowUp') {
+			event.preventDefault();
+
+			if (index === 0) {
+				if (searchInputRef.current instanceof HTMLInputElement) {
+					searchInputRef.current.focus();
+				}
+
+				return;
+			}
+
+			focusResultAt(index - 1);
+		}
 	}
 
 	const hasSearchResults = options.length > 0;
@@ -62,18 +165,21 @@ export default function UserMultiSelectField({
 
 	return (
 		<div className={styles.field}>
-			<label htmlFor={id} className={styles.label}>
+			<label id={labelId} htmlFor={id} className={styles.label}>
 				{label}
 			</label>
 
 			<div className={styles.box} ref={boxRef}>
 				<button
+					ref={triggerRef}
 					id={id}
 					type="button"
 					className={styles.selectLike}
 					onClick={() => setIsOpen((prev) => !prev)}
+					onKeyDown={handleTriggerKeyDown}
 					aria-expanded={isOpen}
-					aria-controls={`${id}-panel`}
+					aria-controls={panelId}
+					aria-labelledby={label ? `${labelId} ${id}` : undefined}
 				>
 					<span className={styles.selectPlaceholder}>
 						{placeholder}
@@ -88,9 +194,13 @@ export default function UserMultiSelectField({
 				</button>
 
 				{selectedUsers.length > 0 ? (
-					<div className={styles.selectedUsers}>
+					<div className={styles.selectedUsers} role="list">
 						{selectedUsers.map((user) => (
-							<div key={user.id} className={styles.selectedUser}>
+							<div
+								key={user.id}
+								className={styles.selectedUser}
+								role="listitem"
+							>
 								<span className={styles.selectedUserText}>
 									{user.name || user.email}
 								</span>
@@ -109,37 +219,68 @@ export default function UserMultiSelectField({
 				) : null}
 
 				{isOpen ? (
-					<div id={`${id}-panel`} className={styles.searchPanel}>
+					<div id={panelId} className={styles.searchPanel}>
 						<input
+							ref={searchInputRef}
+							id={searchInputId}
 							type="text"
 							value={searchValue}
 							onChange={(event) =>
 								onSearchChange(event.target.value)
 							}
+							onKeyDown={handleSearchInputKeyDown}
 							className={styles.searchInput}
 							placeholder={searchPlaceholder}
 							autoComplete="off"
+							aria-label={
+								label
+									? `Rechercher dans ${label.toLowerCase()}`
+									: searchPlaceholder
+							}
+							aria-describedby={resultsStatusId}
 						/>
 
 						{showResults ? (
 							<div className={styles.resultsList}>
 								{loading ? (
-									<p className={styles.resultsMessage}>
+									<p
+										id={resultsStatusId}
+										className={styles.resultsMessage}
+										role="status"
+										aria-live="polite"
+									>
 										Chargement...
 									</p>
 								) : errorMessage ? (
-									<p className={styles.resultsErrorMessage}>
+									<p
+										id={resultsStatusId}
+										className={styles.resultsErrorMessage}
+										role="alert"
+									>
 										{errorMessage}
 									</p>
 								) : hasSearchResults ? (
-									options.map((user) => (
+									options.map((user, index) => (
 										<button
 											key={user.id}
 											type="button"
+											ref={(element) => {
+												resultItemRefs.current[index] =
+													element;
+											}}
 											className={styles.resultItem}
 											onClick={() =>
 												handleSelectUser(user)
 											}
+											onKeyDown={(event) =>
+												handleResultItemKeyDown(
+													event,
+													index,
+												)
+											}
+											aria-label={`Ajouter ${
+												user.name || 'Utilisateur'
+											} (${user.email})`}
 										>
 											<span className={styles.resultName}>
 												{user.name || 'Utilisateur'}
@@ -152,7 +293,12 @@ export default function UserMultiSelectField({
 										</button>
 									))
 								) : searchValue.trim().length >= 2 ? (
-									<p className={styles.resultsMessage}>
+									<p
+										id={resultsStatusId}
+										className={styles.resultsMessage}
+										role="status"
+										aria-live="polite"
+									>
 										Aucun résultat.
 									</p>
 								) : null}

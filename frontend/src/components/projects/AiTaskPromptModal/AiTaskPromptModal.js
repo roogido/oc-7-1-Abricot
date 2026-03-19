@@ -93,6 +93,7 @@ export default function AiTaskPromptModal({
 							className={styles.promptInput}
 							placeholder="Décrivez les tâches que vous souhaitez ajouter..."
 							rows="3"
+							aria-label="Description des tâches à générer"
 						/>
 
 						<button
@@ -112,7 +113,9 @@ export default function AiTaskPromptModal({
 					</div>
 
 					{errorMessage ? (
-						<p className={styles.errorMessage}>{errorMessage}</p>
+						<p className={styles.errorMessage} role="alert">
+							{errorMessage}
+						</p>
 					) : null}
 				</div>
 

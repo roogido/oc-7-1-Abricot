@@ -20,6 +20,7 @@ export default function LoginPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { login, isAuthenticated, isBootstrapping } = useAuth();
+	const errorMessageId = 'login-form-error';
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -137,6 +138,10 @@ export default function LoginPage() {
 						}}
 						autoComplete="email"
 						className={styles.input}
+						aria-invalid={Boolean(errorMessage)}
+						aria-describedby={
+							errorMessage ? errorMessageId : undefined
+						}
 					/>
 				</div>
 
@@ -173,7 +178,13 @@ export default function LoginPage() {
 				</Link>
 
 				{errorMessage ? (
-					<p className={styles.errorMessage}>{errorMessage}</p>
+					<p
+						id={errorMessageId}
+						className={styles.errorMessage}
+						role="alert"
+					>
+						{errorMessage}
+					</p>
 				) : null}
 			</form>
 		</AuthPageShell>
