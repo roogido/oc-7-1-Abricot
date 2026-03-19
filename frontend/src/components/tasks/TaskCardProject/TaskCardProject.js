@@ -34,6 +34,7 @@ export default function TaskCardProject({
 	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 	const [commentText, setCommentText] = useState('');
 
+	// Lie la bascule et la zone de commentaires avec un id stable.
 	const textareaId = useId();
 	const commentsSectionId = useMemo(
 		() => `${textareaId}-comments-section`,
@@ -48,6 +49,7 @@ export default function TaskCardProject({
 		setIsExpanded((prev) => !prev);
 	}
 
+	// Le parent persiste le commentaire; on vide le champ seulement si OK.
 	async function handleSubmit(event) {
 		event.preventDefault();
 

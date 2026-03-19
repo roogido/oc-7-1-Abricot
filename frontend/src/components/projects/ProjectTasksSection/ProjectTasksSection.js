@@ -25,10 +25,12 @@ const STATUS_OPTIONS = [
 	{ value: 'DONE', label: 'Terminee' },
 ];
 
+// Normalise les textes pour comparer la recherche sans effet de casse.
 function normalizeValue(value) {
 	return typeof value === 'string' ? value.trim().toLowerCase() : '';
 }
 
+// Fait porter la recherche sur les champs visibles les plus utiles.
 function matchesSearch(task, normalizedSearchTerm) {
 	if (normalizedSearchTerm === '') {
 		return true;
@@ -71,6 +73,7 @@ export default function ProjectTasksSection({
 
 	const normalizedSearchTerm = normalizeValue(searchTerm);
 
+	// Applique d'abord le filtre de statut, puis la recherche libre.
 	const filteredTasks = useMemo(() => {
 		const safeTasks = Array.isArray(tasks) ? tasks : [];
 
@@ -103,6 +106,7 @@ export default function ProjectTasksSection({
 		setEditedTask(null);
 	}
 
+	// Reposte le commentaire puis recharge la source de verite serveur.
 	async function handleCommentSubmit(taskId, content) {
 		setSubmittingCommentTaskId(taskId);
 		setCommentErrorByTaskId((prev) => ({

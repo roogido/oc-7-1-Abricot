@@ -28,6 +28,7 @@ export default function TaskPriorityField({
 	const [isOpen, setIsOpen] = useState(false);
 	const boxRef = useRef(null);
 
+	// Gere le clic exterieur pour se comporter comme un select custom.
 	useEffect(() => {
 		function handleDocumentClick(event) {
 			if (boxRef.current && !boxRef.current.contains(event.target)) {
@@ -42,6 +43,7 @@ export default function TaskPriorityField({
 		};
 	}, []);
 
+	// Traduit la valeur interne en libelle lisible pour l'interface.
 	const currentPriorityLabel =
 		PRIORITY_OPTIONS.find((option) => option.value === value)?.label ??
 		'Faible';

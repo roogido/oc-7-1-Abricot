@@ -14,6 +14,7 @@ import AiTaskSuggestionsModal from '@/components/projects/AiTaskSuggestionsModal
 import { generateTaskSuggestionsClient } from '@/services/aiTaskClientService';
 import { createTaskClient } from '@/services/taskClientService';
 
+// Securise les brouillons IA pour garder un format exploitable dans l'UI.
 function normalizeSuggestedTask(task, index) {
 	return {
 		id:
@@ -79,6 +80,7 @@ export default function ProjectAiTaskGenerationAction({
 		setIsSuggestionsOpen(false);
 	}
 
+	// Ouvre l'etape de relecture seulement si des taches valides existent.
 	async function handleGenerate(prompt) {
 		setIsGenerating(true);
 		setPromptErrorMessage('');
@@ -128,6 +130,7 @@ export default function ProjectAiTaskGenerationAction({
 		);
 	}
 
+	// Cree les taches validees une a une puis recharge la page projet.
 	async function handleCreateTasks() {
 		if (generatedTasks.length === 0) {
 			return;

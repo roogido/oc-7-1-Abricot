@@ -8,8 +8,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import TaskCardProject from '@/components/tasks/TaskCardProject/TaskCardProject';
 
-import arrowLeftIcon from '@/assets/icons/arrow-left-icon.png';
-
 import styles from './ProjectTasksCalendarView.module.css';
 
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -22,6 +20,7 @@ function getDateKey(date) {
 	return `${year}-${month}-${day}`;
 }
 
+// Parse en date locale pour eviter les decalages de fuseau.
 function getLocalDateFromRaw(rawValue) {
 	if (typeof rawValue !== 'string' || rawValue.trim() === '') {
 		return null;
@@ -69,6 +68,7 @@ function getNextMonth(date) {
 	return new Date(date.getFullYear(), date.getMonth() + 1, 1);
 }
 
+// Garde une grille fixe sur 6 semaines pour stabiliser le layout.
 function getMonthDayEntries(monthDate) {
 	const year = monthDate.getFullYear();
 	const monthIndex = monthDate.getMonth();
@@ -92,6 +92,7 @@ function getMonthDayEntries(monthDate) {
 	});
 }
 
+// Regroupe les taches par jour d'echeance pour la vue calendrier.
 function buildTasksByDay(tasks) {
 	const safeTasks = Array.isArray(tasks) ? tasks : [];
 	const tasksByDay = new Map();
@@ -138,6 +139,7 @@ function getFirstTaskDayKey(tasksByDay) {
 	return Array.from(tasksByDay.keys()).sort()[0] ?? '';
 }
 
+// Choisit le premier jour utile du mois lors d'un changement de mois.
 function getFirstTaskDayKeyForMonth(tasksByDay, monthDate) {
 	const targetYear = monthDate.getFullYear();
 	const targetMonthIndex = monthDate.getMonth();

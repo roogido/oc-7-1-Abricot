@@ -14,6 +14,7 @@ import UserMultiSelectField from '@/components/ui/UserMultiSelectField/UserMulti
 
 import styles from './ProjectFormModal.module.css';
 
+// Prepare des valeurs controlees, que le projet soit nouveau ou existant.
 function getInitialFormState(initialValues) {
 	return {
 		title:
@@ -49,6 +50,7 @@ export default function ProjectFormModal({
 		getInitialFormState(initialValues),
 	);
 
+	// Reinitialise le formulaire quand on change de projet a editer.
 	useEffect(() => {
 		setFormValues(getInitialFormState(initialValues));
 	}, [initialValues]);
@@ -82,6 +84,7 @@ export default function ProjectFormModal({
 		}));
 	}
 
+	// Remonte seulement les champs utiles; le parent gere l'appel API.
 	async function handleSubmit(event) {
 		event.preventDefault();
 

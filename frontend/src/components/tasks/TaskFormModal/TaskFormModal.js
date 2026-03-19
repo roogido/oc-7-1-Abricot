@@ -23,6 +23,7 @@ const STATUS_OPTIONS = [
 	{ value: 'DONE', label: 'Terminée', variant: 'green' },
 ];
 
+// La creation demarre toujours sur TODO, non modifiable ici.
 function getInitialFormState() {
 	return {
 		title: '',
@@ -55,6 +56,7 @@ export default function TaskFormModal({
 	const dueDateValue = formValues.dueDate.trim();
 	const priorityValue = formValues.priority.trim();
 
+	// Bloque l'envoi tant que les champs requis ou l'etat async ne sont pas prets.
 	const isSubmitDisabled =
 		titleValue === '' ||
 		descriptionValue === '' ||
@@ -82,6 +84,7 @@ export default function TaskFormModal({
 		}));
 	}
 
+	// Le parent reste responsable de la creation reelle et des erreurs API.
 	async function handleSubmit(event) {
 		event.preventDefault();
 
