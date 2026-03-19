@@ -93,10 +93,10 @@
 	justify-content: center;
 	height: 50px;
 	padding: 0 18px;
-	border: 1px solid #ef4444;
+	border: 1px solid var(--color-error);
 	border-radius: 10px;
 	background: #ffffff;
-	color: #ef4444;
+	color: var(--color-error);
 	font-size: 14px;
 	font-weight: 500;
 	line-height: 1;
@@ -104,12 +104,18 @@
 	transition:
 		background-color var(--transition-fast),
 		color var(--transition-fast),
-		border-color var(--transition-fast);
+		border-color var(--transition-fast),
+		box-shadow var(--transition-fast);
 }
 
-.deleteButton:hover,
+.deleteButton:hover {
+	background: #fef2f2;
+}
+
 .deleteButton:focus-visible {
 	background: #fef2f2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
 
 .deleteButton:disabled {

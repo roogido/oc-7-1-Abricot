@@ -111,20 +111,45 @@
     padding: 0;
     border: none;
     background: transparent;
-    color: #9ca3af;
+    color: var(--project-card-meta-color);
     font-size: 12px;
     font-weight: 400;
     line-height: 1.2;
     cursor: pointer;
+    border-radius: 6px;
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
-.actionButton:hover,
+.actionButton:hover {
+    color: var(--color-dark-soft);
+}
+
 .actionButton:focus-visible {
-    color: #687280;
+    color: var(--color-dark-soft);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.deleteActionButton {
+    color: var(--color-error);
+}
+
+.deleteActionButton:hover {
+    color: var(--color-error);
+    background: #fef2f2;
+}
+
+.deleteActionButton:focus-visible {
+    color: var(--color-error);
+    background: #fef2f2;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
 
 .actionDivider {
-    color: #9ca3af;
+    color: var(--project-card-meta-color);
     font-size: 12px;
     line-height: 1.2;
 }

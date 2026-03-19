@@ -40,9 +40,20 @@
 	gap: 8px;
 }
 
-.icon {
+.iconSlot {
 	width: 18px;
 	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 18px;
+}
+
+.icon {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	max-height: 100%;
 	display: block;
 	flex: 0 0 auto;
 }

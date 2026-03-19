@@ -273,7 +273,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<main className={styles.page}>
+		<div className={styles.page}>
 			<section aria-labelledby="profile-title" className={styles.card}>
 				<header className={styles.header}>
 					<div className={styles.headingBlock}>
@@ -421,6 +421,6 @@ export default function ProfilePage() {
 					) : null}
 				</form>
 			</section>
-		</main>
+		</div>
 	);
 }

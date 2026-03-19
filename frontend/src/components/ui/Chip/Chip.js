@@ -31,12 +31,9 @@ export default function Chip({
 	const content = (
 		<>
 			{icon ? (
-				<Image
-					src={icon}
-					alt=""
-					aria-hidden="true"
-					className={styles.icon}
-				/>
+				<span className={styles.iconSlot} aria-hidden="true">
+					<Image src={icon} alt="" className={styles.icon} />
+				</span>
 			) : null}
 
 			<span>{children}</span>
