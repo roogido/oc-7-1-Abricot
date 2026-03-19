@@ -1,4 +1,9 @@
-// src/components/ui/ModalShell/ModalShell.js
+/**
+ * @file src/components/ui/ModalShell/ModalShell.js
+ * @description
+ * Coquille de modale reutilisable avec fermeture clavier et clic exterieur.
+ */
+
 'use client';
 
 import { useEffect } from 'react';
@@ -8,6 +13,9 @@ import closeIcon from '@/assets/icons/close-icon.png';
 
 import styles from './ModalShell.module.css';
 
+/**
+ * Affiche une modale reutilisable autour d'un contenu libre.
+ */
 export default function ModalShell({
 	isOpen,
 	onClose,

@@ -1,0 +1,122 @@
+/**
+ * @file src/components/projects/AiTaskDraftEditModal/AiTaskDraftEditModal.module.css
+ * @description
+ * Styles de la modale d'édition d'une tâche générée par l'IA.
+ */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    min-height: 616px;
+    padding: 79px 73px 79px 73px;
+    box-sizing: border-box;
+}
+
+.fieldsBlock {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.title {
+    margin: 0;
+    color: #1f1f1f;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.fields {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+}
+
+.label {
+    color: #000000;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.input {
+    height: 53px;
+    padding: 17px 19px;
+}
+
+.textarea {
+    min-height: 77px;
+    padding: 17px 19px;
+    resize: none;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(211, 89, 11, 0.12);
+}
+
+.statusChips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.actions {
+    margin-top: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
+.actions :global(button) {
+    min-width: 181px;
+    height: 50px;
+}
+
+@media (max-width: 640px) {
+    .form {
+        min-height: auto;
+        padding: 64px 24px 32px;
+    }
+
+    .title {
+        font-size: 22px;
+    }
+
+    .fields {
+        margin-top: 32px;
+    }
+
+    .actions {
+        margin-top: 40px;
+    }
+}

@@ -1,4 +1,9 @@
-// src/components/projects/ProjectHeader/ProjectHeader.js
+/**
+ * @file src/components/projects/ProjectHeader/ProjectHeader.js
+ * @description
+ * En-tête de la page détail projet : navigation retour, édition et actions de création.
+ */
+
 'use client';
 
 import Image from 'next/image';
