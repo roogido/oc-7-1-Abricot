@@ -23,6 +23,7 @@ const STATUS_OPTIONS = [
 	{ value: 'DONE', label: 'Terminée', variant: 'green' },
 ];
 
+// Adapte la tache recue aux champs controles du formulaire d'edition.
 function getInitialFormState(task) {
 	return {
 		title: typeof task?.title === 'string' ? task.title : '',
@@ -65,6 +66,7 @@ export default function TaskEditModal({
 		getInitialFormState(task),
 	);
 
+	// Recharge les champs quand on passe d'une tache a une autre.
 	useEffect(() => {
 		setFormValues(getInitialFormState(task));
 	}, [task]);
@@ -115,6 +117,7 @@ export default function TaskEditModal({
 		}));
 	}
 
+	// Le parent gere la mise a jour effective et les erreurs eventuelles.
 	async function handleSubmit(event) {
 		event.preventDefault();
 

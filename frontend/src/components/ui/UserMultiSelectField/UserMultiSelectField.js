@@ -30,6 +30,7 @@ export default function UserMultiSelectField({
 	const [isOpen, setIsOpen] = useState(false);
 	const boxRef = useRef(null);
 
+	// Referme le panneau des qu'un clic se produit hors du champ.
 	useEffect(() => {
 		function handleDocumentClick(event) {
 			if (boxRef.current && !boxRef.current.contains(event.target)) {
@@ -44,12 +45,14 @@ export default function UserMultiSelectField({
 		};
 	}, []);
 
+	// Ajoute l'utilisateur puis replie la liste pour garder un flux simple.
 	function handleSelectUser(user) {
 		onAddUser(user);
 		setIsOpen(false);
 	}
 
 	const hasSearchResults = options.length > 0;
+	// N'affiche les resultats qu'a partir d'une recherche exploitable ou d'un etat a signaler.
 	const showResults =
 		isOpen &&
 		(searchValue.trim().length >= 2 ||

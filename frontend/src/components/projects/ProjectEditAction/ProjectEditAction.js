@@ -26,6 +26,7 @@ export default function ProjectEditAction({
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 
+	// Permet d'ouvrir directement la modale via l'URL.
 	const editModeActive = searchParams.get('edit') === '1';
 
 	const [isOpen, setIsOpen] = useState(editModeActive);
@@ -50,6 +51,7 @@ export default function ProjectEditAction({
 		initialSelectedItems: initialContributors,
 	});
 
+	// Resynchronise l'etat local si l'URL ou les valeurs initiales changent.
 	useEffect(() => {
 		setIsOpen(editModeActive);
 
@@ -74,6 +76,7 @@ export default function ProjectEditAction({
 		[initialTitle, initialDescription],
 	);
 
+	// Ferme sans perdre l'etat initial tant qu'aucune sauvegarde n'est validee.
 	function closeModal() {
 		if (isSubmitting || isDeleting) {
 			return;
@@ -90,6 +93,7 @@ export default function ProjectEditAction({
 		}
 	}
 
+	// Transmet aussi la liste initiale pour gerer les retraits cote API.
 	async function handleSubmit(values) {
 		setIsSubmitting(true);
 		setErrorMessage('');
@@ -119,6 +123,7 @@ export default function ProjectEditAction({
 		}
 	}
 
+	// Demande une confirmation avant l'appel de suppression.
 	async function handleDelete() {
 		const confirmed = window.confirm(
 			'Confirmer la suppression de ce projet ?',
