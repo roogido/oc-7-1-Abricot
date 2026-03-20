@@ -1,4 +1,9 @@
-// src/components/projects/ProjectCard/ProjectCard.js
+/**
+ * @file src/components/projects/ProjectCard/ProjectCard.js
+ * @description
+ * Carte d'affichage d'un projet dans la grille de la page des projets.
+ */
+
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProjectCard.module.css';
@@ -18,6 +23,7 @@ import projectUsersIcon from '@/assets/icons/project-users-icon.png';
  * @param {number} props.completedTasks
  * @param {number} props.totalTasks
  * @param {string} props.ownerInitials
+ * @param {string} [props.ownerName='']
  * @param {string[]} [props.memberInitials=[]]
  * @returns {JSX.Element}
  */
@@ -29,6 +35,7 @@ export default function ProjectCard({
 	completedTasks,
 	totalTasks,
 	ownerInitials,
+	ownerName = '',
 	memberInitials = [],
 }) {
 	return (
@@ -70,7 +77,9 @@ export default function ProjectCard({
 					<div className={styles.teamMembers}>
 						<UserAvatar initials={ownerInitials} variant="owner" />
 
-						<Tag variant="brand">Proprietaire</Tag>
+						<Tag variant="brand">
+							{ownerName !== '' ? ownerName : 'Proprietaire'}
+						</Tag>
 
 						{memberInitials.map((initials) => (
 							<UserAvatar

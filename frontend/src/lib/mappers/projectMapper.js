@@ -82,6 +82,23 @@ function getProjectOwnerId(project) {
 }
 
 /**
+ * Retourne le nom du propriétaire.
+ *
+ * @param {Object} project
+ * @returns {string}
+ */
+function getProjectOwnerName(project) {
+	if (
+		typeof project?.owner?.name === 'string' &&
+		project.owner.name.trim() !== ''
+	) {
+		return project.owner.name.trim();
+	}
+
+	return '';
+}
+
+/**
  * Retourne les initiales des membres non propriétaires.
  *
  * @param {Object} project
@@ -128,6 +145,7 @@ function mapProjectListItem(project, tasksPayload) {
 		completedTasks,
 		totalTasks,
 		ownerInitials: getInitials(project?.owner?.name),
+		ownerName: getProjectOwnerName(project),
 		memberInitials: mapMemberInitials(project),
 	};
 }
