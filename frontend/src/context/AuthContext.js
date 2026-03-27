@@ -32,7 +32,7 @@ export const AuthContext = createContext(null);
 async function requestJson(path, options = {}) {
 	const response = await fetch(path, {
 		...options,
-		credentials: 'include',
+		credentials: 'include', // inclut le cookie dans la requête
 		headers: {
 			Accept: 'application/json',
 			...(options.headers || {}),
@@ -41,6 +41,7 @@ async function requestJson(path, options = {}) {
 
 	const data = await response.json().catch(() => null);
 
+	// Transforme l'erreur HTTP en erreur JS
 	if (!response.ok) {
 		const message =
 			typeof data?.message === 'string' && data.message.trim() !== ''
@@ -76,11 +77,17 @@ function normalizeCredentials({ email, password }) {
  * @returns {JSX.Element}
  */
 export function AuthProvider({ children }) {
+	// Contient l'utilisateur connecté ou null
 	const [user, setUser] = useState(null);
+	// Permet de savoir si la vérification est en cours
 	const [isBootstrapping, setIsBootstrapping] = useState(true);
 
+	// Flag de contrôle sur l'état monté/démonté du composant (en cas de maj pas de re-render)
 	const isMountedRef = useRef(true);
 
+	/**
+	 * (Cleanup) Au démontage positionne le flag à false
+	 */
 	useEffect(() => {
 		return () => {
 			isMountedRef.current = false;
@@ -134,6 +141,41 @@ export function AuthProvider({ children }) {
 	}, [refreshMe]);
 
 	/**
+	 * Revalide la session lorsque la page est restauree
+	 * depuis l'historique du navigateur.
+	 */
+	useEffect(() => {
+		async function handlePageShow() {
+			await refreshMe();
+		}
+
+		window.addEventListener('pageshow', handlePageShow);
+
+		return () => {
+			window.removeEventListener('pageshow', handlePageShow);
+		};
+	}, [refreshMe]);
+
+	useEffect(() => {
+		function handleStorage(event) {
+			if (event.key !== 'auth:logout') {
+				return;
+			}
+
+			if (isMountedRef.current) {
+				setUser(null);
+				setIsBootstrapping(false);
+			}
+		}
+
+		window.addEventListener('storage', handleStorage);
+
+		return () => {
+			window.removeEventListener('storage', handleStorage);
+		};
+	}, []);
+
+	/**
 	 * Authentifie l'utilisateur.
 	 *
 	 * @param {Object} params
@@ -179,6 +221,8 @@ export function AuthProvider({ children }) {
 			if (isMountedRef.current) {
 				setUser(null);
 			}
+
+			window.localStorage.setItem('auth:logout', String(Date.now()));
 		}
 	}, []);
 

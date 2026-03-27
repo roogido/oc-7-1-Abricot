@@ -15,6 +15,8 @@ import { AuthProvider } from '@/context/AuthContext';
 const inter = Inter({
 	subsets: ['latin'],
 	display: 'swap',
+	variable: '--font-inter',
+	weight: ['400', '500', '600', '700'],
 });
 
 /**
@@ -37,7 +39,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
 	return (
 		<html lang="fr">
-			<body>
+			<body className={`${inter.className} ${inter.variable}`}>
 				{/* Provider global de gestion d'authentification */}
 				<AuthProvider>{children}</AuthProvider>
 			</body>

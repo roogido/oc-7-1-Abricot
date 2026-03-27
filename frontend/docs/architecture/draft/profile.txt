@@ -1,0 +1,109 @@
+Page: Profile
+Entry point:
+- src/app/(protected)/profile/page.js
+
+Objectif de la page:
+- Permet a un utilisateur authentifie de consulter et modifier ses informations de profil (nom, prenom, email), de changer son mot de passe de facon optionnelle et de se deconnecter.
+
+Structure fonctionnelle:
+- shell global des pages protegees
+    - role fonctionnel
+        - Encadre la page avec les elements communs de l'espace authentifie et bloque l'acces aux utilisateurs non connectes.
+    - composant racine associe : src/app/(protected)/layout.js
+    - sous-composants reels :
+        - src/components/layout/AppShell/AppShell.js
+        - src/components/layout/Navbar/Navbar.js
+        - src/components/layout/Footer/Footer.js
+    - notes :
+        - Le controle d'acces serveur est declenche par src/lib/authServer.js avant le rendu.
+        - Le layout racine src/app/layout.js fournit le contexte client via src/context/AuthContext.js.
+
+- navigation haute
+    - role fonctionnel
+        - Affiche le logo, les liens principaux de l'espace connecte et l'avatar qui pointe vers la page Profile.
+    - composant racine associe : src/components/layout/Navbar/Navbar.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie pour les liens ou l'avatar
+    - notes :
+        - Les liens "Tableau de bord", "Projets" et le lien avatar "/profile" sont rendus directement dans ce composant.
+        - L'etat actif de la route /profile est gere dans ce composant.
+
+- etat de chargement initial
+    - role fonctionnel
+        - Affiche un ecran temporaire pendant le chargement des donnees utilisateur.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - aucun
+    - notes :
+        - Le titre "Mon compte" et le texte "Chargement..." sont rendus directement dans la page, sans composant dedie.
+
+- carte centrale du profil
+    - role fonctionnel
+        - Sert de conteneur principal a la page et regroupe l'en-tete, le formulaire et les retours utilisateur.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - aucun composant de carte dedie
+    - notes :
+        - Le conteneur visuel principal est un bloc JSX local style par src/app/(protected)/profile/page.module.css.
+
+- en-tete de la carte
+    - role fonctionnel
+        - Presente le titre de la page, le sous-titre base sur le nom affiche et le bouton de deconnexion.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Le bouton "Se deconnecter" est un bouton HTML rendu directement dans la page.
+
+- formulaire d'informations personnelles
+    - role fonctionnel
+        - Permet de modifier le nom, le prenom et l'email du compte.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - aucun composant de champ dedie pour ces trois entrees
+    - notes :
+        - Les champs "Nom", "Prenom" et "Email" sont des balises input HTML rendues directement dans la page.
+        - La page charge les donnees initiales via /api/auth/me.
+        - La mise a jour du profil appelle /api/auth/profile.
+
+- zone de changement de mot de passe
+    - role fonctionnel
+        - Permet de saisir le mot de passe actuel et un nouveau mot de passe avec affichage/masquage.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - src/components/ui/Password/PasswordInput.js
+    - notes :
+        - Le meme composant est instancie deux fois : une fois pour le mot de passe actuel, une fois pour le nouveau mot de passe.
+        - Le changement effectif du mot de passe appelle /api/auth/password seulement si l'un des deux champs de mot de passe est renseigne.
+
+- zone d'action et messages de retour
+    - role fonctionnel
+        - Permet de soumettre le formulaire et affiche un message de succes ou d'erreur.
+    - composant racine associe : src/app/(protected)/profile/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Le bouton de soumission est un bouton HTML rendu directement dans la page.
+        - Les messages de succes et d'erreur sont des paragraphes rendus conditionnellement dans la page.
+
+- pied de page global
+    - role fonctionnel
+        - Ferme l'interface authentifiee avec le logo et la mention legale.
+    - composant racine associe : src/components/layout/Footer/Footer.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Le contenu visuel du footer est rendu directement dans ce composant.
+
+Arborescence technique synthetique:
+- src/app/layout.js
+    - src/context/AuthContext.js
+    - src/app/(protected)/layout.js
+        - src/lib/authServer.js
+        - src/components/layout/AppShell/AppShell.js
+            - src/components/layout/Navbar/Navbar.js
+                - src/hooks/useAuth.js
+            - src/app/(protected)/profile/page.js
+                - src/hooks/useAuth.js
+                - src/components/ui/Password/PasswordInput.js
+            - src/components/layout/Footer/Footer.js

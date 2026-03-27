@@ -1,0 +1,98 @@
+Page: Register
+Entry point:
+- src/app/(auth)/register/page.js
+
+Objectif de la page:
+- Permettre a un visiteur non authentifie de creer un compte, de charger la session utilisateur cote client puis d'etre redirige vers le dashboard.
+
+Structure fonctionnelle:
+- layout racine et contexte global d'authentification
+    - role fonctionnel
+        - Fournit la structure HTML globale de l'application et injecte le provider d'authentification consomme par la page Register.
+    - composant racine associe : src/app/layout.js
+    - sous-composants reels :
+        - src/context/AuthContext.js
+    - notes :
+        - `AuthProvider` expose `isAuthenticated`, `isBootstrapping` et `refreshMe` utilises par la page.
+
+- layout du groupe auth
+    - role fonctionnel
+        - Encadre techniquement les routes d'authentification sans ajouter de structure visuelle supplementaire.
+    - composant racine associe : src/app/(auth)/layout.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Ce layout retourne directement `children`.
+
+- etat transitoire de redirection
+    - role fonctionnel
+        - Affiche un ecran minimal tant que la session est en cours d'initialisation, ou si l'utilisateur est deja authentifie.
+    - composant racine associe : src/app/(auth)/register/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Le bloc est rendu directement dans la page avec un `main`, un `h1` et un `p`.
+
+- shell visuel de la page d'authentification
+    - role fonctionnel
+        - Structure la page en deux panneaux : logo et formulaire a gauche, illustration a droite.
+    - composant racine associe : src/components/layout/AuthPageShell/AuthPageShell.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie pour le logo, le titre, le conteneur de formulaire ou le panneau d'illustration
+    - notes :
+        - Le shell affiche ici le titre "Inscription" et l'illustration `src/assets/images/auth/register.png`.
+        - L'illustration du panneau droit est decorative.
+
+- formulaire d'inscription
+    - role fonctionnel
+        - Recueille l'email et le mot de passe, declenche l'inscription et affiche l'etat de soumission.
+    - composant racine associe : src/app/(auth)/register/page.js
+    - sous-composants reels :
+        - src/components/ui/Password/PasswordInput.js
+    - notes :
+        - Le champ email, le bouton `S'inscrire` et le message d'erreur sont rendus directement dans la page, sans composant dedie.
+        - Le bouton de soumission est desactive si l'email ou le mot de passe sont vides, ou si une soumission est deja en cours.
+
+- champ mot de passe avec visibilite
+    - role fonctionnel
+        - Gere la saisie du mot de passe et le basculement afficher/masquer.
+    - composant racine associe : src/components/ui/Password/PasswordInput.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Les icones oeil / oeil barre sont definies dans le composant via SVG inline.
+
+- zone de navigation secondaire vers Login
+    - role fonctionnel
+        - Propose un lien vers la page de connexion sous le formulaire.
+    - composant racine associe : src/app/(auth)/register/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Ce contenu est injecte dans la prop `bottomContent` de `src/components/layout/AuthPageShell/AuthPageShell.js`.
+
+Interactions structurelles notables:
+- La page utilise `src/hooks/useAuth.js`, qui consomme le contexte fourni par `src/context/AuthContext.js`.
+- Au montage, `src/context/AuthContext.js` initialise l'etat de session via `/api/auth/me`, ce qui alimente `isBootstrapping` et `isAuthenticated`.
+- Si `isBootstrapping` est vrai, ou si `isAuthenticated` est deja vrai, `src/app/(auth)/register/page.js` affiche l'etat de redirection au lieu du formulaire.
+- `src/app/(auth)/register/page.js` soumet le formulaire avec `fetch('/api/auth/register')` en POST, avec `credentials: 'include'`.
+- En cas de reponse en erreur, la page extrait prioritairement le premier message de validation backend via `extractBackendErrorMessage`, puis affiche ce message dans la page.
+- `src/app/api/auth/register/route.js` appelle `src/services/authService.js`, cree le cookie httpOnly d'authentification puis renvoie l'utilisateur cree.
+- Apres inscription reussie, la page appelle `refreshMe()` depuis `src/context/AuthContext.js` pour recharger l'utilisateur courant dans le contexte client.
+- Une fois la session rechargee, la page effectue `router.replace('/dashboard')`.
+- Lors d'une nouvelle saisie dans le champ email ou mot de passe, la page efface le message d'erreur courant.
+- Le lien secondaire `Se connecter` pointe vers `/login`.
+- `src/proxy.js` empeche aussi l'acces a `/register` lorsqu'un cookie d'authentification est deja present et redirige alors vers `/dashboard`.
+
+Arborescence technique synthetique:
+- src/app/layout.js
+    - src/context/AuthContext.js
+        - src/hooks/useAuth.js
+    - src/app/(auth)/layout.js
+        - src/app/(auth)/register/page.js
+            - src/hooks/useAuth.js
+            - src/components/layout/AuthPageShell/AuthPageShell.js
+            - src/components/ui/Password/PasswordInput.js
+            - src/app/api/auth/register/route.js
+                - src/services/authService.js
+- src/proxy.js

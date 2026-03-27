@@ -1,3 +1,9 @@
+/**
+ * @file src/components/projects/ProjectTasksSection/ProjectTasksSection.js
+ * @description
+ * Appelée depuis : Page détail d'un projet
+ */
+
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
@@ -20,9 +26,9 @@ import styles from './ProjectTasksSection.module.css';
 
 const STATUS_OPTIONS = [
 	{ value: 'ALL', label: 'Tous' },
-	{ value: 'TODO', label: 'A faire' },
+	{ value: 'TODO', label: 'À faire' },
 	{ value: 'IN_PROGRESS', label: 'En cours' },
-	{ value: 'DONE', label: 'Terminee' },
+	{ value: 'DONE', label: 'Terminée' },
 ];
 
 // Normalise les textes pour comparer la recherche sans effet de casse.

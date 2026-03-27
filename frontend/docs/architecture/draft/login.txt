@@ -1,0 +1,99 @@
+Page: Login
+Entry point:
+- src/app/(auth)/login/page.js
+
+Objectif de la page:
+- Permettre a un utilisateur non authentifie de se connecter, puis d'etre redirige vers le dashboard ou vers la route demandee via le parametre `next`.
+
+Structure fonctionnelle:
+- layout racine et contexte global d'authentification
+    - role fonctionnel
+        - Fournit la structure HTML globale de l'application et injecte le provider d'authentification utilise par la page Login.
+    - composant racine associe : src/app/layout.js
+    - sous-composants reels :
+        - src/context/AuthContext.js
+    - notes :
+        - Le provider `AuthProvider` rend disponible `useAuth` a la page Login.
+
+- layout du groupe auth
+    - role fonctionnel
+        - Encadre techniquement les routes d'authentification sans ajouter de shell visuel supplementaire.
+    - composant racine associe : src/app/(auth)/layout.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Ce layout retourne directement `children`.
+
+- etat transitoire de redirection
+    - role fonctionnel
+        - Affiche un ecran minimal pendant l'initialisation de l'authentification ou quand l'utilisateur est deja connecte.
+    - composant racine associe : src/app/(auth)/login/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Le bloc visuel est rendu directement dans la page avec un `main`, un `h1` et un `p`.
+
+- shell visuel de la page d'authentification
+    - role fonctionnel
+        - Structure la page en deux panneaux : logo et formulaire a gauche, illustration a droite.
+    - composant racine associe : src/components/layout/AuthPageShell/AuthPageShell.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie pour le logo, le titre, le conteneur de formulaire ou le panneau d'illustration
+    - notes :
+        - Le composant affiche le logo Abricot, le titre "Connexion", la zone formulaire et le contenu secondaire en bas.
+        - L'illustration de droite est purement decorative dans ce shell.
+
+- formulaire de connexion
+    - role fonctionnel
+        - Recueille l'email et le mot de passe, declenche la connexion et affiche l'etat de soumission.
+    - composant racine associe : src/app/(auth)/login/page.js
+    - sous-composants reels :
+        - src/components/ui/Password/PasswordInput.js
+    - notes :
+        - Le champ email, le bouton "Se connecter", le lien "Mot de passe oublie ?" et le message d'erreur sont rendus directement dans la page, sans composant dedie.
+        - Le bouton de soumission est desactive si l'email ou le mot de passe sont vides, ou si une soumission est en cours.
+
+- champ mot de passe avec visibilite
+    - role fonctionnel
+        - Gere la saisie du mot de passe et le basculement afficher/masquer.
+    - composant racine associe : src/components/ui/Password/PasswordInput.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Les icones oeil / oeil barre sont definies dans le composant lui-meme via SVG inline.
+
+- zone de navigation secondaire vers Register
+    - role fonctionnel
+        - Propose un lien de creation de compte sous le formulaire.
+    - composant racine associe : src/app/(auth)/login/page.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Ce contenu est passe a la prop `bottomContent` de `src/components/layout/AuthPageShell/AuthPageShell.js`.
+
+Interactions structurelles notables:
+- La page utilise `src/hooks/useAuth.js`, qui consomme le contexte fourni par `src/context/AuthContext.js`.
+- Au montage, `src/context/AuthContext.js` initialise l'etat de session avec `refreshMe()` sur `/api/auth/me`, ce qui alimente `isBootstrapping` et `isAuthenticated`.
+- Si `isBootstrapping` est vrai, ou si `isAuthenticated` est deja vrai, `src/app/(auth)/login/page.js` affiche l'etat de redirection au lieu du formulaire.
+- `src/app/(auth)/login/page.js` calcule `nextPath` a partir de `searchParams.get('next')` et rejette les valeurs externes ou invalides ; la valeur de repli est `/dashboard`.
+- La soumission du formulaire appelle `login()` depuis `src/context/AuthContext.js`, qui envoie une requete POST vers `/api/auth/login`.
+- `src/app/api/auth/login/route.js` appelle `src/services/authService.js`, pose le cookie httpOnly d'authentification puis renvoie l'utilisateur courant au contexte client.
+- Apres connexion reussie, la page effectue `router.replace(nextPath)`.
+- Si la connexion echoue, un message d'erreur est affiche dans la page et l'attribut `aria-invalid` est applique au champ email.
+- Lors d'une nouvelle saisie dans le champ email ou mot de passe, la page efface le message d'erreur courant.
+- Le lien secondaire "Creer un compte" pointe vers `/register`.
+- Le lien "Mot de passe oublie ?" pointe actuellement vers `#` ; aucune route ou modale dediee n'est branchee depuis cette page.
+- `src/proxy.js` complete la logique de structure en redirigeant un visiteur non authentifie vers `/login?next=...` lorsqu'il tente d'acceder a une route protegee, et en empechant l'acces a `/login` si un cookie d'authentification est deja present.
+
+Arborescence technique synthetique:
+- src/app/layout.js
+    - src/context/AuthContext.js
+        - src/hooks/useAuth.js
+        - src/app/api/auth/login/route.js
+            - src/services/authService.js
+    - src/app/(auth)/layout.js
+        - src/app/(auth)/login/page.js
+            - src/hooks/useAuth.js
+            - src/components/layout/AuthPageShell/AuthPageShell.js
+            - src/components/ui/Password/PasswordInput.js
+- src/proxy.js
