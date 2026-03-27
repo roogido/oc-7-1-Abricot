@@ -69,7 +69,7 @@ export async function internalApiRequest(
 
 	const response = await fetch(path, {
 		method: upperMethod,
-		credentials: 'include',
+		credentials: 'include', // Inclut le cookie dans la requête
 		headers: buildHeaders(hasJsonBody),
 		body: hasJsonBody ? JSON.stringify(body) : undefined,
 	});

@@ -1,0 +1,200 @@
+Page: Dashboard
+Entry point:
+- src/app/(protected)/dashboard/page.js
+
+Objectif de la page:
+- Afficher a un utilisateur authentifie une vue de synthese de ses taches assignees, avec trois presentations disponibles : Liste, Kanban et Projet, ainsi qu'une action de creation de projet.
+
+Vues identifiees:
+- Liste
+- Kanban
+- Projet
+
+Notes de cadrage:
+- Le point d'entree principal de Dashboard est la route `src/app/(protected)/dashboard/page.js`, qui correspond a la vue Liste.
+- Les deux autres vues sont portees par des routes distinctes :
+    - src/app/(protected)/dashboard/kanban/page.js
+    - src/app/(protected)/dashboard/projects/page.js
+- Les trois vues ne sont pas gerees par un state local ou un rendu conditionnel dans un composant unique.
+- Le changement de vue est gere par des liens `Chip` qui naviguent entre ces trois routes.
+- `src/components/dashboard/DashboardPanel/DashboardPanel.js` existe dans le code mais n'est pas importe par les routes Dashboard analysees.
+
+Structure fonctionnelle globale:
+- shell global des pages protegees
+    - role fonctionnel
+        - Verifie l'authentification, encadre la page dans le shell de l'espace connecte et affiche la navigation principale.
+    - composant racine associe : src/app/(protected)/layout.js
+    - sous-composants reels :
+        - src/components/layout/AppShell/AppShell.js
+        - src/components/layout/Navbar/Navbar.js
+        - src/components/layout/Footer/Footer.js
+    - notes :
+        - Le layout racine `src/app/layout.js` injecte `src/context/AuthContext.js`.
+        - Le controle d'acces serveur est declenche par `src/lib/authServer.js`.
+
+- header / intro / actions principales
+    - role fonctionnel
+        - Affiche le titre "Tableau de bord", le sous-titre personnalise avec le nom de l'utilisateur et l'action principale de creation de projet.
+    - composant racine associe : src/components/layout/PageIntro/PageIntro.js
+    - sous-composants reels :
+        - src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+        - src/components/ui/Button/Button.js
+        - src/components/projects/ProjectFormModal/ProjectFormModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+    - notes :
+        - `DashboardCreateProjectAction` est un composant client utilise dans les trois vues.
+        - Le bouton ouvre une modale de creation de projet.
+
+- switch de vues
+    - role fonctionnel
+        - Permet de passer entre Liste, Kanban et Projet.
+    - composant racine associe : src/components/ui/Chip/Chip.js
+    - sous-composants reels :
+        - aucun sous-composant React dedie
+    - notes :
+        - Les `Chip` sont rendus directement dans chaque page route Dashboard.
+        - L'etat actif est porte par la prop `active` et l'attribut `aria-current`.
+
+- zone de contenu principal et retours utilisateur
+    - role fonctionnel
+        - Affiche soit le contenu principal de la vue courante, soit un message d'erreur ou un message vide selon la route.
+    - composant racine associe : src/app/(protected)/dashboard/page.js
+    - sous-composants reels :
+        - src/components/dashboard/DashboardAssignedTasksPanel/DashboardAssignedTasksPanel.js
+        - src/components/dashboard/DashboardKanbanBoard/DashboardKanbanBoard.js
+        - src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+    - notes :
+        - Chaque route Dashboard gere son propre chargement serveur et son propre fallback d'erreur.
+
+Structure par vue:
+
+Vue: Liste
+- panneau de recherche et liste des taches assignees
+    - role fonctionnel
+        - Affiche les taches assignees a l'utilisateur, permet une recherche texte client sur le titre, la description, le projet et le statut, puis propose un acces "Voir" vers la fiche detail de chaque tache.
+    - composant racine associe : src/components/dashboard/DashboardAssignedTasksPanel/DashboardAssignedTasksPanel.js
+    - sous-composants reels :
+        - src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+        - src/components/ui/SearchInput/SearchInput.js
+        - src/components/tasks/TaskCardDashboardList/TaskCardDashboardList.js
+        - src/components/ui/Tag/Tag.js
+    - notes :
+        - Le filtrage est gere cote client avec `useState` et `useMemo`.
+        - Les cartes de taches affichent le projet, la date, le nombre de commentaires, le statut et un lien vers `src/app/(protected)/projects/[projectId]/tasks/[taskId]/page.js`.
+        - Les donnees sont chargees cote serveur dans `src/app/(protected)/dashboard/page.js` via `src/services/dashboardService.js` et `src/services/projectService.js`, puis mappees par `src/lib/mappers/taskMapper.js`.
+
+- etats de retour de la vue Liste
+    - role fonctionnel
+        - Affiche un message d'erreur de chargement au niveau de la page, ou un message vide / aucun resultat dans le panneau selon l'etat des donnees et de la recherche.
+    - composant racine associe : src/app/(protected)/dashboard/page.js
+    - sous-composants reels :
+        - src/components/dashboard/DashboardAssignedTasksPanel/DashboardAssignedTasksPanel.js
+    - notes :
+        - Le message "Aucune tache assignee pour le moment." et le message "Aucune tache ne correspond a votre recherche." sont rendus dans `DashboardAssignedTasksPanel`.
+
+Vue: Kanban
+- tableau kanban des taches assignees
+    - role fonctionnel
+        - Repartit les taches assignees par statut dans trois colonnes et affiche des cartes consultables.
+    - composant racine associe : src/components/dashboard/DashboardKanbanBoard/DashboardKanbanBoard.js
+    - sous-composants reels :
+        - src/components/dashboard/DashboardKanbanColumn/DashboardKanbanColumn.js
+        - src/components/tasks/TaskCardDashboardKanban/TaskCardDashboardKanban.js
+        - src/components/ui/Tag/Tag.js
+    - notes :
+        - Les colonnes sont construites par `buildDashboardKanbanColumns` dans `src/lib/mappers/taskMapper.js`.
+        - Les trois colonnes reelles sont : "A faire", "En cours", "Terminees".
+        - Les cartes kanban affichent le statut, le projet, la date, le nombre de commentaires et un lien vers la fiche detail de tache.
+
+- etat d'erreur de la vue Kanban
+    - role fonctionnel
+        - Remplace le tableau kanban par un message d'erreur si le chargement echoue.
+    - composant racine associe : src/app/(protected)/dashboard/kanban/page.js
+    - sous-composants reels :
+        - aucun
+    - notes :
+        - La route reutilise la meme source de donnees de base que la vue Liste, puis transforme les taches en colonnes kanban.
+
+Vue: Projet
+- cadre global "Mes projets"
+    - role fonctionnel
+        - Regroupe les taches assignees par projet et affiche un en-tete de groupe pour chaque projet.
+    - composant racine associe : src/app/(protected)/dashboard/projects/page.js
+    - sous-composants reels :
+        - src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+        - src/components/tasks/TaskCardDashboardList/TaskCardDashboardList.js
+        - src/components/ui/Tag/Tag.js
+    - notes :
+        - Les blocs de groupe projet (`section`, `header`, `h3`, `p`) sont rendus directement dans la page, sans composant React dedie de type `ProjectCard`.
+        - Chaque groupe affiche le nom du projet, sa description si presente, puis la liste des taches assignees de ce projet.
+        - Les donnees sont chargees via `src/services/dashboardService.js` avec `getProjectsWithTasks`, puis regroupees par `extractProjectsWithAssignedTasks` dans `src/lib/mappers/taskMapper.js`.
+
+- etats vides et erreur de la vue Projet
+    - role fonctionnel
+        - Affiche soit une erreur de chargement, soit le message indiquant qu'aucun projet avec taches assignees n'est disponible.
+    - composant racine associe : src/app/(protected)/dashboard/projects/page.js
+    - sous-composants reels :
+        - aucun
+    - notes :
+        - Le message vide est gere au niveau de la page avant le rendu du `DashboardCardsFrame`.
+
+Composants partages entre plusieurs vues:
+- src/components/layout/PageIntro/PageIntro.js
+    - Partage par Liste, Kanban et Projet.
+- src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+    - Partage par Liste, Kanban et Projet.
+- src/components/ui/Chip/Chip.js
+    - Partage par Liste, Kanban et Projet.
+- src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+    - Partage par Liste et Projet.
+- src/components/tasks/TaskCardDashboardList/TaskCardDashboardList.js
+    - Partage par Liste et Projet.
+- src/components/ui/Tag/Tag.js
+    - Partage par Liste, Kanban et Projet via les cartes de taches ou les colonnes.
+
+Arborescence technique synthetique:
+- src/app/layout.js
+    - src/context/AuthContext.js
+    - src/app/(protected)/layout.js
+        - src/lib/authServer.js
+        - src/components/layout/AppShell/AppShell.js
+            - src/components/layout/Navbar/Navbar.js
+                - src/hooks/useAuth.js
+            - src/app/(protected)/dashboard/page.js
+                - src/components/layout/PageIntro/PageIntro.js
+                    - src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+                        - src/components/ui/Button/Button.js
+                        - src/components/projects/ProjectFormModal/ProjectFormModal.js
+                            - src/components/ui/ModalShell/ModalShell.js
+                            - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+                - src/components/ui/Chip/Chip.js
+                - src/services/dashboardService.js
+                - src/services/projectService.js
+                - src/lib/mappers/taskMapper.js
+                - src/components/dashboard/DashboardAssignedTasksPanel/DashboardAssignedTasksPanel.js
+                    - src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+                    - src/components/ui/SearchInput/SearchInput.js
+                    - src/components/tasks/TaskCardDashboardList/TaskCardDashboardList.js
+                        - src/components/ui/Tag/Tag.js
+            - src/app/(protected)/dashboard/kanban/page.js
+                - src/components/layout/PageIntro/PageIntro.js
+                - src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+                - src/components/ui/Chip/Chip.js
+                - src/services/dashboardService.js
+                - src/services/projectService.js
+                - src/lib/mappers/taskMapper.js
+                - src/components/dashboard/DashboardKanbanBoard/DashboardKanbanBoard.js
+                    - src/components/dashboard/DashboardKanbanColumn/DashboardKanbanColumn.js
+                        - src/components/tasks/TaskCardDashboardKanban/TaskCardDashboardKanban.js
+                            - src/components/ui/Tag/Tag.js
+            - src/app/(protected)/dashboard/projects/page.js
+                - src/components/layout/PageIntro/PageIntro.js
+                - src/components/projects/DashboardCreateProjectAction/DashboardCreateProjectAction.js
+                - src/components/ui/Chip/Chip.js
+                - src/services/dashboardService.js
+                - src/lib/mappers/taskMapper.js
+                - src/components/dashboard/DashboardCardsFrame/DashboardCardsFrame.js
+                    - src/components/tasks/TaskCardDashboardList/TaskCardDashboardList.js
+                        - src/components/ui/Tag/Tag.js
+            - src/components/layout/Footer/Footer.js

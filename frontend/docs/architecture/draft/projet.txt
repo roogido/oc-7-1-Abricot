@@ -1,0 +1,247 @@
+Page: Projet
+Entry point:
+- src/app/(protected)/projects/[projectId]/page.js
+
+Objectif de la page:
+- Permet a un utilisateur authentifie de consulter le detail d'un projet, ses contributeurs et ses taches, puis selon ses droits de modifier le projet, creer des taches, editer des taches et lancer une generation de taches via IA.
+
+Structure fonctionnelle principale:
+- shell global des pages protegees
+    - role fonctionnel
+        - Verifie l'authentification, encadre la page dans le shell de l'espace connecte et affiche la navigation principale.
+    - composant racine associe : src/app/(protected)/layout.js
+    - sous-composants reels :
+        - src/components/layout/AppShell/AppShell.js
+        - src/components/layout/Navbar/Navbar.js
+        - src/components/layout/Footer/Footer.js
+    - notes :
+        - Le layout racine `src/app/layout.js` injecte `src/context/AuthContext.js`.
+        - Le controle d'acces serveur est declenche par `src/lib/authServer.js`.
+
+- chargement serveur et etats de retour de la page Projet
+    - role fonctionnel
+        - Charge le projet et ses taches cote serveur, puis affiche soit le contenu principal, soit un message d'erreur, soit un message de projet introuvable.
+    - composant racine associe : src/app/(protected)/projects/[projectId]/page.js
+    - sous-composants reels :
+        - aucun
+    - notes :
+        - Les donnees projet viennent de `src/services/projectService.js` via `getProjectById`.
+        - Les taches du projet viennent de `src/services/projectService.js` via `getProjectTasks`.
+        - Le projet est mappe par `src/lib/mappers/projectMapper.js`.
+        - Les taches sont mappees par `src/lib/mappers/projectTaskMapper.js`.
+
+- header du projet et actions principales
+    - role fonctionnel
+        - Affiche le retour vers la liste des projets, le nom du projet, sa description, l'action "Modifier", puis les actions "Creer une tache" et "IA".
+    - composant racine associe : src/app/(protected)/projects/[projectId]/ProjectDetailClientActions.js
+    - sous-composants reels :
+        - src/components/projects/ProjectHeader/ProjectHeader.js
+        - src/components/ui/Button/Button.js
+        - src/components/ui/Link/Link.js
+    - notes :
+        - `ProjectDetailClientActions` sert de conteneur client pour le header et pour le montage des modales d'action.
+        - Le lien "Modifier" est disponible seulement si `canEditProject` est vrai.
+        - Les boutons "Creer une tache" et "IA" sont relies a l'ouverture de modales et conditionnes par `canCreateTask`.
+
+- barre des contributeurs
+    - role fonctionnel
+        - Affiche le proprietaire, les membres du projet et le nombre total de contributeurs.
+    - composant racine associe : src/components/projects/ContributorsBar/ContributorsBar.js
+    - sous-composants reels :
+        - src/components/ui/UserAvatar/UserAvatar.js
+        - src/components/ui/Tag/Tag.js
+    - notes :
+        - Le proprietaire est isole visuellement des autres membres.
+
+- section des taches du projet
+    - role fonctionnel
+        - Affiche les taches du projet en vue Liste ou Calendrier, avec recherche, filtre de statut, edition d'une tache et ajout de commentaire.
+    - composant racine associe : src/components/projects/ProjectTasksSection/ProjectTasksSection.js
+    - sous-composants reels :
+        - src/components/ui/Chip/Chip.js
+        - src/components/ui/SearchInput/SearchInput.js
+        - src/components/tasks/TaskCardProject/TaskCardProject.js
+        - src/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView.js
+        - src/components/projects/ProjectTaskEditAction/ProjectTaskEditAction.js
+    - notes :
+        - La vue interne est geree par un state local `viewMode` avec deux vues reelles : Liste et Calendrier.
+        - Le filtre de statut et la recherche ne sont affiches qu'en vue Liste.
+        - En vue Liste, les cartes sont rendues directement dans `ProjectTasksSection`.
+        - En vue Calendrier, les cartes sont rendues dans `ProjectTasksCalendarView` pour le jour selectionne.
+        - La soumission d'un commentaire est reliee a `src/services/commentClientService.js`, puis declenche `router.refresh()`.
+
+- carte de tache projet
+    - role fonctionnel
+        - Affiche pour chaque tache le titre, la description, le statut, l'echeance, les assignes, le nombre de commentaires, le volet commentaires et le bouton d'edition.
+    - composant racine associe : src/components/tasks/TaskCardProject/TaskCardProject.js
+    - sous-composants reels :
+        - src/components/ui/Tag/Tag.js
+        - src/components/ui/UserAvatar/UserAvatar.js
+    - notes :
+        - Le bouton "..." declenche l'ouverture de la modale d'edition de tache via `onMoreClick`.
+        - Le bloc commentaires est expansible localement dans chaque carte.
+
+- vue calendrier des taches
+    - role fonctionnel
+        - Regroupe les taches par date d'echeance, permet la navigation mensuelle et l'affichage detaille des taches du jour selectionne.
+    - composant racine associe : src/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView.js
+    - sous-composants reels :
+        - src/components/tasks/TaskCardProject/TaskCardProject.js
+    - notes :
+        - Les jours avec taches affichent des marqueurs de statut.
+        - La liste detaillee du jour selectionne reutilise `TaskCardProject`.
+
+Modale(s) associee(s):
+- modale de modification du projet
+    - condition d'affichage si identifiable
+        - Montee seulement si l'utilisateur peut editer le projet.
+        - Ouverte quand l'URL contient `?edit=1`.
+    - composant racine associe : src/components/projects/ProjectEditAction/ProjectEditAction.js
+    - sous-composants reels :
+        - src/components/projects/ProjectFormModal/ProjectFormModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+        - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+    - notes :
+        - La modale permet aussi la suppression du projet.
+        - La fermeture retire `?edit=1` de l'URL via `router.replace(pathname)`.
+
+- modale de creation de tache
+    - condition d'affichage si identifiable
+        - Montee seulement si l'utilisateur peut creer une tache.
+        - Ouverte par le bouton "Creer une tache" du header.
+    - composant racine associe : src/components/projects/ProjectTaskCreateAction/ProjectTaskCreateAction.js
+    - sous-composants reels :
+        - src/components/tasks/TaskFormModal/TaskFormModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+        - src/components/ui/Tag/Tag.js
+        - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+        - src/components/tasks/TaskDateField/TaskDateField.js
+        - src/components/tasks/TaskPriorityField/TaskPriorityField.js
+    - notes :
+        - Le statut initial est affiche dans la modale mais non modifiable a la creation.
+
+- modale d'edition et suppression d'une tache
+    - condition d'affichage si identifiable
+        - Ouverte quand une tache courante est stockee dans `editedTask` dans `ProjectTasksSection`.
+        - Declenchee par le bouton "..." d'une carte `TaskCardProject` en vue Liste ou Calendrier.
+    - composant racine associe : src/components/projects/ProjectTaskEditAction/ProjectTaskEditAction.js
+    - sous-composants reels :
+        - src/components/tasks/TaskEditModal/TaskEditModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+        - src/components/ui/Tag/Tag.js
+        - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+        - src/components/tasks/TaskDateField/TaskDateField.js
+        - src/components/tasks/TaskPriorityField/TaskPriorityField.js
+    - notes :
+        - La modale permet l'edition du statut, de la priorite, des assignes et la suppression de la tache.
+
+- modale de brief IA
+    - condition d'affichage si identifiable
+        - Montee seulement si l'utilisateur peut creer une tache.
+        - Ouverte par le bouton "IA" du header.
+    - composant racine associe : src/components/projects/ProjectAiTaskGenerationAction/ProjectAiTaskGenerationAction.js
+    - sous-composants reels :
+        - src/components/projects/AiTaskPromptModal/AiTaskPromptModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+    - notes :
+        - La modale recueille un prompt utilisateur avant l'appel de generation.
+
+- modale de revue des taches generees par IA
+    - condition d'affichage si identifiable
+        - Ouverte apres une generation valide, quand `generatedTasks` contient des taches et que `isSuggestionsOpen` passe a vrai.
+    - composant racine associe : src/components/projects/ProjectAiTaskGenerationAction/ProjectAiTaskGenerationAction.js
+    - sous-composants reels :
+        - src/components/projects/AiTaskSuggestionsModal/AiTaskSuggestionsModal.js
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+        - src/components/projects/AiTaskDraftEditModal/AiTaskDraftEditModal.js
+    - notes :
+        - Cette modale permet de supprimer une suggestion, d'ouvrir une edition locale ou de creer les taches validees.
+
+- modale d'edition locale d'une suggestion IA
+    - condition d'affichage si identifiable
+        - Ouverte depuis la modale de revue quand `editingTaskId` correspond a une suggestion en cours d'edition.
+    - composant racine associe : src/components/projects/AiTaskDraftEditModal/AiTaskDraftEditModal.js
+    - sous-composants reels :
+        - src/components/ui/ModalShell/ModalShell.js
+        - src/components/ui/Button/Button.js
+        - src/components/ui/Tag/Tag.js
+    - notes :
+        - Cette modale est imbriquee dans le flux IA et ne cree pas directement la tache en base.
+
+Interactions structurelles notables:
+- Le bouton retour du header renvoie vers `/projects`.
+- Le lien "Modifier" du header pointe vers `/projects/[projectId]?edit=1`, ce qui ouvre la modale de modification du projet via `ProjectEditAction`.
+- Le bouton "Creer une tache" du header ouvre la modale de creation de tache via `ProjectTaskCreateAction`.
+- Le bouton "IA" du header ouvre la modale de brief IA via `ProjectAiTaskGenerationAction`.
+- Dans `ProjectTasksSection`, les `Chip` "Liste" et "Calendrier" basculent la vue par state local, sans changement de route.
+- En vue Liste, le bouton de filtre de statut ouvre un menu local de type dropdown.
+- En vue Liste, le champ `SearchInput` filtre les taches sur le titre, la description, le statut et les assignes.
+- Dans `TaskCardProject`, le bouton "..." ouvre la modale d'edition de la tache courante.
+- Dans `TaskCardProject`, le bouton "Commentaires" deploie localement le panneau des commentaires et permet l'ajout d'un commentaire.
+- Dans `ProjectTasksCalendarView`, le clic sur un jour avec taches selectionne ce jour et affiche les cartes `TaskCardProject` correspondantes.
+- Dans le flux IA, la modale de brief ouvre ensuite la modale de revue des suggestions, qui peut elle-meme ouvrir la modale d'edition locale d'une suggestion.
+
+Arborescence technique synthetique:
+- src/app/layout.js
+    - src/context/AuthContext.js
+    - src/app/(protected)/layout.js
+        - src/lib/authServer.js
+        - src/components/layout/AppShell/AppShell.js
+            - src/components/layout/Navbar/Navbar.js
+                - src/hooks/useAuth.js
+            - src/app/(protected)/projects/[projectId]/page.js
+                - src/services/projectService.js
+                - src/lib/mappers/projectMapper.js
+                - src/lib/mappers/projectTaskMapper.js
+                - src/app/(protected)/projects/[projectId]/ProjectDetailClientActions.js
+                    - src/components/projects/ProjectHeader/ProjectHeader.js
+                        - src/components/ui/Button/Button.js
+                        - src/components/ui/Link/Link.js
+                    - src/components/projects/ProjectTaskCreateAction/ProjectTaskCreateAction.js
+                        - src/components/tasks/TaskFormModal/TaskFormModal.js
+                            - src/components/ui/ModalShell/ModalShell.js
+                            - src/components/ui/Tag/Tag.js
+                            - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+                            - src/components/tasks/TaskDateField/TaskDateField.js
+                            - src/components/tasks/TaskPriorityField/TaskPriorityField.js
+                    - src/components/projects/ProjectAiTaskGenerationAction/ProjectAiTaskGenerationAction.js
+                        - src/components/projects/AiTaskPromptModal/AiTaskPromptModal.js
+                            - src/components/ui/ModalShell/ModalShell.js
+                            - src/components/ui/Button/Button.js
+                        - src/components/projects/AiTaskSuggestionsModal/AiTaskSuggestionsModal.js
+                            - src/components/ui/ModalShell/ModalShell.js
+                            - src/components/ui/Button/Button.js
+                            - src/components/projects/AiTaskDraftEditModal/AiTaskDraftEditModal.js
+                                - src/components/ui/ModalShell/ModalShell.js
+                                - src/components/ui/Button/Button.js
+                                - src/components/ui/Tag/Tag.js
+                - src/components/projects/ProjectEditAction/ProjectEditAction.js
+                    - src/components/projects/ProjectFormModal/ProjectFormModal.js
+                        - src/components/ui/ModalShell/ModalShell.js
+                        - src/components/ui/Button/Button.js
+                        - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+                - src/components/projects/ContributorsBar/ContributorsBar.js
+                    - src/components/ui/UserAvatar/UserAvatar.js
+                    - src/components/ui/Tag/Tag.js
+                - src/components/projects/ProjectTasksSection/ProjectTasksSection.js
+                    - src/components/ui/Chip/Chip.js
+                    - src/components/ui/SearchInput/SearchInput.js
+                    - src/components/tasks/TaskCardProject/TaskCardProject.js
+                        - src/components/ui/Tag/Tag.js
+                        - src/components/ui/UserAvatar/UserAvatar.js
+                    - src/components/projects/ProjectTasksCalendarView/ProjectTasksCalendarView.js
+                        - src/components/tasks/TaskCardProject/TaskCardProject.js
+                    - src/components/projects/ProjectTaskEditAction/ProjectTaskEditAction.js
+                        - src/components/tasks/TaskEditModal/TaskEditModal.js
+                            - src/components/ui/ModalShell/ModalShell.js
+                            - src/components/ui/Button/Button.js
+                            - src/components/ui/Tag/Tag.js
+                            - src/components/ui/UserMultiSelectField/UserMultiSelectField.js
+                            - src/components/tasks/TaskDateField/TaskDateField.js
+                            - src/components/tasks/TaskPriorityField/TaskPriorityField.js
+            - src/components/layout/Footer/Footer.js

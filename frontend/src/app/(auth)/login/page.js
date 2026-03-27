@@ -40,7 +40,7 @@ export default function LoginPage() {
 
 		const normalized = next.trim();
 
-		// Validation basique : chemin interne uniquement
+		// Validation basique : chemin interne uniquement (sécurité)
 		if (
 			normalized === '' ||
 			!normalized.startsWith('/') ||

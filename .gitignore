@@ -58,12 +58,13 @@ Thumbs.db
 *.bak
 
 # architecture & deliverables
+/docs/architecture/draft/*
 # /docs/architecture/*
 # /docs/deliverables/*
 
 # drafts (notes) ac. exception pour créer la dir. vide draft sur Github
 /docs/draft/*
-!/docs/draft/.gitkeep 
+!/docs/draft/.gitkeep
 
 # dumps DB
 /sql/dumps/*

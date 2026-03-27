@@ -1,5 +1,5 @@
 /**
- * @file src/app/api/page.js
+ * @file src/app/page.js
  * @description
  * Page d’entrée de l’application.
  * Redirige l’utilisateur selon la présence d’un token d’authentification.

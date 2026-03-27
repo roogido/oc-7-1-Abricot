@@ -260,6 +260,7 @@ export default function ProfilePage() {
 			await logout();
 		} finally {
 			router.replace('/login');
+			router.refresh();
 		}
 	}
 

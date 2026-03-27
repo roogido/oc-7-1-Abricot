@@ -28,7 +28,9 @@ export async function GET(request) {
 			return createNotAuthenticatedResponse();
 		}
 
+		// Interroge l'api et retourne le payload
 		const data = await getCurrentUser(token);
+		// Mapping du payload reçu
 		const user = extractApiUser(data);
 
 		return NextResponse.json({

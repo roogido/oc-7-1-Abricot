@@ -2,6 +2,7 @@
  * @file src/app/(protected)/projects/[projectId]/tasks/[taskId]/page.js
  * @description
  * Page detail d'une tache.
+ * Appelée depuis les 3 vues de dashboard : Liste, Kanban, Projets
  */
 
 import Image from 'next/image';
